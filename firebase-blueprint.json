@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "litId": { "type": "string", "description": "ID of the Licensed Insolvency Trustee" }
+      },
+      "required": ["uid", "email"]
+    },
+    "MonthlyReport": {
+      "title": "MonthlyReport",
+      "description": "Monthly income and expense report",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "month": { "type": "string" },
+        "year": { "type": "integer" },
+        "status": { "type": "string", "enum": ["Draft", "Submitted"] },
+        "data": { "type": "object" }
+      },
+      "required": ["userId", "month", "year", "status"]
+    },
+    "LIT": {
+      "title": "LIT",
+      "description": "Licensed Insolvency Trustee",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      },
+      "required": ["id", "name", "email"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile collection"
+    },
+    "/monthlyReports/{reportId}": {
+      "schema": "MonthlyReport",
+      "description": "Monthly reports collection"
+    },
+    "/lits/{litId}": {
+      "schema": "LIT",
+      "description": "Licensed Insolvency Trustees collection"
+    }
+  }
+}
