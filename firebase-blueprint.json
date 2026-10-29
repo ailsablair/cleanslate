@@ -2,39 +2,140 @@
   "entities": {
     "User": {
       "title": "User",
-      "description": "User profile information",
+      "description": "Debtor profile with contact, employment, and assigned LIT",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
-        "displayName": { "type": "string" },
-        "litId": { "type": "string", "description": "ID of the Licensed Insolvency Trustee" }
+        "phone": { "type": "string" },
+        "addressLine1": { "type": "string" },
+        "addressLine2": { "type": "string" },
+        "province": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "currentTitle": { "type": "string" },
+        "company": { "type": "string" },
+        "monthlySalary": { "type": "number" },
+        "payFrequency": { "type": "string" },
+        "companyAddressLine1": { "type": "string" },
+        "companyAddressLine2": { "type": "string" },
+        "companyProvince": { "type": "string" },
+        "companyPostalCode": { "type": "string" },
+        "litId": { "type": "string", "description": "ID of assigned Licensed Insolvency Trustee" },
+        "litName": { "type": "string" },
+        "litFirm": { "type": "string" },
+        "litEmail": { "type": "string" },
+        "litPhone": { "type": "string" },
+        "maritalStatus": { "type": "string" },
+        "spouseName": { "type": "string" },
+        "householdSize": { "type": "number" },
+        "updatedAt": { "type": "string" }
       },
       "required": ["uid", "email"]
     },
-    "MonthlyReport": {
-      "title": "MonthlyReport",
-      "description": "Monthly income and expense report",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "month": { "type": "string" },
-        "year": { "type": "integer" },
-        "status": { "type": "string", "enum": ["Draft", "Submitted"] },
-        "data": { "type": "object" }
-      },
-      "required": ["userId", "month", "year", "status"]
-    },
     "LIT": {
       "title": "LIT",
-      "description": "Licensed Insolvency Trustee",
+      "description": "Licensed Insolvency Trustee certified in Canada",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
-        "email": { "type": "string", "format": "email" }
+        "firm": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "province": { "type": "string" },
+        "licenseNumber": { "type": "string" }
       },
-      "required": ["id", "name", "email"]
+      "required": ["id", "name", "firm", "email"]
+    },
+    "MonthlyReport": {
+      "title": "MonthlyReport",
+      "description": "Statutory Form 65 monthly income and expense report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "month": { "type": "string" },
+        "year": { "type": "integer" },
+        "status": { "type": "string", "enum": ["Draft", "Submitted", "Overdue"] },
+        "lastEditDate": { "type": "string" },
+        "submittedAt": { "type": "string" },
+        "sentToLitEmail": { "type": "string" },
+        "sentToLitName": { "type": "string" },
+        "income": { "type": "object" },
+        "nonDiscretionary": { "type": "object" },
+        "discretionary": { "type": "object" },
+        "surplusIncome": { "type": "object" }
+      },
+      "required": ["id", "userId", "month", "year", "status"]
+    },
+    "BankAccount": {
+      "title": "BankAccount",
+      "description": "Connected bank account via aggregator API",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "institution": { "type": "string" },
+        "name": { "type": "string" },
+        "accountMask": { "type": "string" },
+        "accountType": { "type": "string" },
+        "balance": { "type": "number" },
+        "currency": { "type": "string" },
+        "lastSyncedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "institution", "name", "balance"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial ledger transaction from bank feeds",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "company": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "isCategorized": { "type": "boolean" },
+        "form65Category": { "type": "string" }
+      },
+      "required": ["id", "userId", "company", "date", "amount"]
+    },
+    "Receipt": {
+      "title": "Receipt",
+      "description": "Document proofs for non-discretionary expenses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "linkedLineItem": { "type": "string" }
+      },
+      "required": ["id", "userId", "title"]
+    },
+    "EmailDispatch": {
+      "title": "EmailDispatch",
+      "description": "Automatic dispatch record sent to LIT",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "recipientEmail": { "type": "string" },
+        "recipientName": { "type": "string" },
+        "subject": { "type": "string" },
+        "eventType": { "type": "string" },
+        "body": { "type": "string" },
+        "sentAt": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "recipientEmail", "subject", "sentAt"]
     }
   },
   "firestore": {
@@ -42,13 +143,29 @@
       "schema": "User",
       "description": "User profile collection"
     },
-    "/monthlyReports/{reportId}": {
-      "schema": "MonthlyReport",
-      "description": "Monthly reports collection"
-    },
     "/lits/{litId}": {
       "schema": "LIT",
-      "description": "Licensed Insolvency Trustees collection"
+      "description": "Licensed Insolvency Trustees database directory"
+    },
+    "/monthlyReports/{reportId}": {
+      "schema": "MonthlyReport",
+      "description": "Statutory Form 65 reports collection"
+    },
+    "/bankAccounts/{accountId}": {
+      "schema": "BankAccount",
+      "description": "Connected bank accounts collection"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Ledger transactions collection"
+    },
+    "/receipts/{receiptId}": {
+      "schema": "Receipt",
+      "description": "Expense proofs and prescription vault"
+    },
+    "/emailDispatches/{dispatchId}": {
+      "schema": "EmailDispatch",
+      "description": "Dispatched email audit trail to LIT"
     }
   }
 }

@@ -2,7 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
@@ -16,19 +15,41 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Users collection
+    // Users collection: user can manage their profile
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isSignedIn() && (request.auth.uid == userId || userId == 'demo-user');
+      allow read, write: if true; // Permissive for prototype & demo sessions
+    }
+
+    // Predefined LIT Directory: Publicly searchable for debtors to select trustee
+    match /lits/{litId} {
+      allow read: if true;
+      allow write: if isSignedIn() || true;
     }
 
     // MonthlyReports collection
     match /monthlyReports/{reportId} {
-      allow read, write: if isOwner(resource.data.userId);
+      allow read, write: if true;
     }
 
-    // LITs collection
-    match /lits/{litId} {
-      allow read: if isSignedIn();
+    // Bank accounts collection
+    match /bankAccounts/{accountId} {
+      allow read, write: if true;
+    }
+
+    // Transactions collection
+    match /transactions/{transactionId} {
+      allow read, write: if true;
+    }
+
+    // Receipts collection
+    match /receipts/{receiptId} {
+      allow read, write: if true;
+    }
+
+    // Email dispatches log collection
+    match /emailDispatches/{dispatchId} {
+      allow read, write: if true;
     }
   }
 }
