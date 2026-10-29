@@ -10,9 +10,11 @@ import {
   Calendar, 
   Tag, 
   CheckCircle2,
-  FileText
+  FileText,
+  Camera
 } from 'lucide-react';
 import { Receipt } from '../types';
+import { CameraReceiptModal } from './CameraReceiptModal';
 
 interface ReceiptsViewProps {
   receipts: Receipt[];
@@ -26,6 +28,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
   onDeleteReceipt
 }) => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
 
   // Form fields
@@ -81,13 +84,24 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={() => setIsUploadOpen(true)}
-            className="px-5 py-3 rounded-2xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black transition flex items-center gap-1.5 shadow-xs shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Upload New Proof Receipt</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setIsCameraOpen(true)}
+              className="px-5 py-3 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs shrink-0"
+              title="Use device camera to take photo of physical receipt with AI parsing"
+            >
+              <Camera className="w-4 h-4 text-[#b6b3ff]" />
+              <span>Take Photo (AI Scan)</span>
+            </button>
+
+            <button
+              onClick={() => setIsUploadOpen(true)}
+              className="px-5 py-3 rounded-2xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black transition flex items-center gap-1.5 shadow-xs shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Upload New Proof Receipt</span>
+            </button>
+          </div>
         </div>
 
         {/* Vault Stats */}
@@ -331,6 +345,13 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Device Camera AI Receipt Modal */}
+      <CameraReceiptModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onReceiptCaptured={onAddReceipt}
+      />
     </div>
   );
 };

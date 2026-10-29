@@ -136,6 +136,26 @@
         "status": { "type": "string" }
       },
       "required": ["id", "recipientEmail", "subject", "sentAt"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "Financial milestone goal set across 3, 6, 9+ months until bankruptcy discharge",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "timeframeMonths": { "type": "integer" },
+        "targetDate": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "isCompleted": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["on-track", "needs-attention", "completed"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "timeframeMonths"]
     }
   },
   "firestore": {
@@ -166,6 +186,10 @@
     "/emailDispatches/{dispatchId}": {
       "schema": "EmailDispatch",
       "description": "Dispatched email audit trail to LIT"
+    },
+    "/goals/{goalId}": {
+      "schema": "Goal",
+      "description": "Discharge milestones and financial habit goals"
     }
   }
 }

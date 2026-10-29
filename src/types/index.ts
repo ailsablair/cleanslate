@@ -211,3 +211,32 @@ export interface EmailDispatch {
     fieldsUpdated?: string[];
   };
 }
+
+export interface FinancialGoal {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  category: 'Discretionary Spending' | 'Emergency Buffer' | 'Surplus Income' | 'Statutory Compliance' | 'Post-Discharge Credit' | 'Other';
+  timeframeMonths: 3 | 6 | 9 | 12 | number;
+  targetDate: string;
+  targetAmount?: number;
+  currentAmount?: number;
+  unit?: '$' | '%' | 'tasks';
+  isCompleted: boolean;
+  status: 'on-track' | 'needs-attention' | 'completed';
+  createdAt: string;
+  milestoneStage?: '3-Month' | '6-Month' | '9-Month (Discharge)' | '12-Month+ (Rebuild)';
+  notes?: string;
+}
+
+export interface Form65CategoryBenchmark {
+  key: string;
+  name: string;
+  group: 'Non-Discretionary' | 'Housing & Utilities' | 'Day-to-Day & Personal' | 'Transportation & Health';
+  userAverageSpend: number;
+  peerAverageSpend: number;
+  variancePercent: number;
+  status: 'optimal' | 'within-target' | 'above-average';
+  recommendation: string;
+}

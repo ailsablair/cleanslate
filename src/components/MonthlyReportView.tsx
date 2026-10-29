@@ -12,9 +12,13 @@ import {
   FileCheck,
   Send,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Download,
+  FileText,
+  Check
 } from 'lucide-react';
-import { MonthlyReport, UserProfile, Receipt } from '../types';
+import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
+import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
 
 interface MonthlyReportViewProps {
   reports: MonthlyReport[];
@@ -22,6 +26,7 @@ interface MonthlyReportViewProps {
   onSelectReport: (reportId: string) => void;
   profile: UserProfile;
   receipts: Receipt[];
+  transactions?: Transaction[];
   onUpdateReport: (updatedReport: MonthlyReport) => void;
   onSubmitReportToLIT: (report: MonthlyReport) => void;
   onNavigateToProfile: () => void;
@@ -33,6 +38,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   onSelectReport,
   profile,
   receipts,
+  transactions = [],
   onUpdateReport,
   onSubmitReportToLIT,
   onNavigateToProfile
@@ -42,8 +48,28 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   const [attachingCategory, setAttachingCategory] = useState<string | null>(null);
   const [selectedReceiptId, setSelectedReceiptId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
+  const [pdfSuccessToast, setPdfSuccessToast] = useState<string | null>(null);
 
   const activeReport = reports.find(r => r.id === currentReportId) || reports[0];
+
+  const handleDownloadReport = () => {
+    setIsGeneratingPdf(true);
+    try {
+      generateMonthlyReportPDF({
+        report: activeReport,
+        profile,
+        receipts,
+        transactions
+      });
+      setPdfSuccessToast(`Form 65 PDF report for ${activeReport.month} ${activeReport.year} generated and downloaded!`);
+      setTimeout(() => setPdfSuccessToast(null), 4000);
+    } catch (err) {
+      console.error('Error generating PDF report:', err);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   if (!activeReport) {
     return <div className="p-8 text-white">No reports available.</div>;
@@ -232,7 +258,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         {/* Right Column: Multi-Step Form 65 Wizard (8 cols) matching mockups */}
         <div className="lg:col-span-8 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
           
-          {/* Top Bar: Calendar + Month/Year + Update Profile Link */}
+          {/* Top Bar: Calendar + Month/Year + Download Report + Update Profile Link */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#b4b1fc] flex items-center justify-center text-[#242031]">
@@ -249,13 +275,26 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               )}
             </div>
 
-            <button
-              onClick={onNavigateToProfile}
-              className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1"
-            >
-              <span>Update Profile</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                disabled={isGeneratingPdf}
+                className="px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2e293f] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 disabled:opacity-75"
+                title={`Download Form 65 PDF Summary for ${activeReport.month} ${activeReport.year}`}
+              >
+                <Download className={`w-3.5 h-3.5 text-[#b6b3ff] ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
+                <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
+              </button>
+
+              <button
+                onClick={onNavigateToProfile}
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition"
+              >
+                <span>Update Profile</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Debtor Overview Strip matching mockups */}
@@ -778,13 +817,23 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 </div>
               </div>
 
-              {/* Action Button: Submit Monthly Report */}
-              <div className="pt-2">
+              {/* Action Buttons: Download PDF & Submit Monthly Report */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleDownloadReport}
+                  disabled={isGeneratingPdf}
+                  className="w-full sm:w-auto px-5 py-4 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white font-bold text-xs tracking-wide transition shadow-sm flex items-center justify-center gap-2 cursor-pointer border border-white/10 shrink-0 disabled:opacity-70 active:scale-95"
+                >
+                  <Download className={`w-4 h-4 text-[#b6b3ff] ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
+                  <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Form 65 PDF'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-2xl bg-[#e7f742] hover:bg-[#d6e537] text-[#1d1a27] font-black text-sm tracking-wide transition shadow-md flex items-center justify-center gap-2"
+                  className="flex-1 w-full py-4 rounded-2xl bg-[#e7f742] hover:bg-[#d6e537] text-[#1d1a27] font-black text-sm tracking-wide transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 active:scale-95"
                 >
                   <Send className={`w-4 h-4 ${isSubmitting ? 'animate-pulse' : ''}`} />
                   <span>
@@ -903,14 +952,27 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               >
                 Link Selected Proof to Form 65
               </button>
-              <button
-                type="button"
-                onClick={() => setAttachingCategory(null)}
-                className="py-3 px-4 rounded-xl border border-white/20 text-slate-300 hover:bg-white/5 text-xs font-bold transition"
-              >
-                Cancel
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setAttachingCategory(null)}
+                  className="py-3 px-4 rounded-xl border border-white/20 text-slate-300 hover:bg-white/5 text-xs font-bold transition"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
+          </div>
+        )}
+
+      {/* PDF Download Toast Notification */}
+      {pdfSuccessToast && (
+        <div className="fixed bottom-6 left-6 max-w-sm bg-[#1d1a27] text-white border-2 border-[#b6b3ff] rounded-2xl p-4 shadow-2xl z-50 flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
+          <div className="w-8 h-8 rounded-xl bg-[#b6b3ff] text-[#242031] flex items-center justify-center shrink-0">
+            <Check className="w-4 h-4 stroke-[3]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-black uppercase text-[#b6b3ff] tracking-wider">PDF Report Downloaded</div>
+            <div className="text-xs text-slate-200 mt-0.5">{pdfSuccessToast}</div>
           </div>
         </div>
       )}

@@ -51,5 +51,10 @@ service cloud.firestore {
     match /emailDispatches/{dispatchId} {
       allow read, write: if true;
     }
+
+    // Financial goals and discharge milestones
+    match /goals/{goalId} {
+      allow read, write: if true;
+    }
   }
 }

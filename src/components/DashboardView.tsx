@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { BankAccount, Transaction, MonthlyReport, UserProfile } from '../types';
 import { INITIAL_RECENT_ACTIVITY } from '../lib/mockData';
+import { BudgetSummary } from './BudgetSummary';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -21,6 +22,7 @@ interface DashboardViewProps {
   onNavigateToReports: () => void;
   onNavigateToBankAccounts: () => void;
   onNavigateToCategorize: () => void;
+  onNavigateToSpendingTrends?: () => void;
   onSyncBankAccounts: () => void;
   isSyncing: boolean;
 }
@@ -33,6 +35,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToReports,
   onNavigateToBankAccounts,
   onNavigateToCategorize,
+  onNavigateToSpendingTrends,
   onSyncBankAccounts,
   isSyncing
 }) => {
@@ -104,13 +107,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* Metric 2: Average Spend */}
+            {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
             <div 
-              onClick={onNavigateToBankAccounts}
+              onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
               className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-3xl p-6 transition cursor-pointer shadow-sm relative group"
+              title="Click to view 6-month spending trends & peer benchmarks"
             >
-              <div className="text-[11px] font-bold tracking-wider uppercase text-[#3f3b54] mb-3">
-                AVERAGE SPEND
+              <div className="flex items-center justify-between text-[11px] font-bold tracking-wider uppercase text-[#3f3b54] mb-3">
+                <span>AVERAGE SPEND</span>
+                <span className="text-[10px] font-extrabold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
+                  View Trends &rarr;
+                </span>
               </div>
               <div className="flex items-baseline justify-between mb-3">
                 <div className="text-2xl sm:text-3xl font-black">
@@ -146,6 +153,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Budget Summary Component with Recharts Doughnut Chart */}
+          <BudgetSummary
+            currentReport={monthlyReports.find(r => r.month === 'September' && r.year === 2022) || monthlyReports[0]}
+            profile={profile}
+            onNavigateToReports={onNavigateToReports}
+          />
 
           {/* LATEST TRANSACTIONS Card (Off-white / cream `#fbf9f5`) */}
           <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">

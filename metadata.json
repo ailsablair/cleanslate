@@ -1,6 +1,6 @@
 {
   "name": "CleanSlate Bankruptcy App",
   "description": "Automated Personal Bankruptcy Management Platform",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

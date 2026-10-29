@@ -13,6 +13,7 @@ import { ReceiptsView } from './components/ReceiptsView';
 import { CategorizeView } from './components/CategorizeView';
 import { SupportView } from './components/SupportView';
 import { EmailDispatchModal } from './components/EmailDispatchModal';
+import { SpendingTrendsView } from './components/SpendingTrendsView';
 
 import { 
   UserProfile, 
@@ -21,7 +22,8 @@ import {
   Transaction, 
   Receipt, 
   LIT, 
-  EmailDispatch 
+  EmailDispatch,
+  FinancialGoal
 } from './types';
 
 import { 
@@ -31,6 +33,13 @@ import {
   INITIAL_MONTHLY_REPORTS, 
   INITIAL_RECEIPTS 
 } from './lib/mockData';
+
+import { 
+  INITIAL_FINANCIAL_GOALS, 
+  fetchGoalsFromDb, 
+  saveGoalToDb, 
+  deleteGoalFromDb 
+} from './lib/spendingTrendsData';
 
 import { fetchLITs, INITIAL_LITS } from './lib/litDatabase';
 import { 
@@ -72,6 +81,11 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_RECEIPTS;
   });
 
+  const [goals, setGoals] = useState<FinancialGoal[]>(() => {
+    const saved = localStorage.getItem('cleanslate_goals');
+    return saved ? JSON.parse(saved) : INITIAL_FINANCIAL_GOALS;
+  });
+
   const [lits, setLits] = useState<LIT[]>(INITIAL_LITS);
   const [currentReportId, setCurrentReportId] = useState<string>('rep-sep-2022');
   const [isSyncingBanks, setIsSyncingBanks] = useState<boolean>(false);
@@ -101,6 +115,12 @@ export default function App() {
         const dispatches = await fetchRecentEmailDispatches();
         if (dispatches && dispatches.length > 0) {
           setEmailDispatches(dispatches);
+        }
+
+        // Load discharge goals
+        const loadedGoals = await fetchGoalsFromDb(profile.uid);
+        if (loadedGoals && loadedGoals.length > 0) {
+          setGoals(loadedGoals);
         }
 
         // Check for user profile in Firestore
@@ -135,6 +155,26 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('cleanslate_receipts', JSON.stringify(receipts));
   }, [receipts]);
+
+  useEffect(() => {
+    localStorage.setItem('cleanslate_goals', JSON.stringify(goals));
+  }, [goals]);
+
+  // Goal handlers
+  const handleAddGoal = async (newGoal: FinancialGoal) => {
+    setGoals(prev => [newGoal, ...prev]);
+    await saveGoalToDb(newGoal);
+  };
+
+  const handleUpdateGoal = async (updatedGoal: FinancialGoal) => {
+    setGoals(prev => prev.map(g => g.id === updatedGoal.id ? updatedGoal : g));
+    await saveGoalToDb(updatedGoal);
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    setGoals(prev => prev.filter(g => g.id !== goalId));
+    await deleteGoalFromDb(goalId);
+  };
 
   // Handler: Save User Profile + Automatic Email to LIT
   const handleSaveProfile = async (updatedProfile: UserProfile) => {
@@ -239,6 +279,7 @@ export default function App() {
     switch (currentTab) {
       case 'dashboard': return 'DASHBOARD';
       case 'monthly-reports': return 'MONTHLY REPORT(S)';
+      case 'spending-trends': return 'SPENDING TRENDS & GOALS';
       case 'bank-accounts': return 'BANK ACCOUNT(S)';
       case 'receipts': return 'RECEIPTS';
       case 'categorize': return 'CATEGORIZE';
@@ -280,6 +321,7 @@ export default function App() {
               onNavigateToReports={() => setCurrentTab('monthly-reports')}
               onNavigateToBankAccounts={() => setCurrentTab('bank-accounts')}
               onNavigateToCategorize={() => setCurrentTab('categorize')}
+              onNavigateToSpendingTrends={() => setCurrentTab('spending-trends')}
               onSyncBankAccounts={handleSyncAllBanks}
               isSyncing={isSyncingBanks}
             />
@@ -292,9 +334,22 @@ export default function App() {
               onSelectReport={setCurrentReportId}
               profile={profile}
               receipts={receipts}
+              transactions={transactions}
               onUpdateReport={handleUpdateReport}
               onSubmitReportToLIT={handleSubmitMonthlyReport}
               onNavigateToProfile={() => setCurrentTab('user-profile')}
+            />
+          )}
+
+          {currentTab === 'spending-trends' && (
+            <SpendingTrendsView
+              reports={monthlyReports}
+              profile={profile}
+              goals={goals}
+              onAddGoal={handleAddGoal}
+              onUpdateGoal={handleUpdateGoal}
+              onDeleteGoal={handleDeleteGoal}
+              onNavigateToReports={() => setCurrentTab('monthly-reports')}
             />
           )}
 
