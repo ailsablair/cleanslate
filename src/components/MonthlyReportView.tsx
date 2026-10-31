@@ -265,7 +265,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <div className="w-8 h-8 rounded-lg bg-[#b4b1fc] flex items-center justify-center text-[#242031]">
                 <Calendar className="w-4 h-4" />
               </div>
-              <h2 className="text-lg font-black tracking-wider uppercase text-slate-900">
+              <h2 
+                className="text-lg font-black tracking-wider uppercase text-slate-900"
+                style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+              >
                 {activeReport.month} {activeReport.year}
               </h2>
               {activeReport.status === 'Submitted' && (
@@ -313,7 +316,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           </div>
 
           {/* Wizard Step Navigation Pills */}
-          <div className="flex items-center justify-between overflow-x-auto pb-1 text-xs font-bold gap-2 select-none">
+          <div className="flex items-center justify-between overflow-x-auto pb-1 text-xs gap-2 select-none">
             {[
               { num: 1, label: '1. Household Income' },
               { num: 2, label: '2. Non-Discretionary' },
@@ -326,8 +329,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 onClick={() => setCurrentStep(step.num)}
                 className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition ${
                   currentStep === step.num
-                    ? 'bg-[#1d1a27] text-white shadow-sm'
-                    : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-[#1d1a27] text-white shadow-sm font-bold'
+                    : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
                 }`}
               >
                 {step.label}

@@ -41,19 +41,30 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
         required={required}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`w-full bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent ${
+        className={`w-full bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold truncate transition-all focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent ${
           isFloating ? 'pt-4 pb-1' : 'py-2.5'
         } ${prefix ? 'pl-7 pr-3' : 'px-3'} ${className}`}
         {...rest}
       />
       <label
-        style={isFloating ? { fontSize: '7.5px', lineHeight: '9px' } : undefined}
-        className={`absolute pointer-events-none transition-all duration-150 select-none ${
-          isFloating ? 'top-1 left-3' : prefix ? 'top-2.5 left-7' : 'top-2.5 left-3'
-        } ${
+        title={label}
+        style={
           isFloating
-            ? 'font-medium text-slate-400 uppercase tracking-wider'
-            : 'text-xs text-slate-400'
+            ? {
+                fontSize: '9px',
+                lineHeight: '10px',
+                transform: 'scale(0.6)',
+                transformOrigin: 'top left',
+                maxWidth: 'calc(166% - 24px)',
+              }
+            : undefined
+        }
+        className={`absolute pointer-events-none transition-all duration-150 select-none truncate ${
+          isFloating 
+            ? 'top-1 left-3 pr-2 font-medium text-slate-400 uppercase tracking-wider' 
+            : prefix 
+              ? 'top-2.5 left-7 right-3 text-xs text-slate-400' 
+              : 'top-2.5 left-3 right-3 text-xs text-slate-400'
         }`}
       >
         {label}
