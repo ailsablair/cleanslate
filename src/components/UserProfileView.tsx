@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, LIT } from '../types';
 import { FloatingInput } from './FloatingInput';
+import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
 interface UserProfileViewProps {
   profile: UserProfile;
@@ -158,10 +159,10 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               </div>
 
               <div>
-                <div className="text-lg font-black text-slate-900">
+                <div className="text-lg font-bold text-slate-900">
                   {formData.firstName} {formData.lastName}
                 </div>
-                <div className="text-xs text-slate-500 font-medium">
+                <div className="text-xs text-slate-500 font-normal">
                   Estate File Ref: CS-2022-BC-9104 · Canadian Personal Bankruptcy
                 </div>
               </div>
@@ -247,7 +248,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   value={formData.currentTitle}
                   onChange={e => setFormData({ ...formData, currentTitle: e.target.value })}
                   required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
               <div>
@@ -257,7 +258,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   value={formData.company}
                   onChange={e => setFormData({ ...formData, company: e.target.value })}
                   required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
             </div>
@@ -265,13 +266,14 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             {/* Salary, Frequency & Contract Upload Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
               <div className="sm:col-span-4 relative">
-                <span className="absolute left-4 top-3 text-xs text-slate-400 font-bold">$</span>
+                <span className="absolute left-4 top-3.5 text-xs text-[#767676] font-light select-none">$</span>
                 <input
                   type="number"
+                  step="0.01"
                   placeholder="Monthly Gross Salary"
                   value={formData.monthlySalary || ''}
                   onChange={e => setFormData({ ...formData, monthlySalary: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
 
@@ -279,7 +281,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <select
                   value={formData.payFrequency}
                   onChange={e => setFormData({ ...formData, payFrequency: e.target.value as any })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium appearance-none"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] appearance-none"
                 >
                   <option value="Select...">Select Pay Frequency...</option>
                   <option value="Monthly">Monthly</option>
@@ -293,7 +295,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               <div className="sm:col-span-4">
                 <label 
                   htmlFor="contract-upload"
-                  className="w-full py-3 px-4 rounded-xl border border-slate-800 bg-white hover:bg-slate-50 text-slate-900 text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full py-3.5 min-h-[44px] px-4 rounded-xl border border-slate-800 bg-white hover:bg-slate-50 text-slate-900 text-xs font-normal transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Upload className="w-4 h-4 text-slate-800" />
                   <span className="truncate">
@@ -320,7 +322,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   placeholder="Address Line 1"
                   value={formData.companyAddressLine1}
                   onChange={e => setFormData({ ...formData, companyAddressLine1: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
               <div>
@@ -329,7 +331,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   placeholder="Address Line 2 (Optional)"
                   value={formData.companyAddressLine2 || ''}
                   onChange={e => setFormData({ ...formData, companyAddressLine2: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
               <div>
@@ -338,7 +340,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   placeholder="Province / State"
                   value={formData.companyProvince}
                   onChange={e => setFormData({ ...formData, companyProvince: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
               <div>
@@ -347,7 +349,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   placeholder="Postal Code"
                   value={formData.companyPostalCode}
                   onChange={e => setFormData({ ...formData, companyPostalCode: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
             </div>
@@ -381,16 +383,23 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                       Active Trustee
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <div className="text-xs font-normal text-slate-700 flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{selectedLitObj.firm}</span>
+                    <span className="font-normal">{selectedLitObj.firm}</span>
                     <span className="text-slate-300">·</span>
                     <span className="font-mono text-slate-500 text-[11px]">{selectedLitObj.licenseNumber}</span>
                   </div>
                   <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                     <span className="flex items-center gap-1">
                       <Mail className="w-3.5 h-3.5 text-slate-400" />
-                      <strong className="text-slate-700">{selectedLitObj.email}</strong>
+                      <a 
+                        href={getMailtoUrl(selectedLitObj.email)} 
+                        className="font-normal underline hover:opacity-80 transition" 
+                        style={{ color: '#FF6BBC' }}
+                        title="Send email to LIT"
+                      >
+                        {selectedLitObj.email}
+                      </a>
                     </span>
                     <span className="flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5 text-slate-400" />
@@ -405,7 +414,14 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
                 <div className="shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-3 text-center sm:text-right text-[11px] text-slate-600">
                   <span className="block text-slate-400 text-[10px] uppercase font-bold">Auto-Dispatch Target</span>
-                  <span className="font-bold text-slate-800">{selectedLitObj.email}</span>
+                  <a 
+                    href={getMailtoUrl(selectedLitObj.email)} 
+                    className="font-normal underline hover:opacity-80 transition" 
+                    style={{ color: '#FF6BBC' }}
+                    title="Send email to Auto-Dispatch Target"
+                  >
+                    {selectedLitObj.email}
+                  </a>
                 </div>
               </div>
             )}
@@ -413,12 +429,12 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             {/* Searchable Predefined Dropdown connected to database */}
             <div className="relative" ref={dropdownRef}>
               <div 
-                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs flex items-center justify-between cursor-pointer hover:border-slate-400 transition"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs flex items-center justify-between cursor-pointer hover:border-slate-400 transition"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <div className="flex items-center gap-2.5 text-slate-700 truncate">
                   <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className={formData.litName ? 'font-bold text-slate-900' : 'text-slate-400'}>
+                  <span className="font-normal italic truncate" style={{ color: '#9a9797' }}>
                     {formData.litName ? `Change LIT: ${formData.litName} (${formData.litFirm})` : 'Search & select Licensed Insolvency Trustee from database...'}
                   </span>
                 </div>
@@ -428,14 +444,14 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               {isDropdownOpen && (
                 <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 p-3 space-y-2.5 animate-in fade-in duration-150">
                   <div className="relative">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                     <input
                       type="text"
                       placeholder="Type trustee name, firm (e.g. BDO, MNP, Sands), city, or license #..."
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       onClick={e => e.stopPropagation()}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                       autoFocus
                     />
                   </div>
@@ -525,7 +541,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   Transmit past bankruptcy filing reports and document history to newly assigned LIT upon saving
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Defaulting to sending all history may result in spamming trustees during exploration. Keep this unchecked unless you are officially transferring your active bankruptcy estate to <strong className="text-slate-800">{formData.litEmail || 'the selected trustee'}</strong>.
+                  Defaulting to sending all history may result in spamming trustees during exploration. Keep this unchecked unless you are officially transferring your active bankruptcy estate to <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition" style={{ color: '#FF6BBC' }} title="Send email to trustee">{formData.litEmail || 'the selected trustee'}</a>.
                 </p>
               </label>
             </div>
@@ -534,7 +550,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 font-medium flex items-center gap-2">
                 <Mail className="w-4 h-4 text-amber-700 shrink-0" />
                 <span>
-                  <strong>Transmission target:</strong> {formData.litEmail} will receive full estate history upon clicking Save.
+                  <strong>Transmission target:</strong> <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition">{formData.litEmail}</a> will receive full estate history upon clicking Save.
                 </span>
               </div>
             )}

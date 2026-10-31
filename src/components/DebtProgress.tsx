@@ -105,9 +105,9 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
             Total Estate Obligation
           </span>
           <div className="text-base sm:text-lg font-bold text-white">
-            ${totalDischargeTarget.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            $ {totalDischargeTarget.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <span className="text-[10px] text-slate-400">9 months @ $159/mo</span>
+          <span className="text-[10px] text-slate-400">9 months @ $ 159.00/mo</span>
         </div>
 
         <div className="bg-white/5 border border-white/5 rounded-xl p-3">
@@ -115,7 +115,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
             Paid to Date
           </span>
           <div className="text-base sm:text-lg font-bold text-emerald-400">
-            ${amountPaidToDate.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            $ {amountPaidToDate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <span className="text-[10px] text-emerald-400/80">{submittedMonthsCount} of 9 payments filed</span>
         </div>
@@ -125,7 +125,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
             Remaining Balance
           </span>
           <div className="text-base sm:text-lg font-bold text-[#fbf050]">
-            ${remainingBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            $ {remainingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <span className="text-[10px] text-slate-400">{remainingMonths} monthly installments</span>
         </div>

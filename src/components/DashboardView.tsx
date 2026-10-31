@@ -149,7 +149,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="flex items-baseline justify-between mb-2">
                 <div className="text-xl sm:text-2xl font-normal">
-                  $ {currentPayment}
+                  $ {currentPayment.toFixed(2)}
                 </div>
                 <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
                   <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />

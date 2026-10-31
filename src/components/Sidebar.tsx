@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#242031]' : 'text-slate-400'}`} />
-                  <span className={`truncate ${idx === 0 ? 'font-bold' : ''}`}>{item.label}</span>
+                  <span className={`truncate ${isActive ? 'font-bold' : 'font-normal'}`}>{item.label}</span>
                 </button>
               );
             })}

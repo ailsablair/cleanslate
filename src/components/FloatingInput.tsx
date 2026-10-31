@@ -26,9 +26,10 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
     <div className={`relative w-full ${wrapperClassName}`}>
       {prefix && (
         <span
-          className={`absolute left-3 transition-all duration-150 pointer-events-none font-semibold ${
-            isFloating ? 'top-3.5 text-xs text-slate-500' : 'top-2.5 text-xs text-slate-400'
+          className={`absolute left-3.5 transition-all duration-150 pointer-events-none font-light text-slate-500 select-none ${
+            isFloating ? 'top-4 text-xs' : 'top-3.5 text-xs text-[#767676]'
           }`}
+          style={{ fontFamily: "'Google Sans Flex', sans-serif", fontWeight: 300 }}
         >
           {prefix}
         </span>
@@ -41,31 +42,28 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
         required={required}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`w-full bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold truncate transition-all focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent ${
-          isFloating ? 'pt-4 pb-1' : 'py-2.5'
-        } ${prefix ? 'pl-7 pr-3' : 'px-3'} ${className}`}
+        style={{
+          fontFamily: "'Google Sans Flex', sans-serif",
+          fontWeight: 300,
+          color: '#101010'
+        }}
+        className={`w-full bg-white border border-slate-300 rounded-xl text-xs font-light text-[#101010] min-h-[44px] truncate transition-all focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent ${
+          isFloating ? 'pt-5 pb-1.5' : 'py-3.5'
+        } ${prefix ? 'pl-7 pr-3' : 'px-3.5'} ${className}`}
         {...rest}
       />
       <label
         title={label}
-        style={
-          isFloating
-            ? {
-                fontSize: '9px',
-                lineHeight: '10px',
-                transform: 'scale(0.6)',
-                transformOrigin: 'top left',
-                maxWidth: 'calc(166% - 24px)',
-              }
-            : undefined
-        }
         className={`absolute pointer-events-none transition-all duration-150 select-none truncate ${
           isFloating 
-            ? 'top-1 left-3 pr-2 font-medium text-slate-400 uppercase tracking-wider' 
+            ? 'top-2 left-3.5 right-3 text-[10px] leading-3 font-medium text-[#767676] uppercase tracking-wider not-italic' 
             : prefix 
-              ? 'top-2.5 left-7 right-3 text-xs text-slate-400' 
-              : 'top-2.5 left-3 right-3 text-xs text-slate-400'
+              ? 'top-3.5 left-7 right-3 text-xs text-[#767676] italic font-light' 
+              : 'top-3.5 left-3.5 right-3 text-xs text-[#767676] italic font-light'
         }`}
+        style={{
+          fontFamily: "'Google Sans Flex', sans-serif"
+        }}
       >
         {label}
       </label>

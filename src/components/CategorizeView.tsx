@@ -236,30 +236,30 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
         <div className="flex items-center gap-2 pt-5">
           <button
             onClick={() => setFilterMode('needs-review')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
               filterMode === 'needs-review'
-                ? 'bg-[#1d1a27] text-white'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#1d1a27] text-white font-bold'
+                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
             }`}
           >
             Needs Review ({transactions.filter(t => !t.isCategorized).length})
           </button>
           <button
             onClick={() => setFilterMode('categorized')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
               filterMode === 'categorized'
-                ? 'bg-[#1d1a27] text-white'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#1d1a27] text-white font-bold'
+                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
             }`}
           >
             Categorized ({transactions.filter(t => t.isCategorized).length})
           </button>
           <button
             onClick={() => setFilterMode('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
               filterMode === 'all'
-                ? 'bg-[#1d1a27] text-white'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#1d1a27] text-white font-bold'
+                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
             }`}
           >
             All Ledger Items ({transactions.length})
@@ -292,7 +292,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                       <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">{tx.company}</span>
                       <span className="font-mono text-[11px] text-slate-400 shrink-0">#{tx.id}</span>
                     </div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-slate-500 font-normal">
                       {tx.date} · Bank Import Feed
                     </div>
                   </div>
@@ -302,7 +302,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                       <span className="text-sm sm:text-base font-bold text-slate-900 block">
                         $ {tx.amount.toFixed(2)}
                       </span>
-                      <span className="text-[9px] uppercase font-bold text-slate-400">
+                      <span className="text-[9px] uppercase font-normal text-slate-400">
                         CAD
                       </span>
                     </div>

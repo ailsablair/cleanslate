@@ -398,7 +398,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                                 <span className="w-2 h-2 rounded-full bg-[#f472b6]" />
                                 Discretionary:
                               </span>
-                              <span className="font-bold text-white">${data.discretionarySpend?.toLocaleString()}</span>
+                              <span className="font-bold text-white">$ {Number(data.discretionarySpend || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                           {showNonDiscretionary && (
@@ -407,7 +407,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                                 <span className="w-2 h-2 rounded-full bg-[#38bdf8]" />
                                 Non-Discretionary:
                               </span>
-                              <span className="font-bold text-white">${data.nonDiscretionarySpend?.toLocaleString()}</span>
+                              <span className="font-bold text-white">$ {Number(data.nonDiscretionarySpend || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                           {showSavings && (
@@ -416,12 +416,12 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                                 Net Savings / Surplus:
                               </span>
-                              <span className="font-bold text-emerald-400">${data.netSavings?.toLocaleString()}</span>
+                              <span className="font-bold text-emerald-400">$ {Number(data.netSavings || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                         </div>
                         <div className="pt-2 border-t border-white/10 text-[10px] text-slate-400">
-                          Surplus Income Obligation: <span className="text-white font-semibold">${data.surplusPayment}/mo</span>
+                          Surplus Income Obligation: <span className="text-white font-semibold">$ {Number(data.surplusPayment || 0).toFixed(2)}/mo</span>
                         </div>
                       </div>
                     );
@@ -492,7 +492,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
               Trustee Behaviour Insight (OSB Section 168.1 Compliance)
             </div>
             <div className="text-slate-300 leading-relaxed">
-              Your average monthly spend has stabilized by <strong>-14.2%</strong> over the past 6 months. By eliminating impulsive dining and keeping utility usage steady, your surplus income obligation remains locked at <strong>$159/mo</strong> instead of fluctuating. This consistent budgeting proves debtor rehabilitation to both your Licensed Insolvency Trustee and the Superintendent of Bankruptcy.
+              Your average monthly spend has stabilized by <strong>-14.2%</strong> over the past 6 months. By eliminating impulsive dining and keeping utility usage steady, your surplus income obligation remains locked at <strong>$ 159.00/mo</strong> instead of fluctuating. This consistent budgeting proves debtor rehabilitation to both your Licensed Insolvency Trustee and the Superintendent of Bankruptcy.
             </div>
           </div>
         </div>
@@ -585,14 +585,14 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                     <div>
                       <div className="text-slate-400 text-[11px]">Your 6-Mo Avg</div>
                       <div className="text-base font-extrabold text-white">
-                        ${bench.userAverageSpend.toLocaleString()} <span className="text-[10px] text-slate-400 font-normal">/ mo</span>
+                        $ {bench.userAverageSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-slate-400 font-normal">/ mo</span>
                       </div>
                     </div>
 
                     <div className="text-right">
                       <div className="text-slate-400 text-[11px]">Similar Incomes Peer Avg</div>
                       <div className="text-base font-semibold text-slate-300">
-                        ${bench.peerAverageSpend.toLocaleString()} <span className="text-[10px] text-slate-400 font-normal">/ mo</span>
+                        $ {bench.peerAverageSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-slate-400 font-normal">/ mo</span>
                       </div>
                     </div>
                   </div>
@@ -600,8 +600,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   {/* Visual Comparison Progress Bar */}
                   <div className="space-y-1.5 my-2">
                     <div className="flex justify-between text-[10px] text-slate-400">
-                      <span>You: ${bench.userAverageSpend}</span>
-                      <span>Benchmark: ${bench.peerAverageSpend}</span>
+                      <span>You: $ {bench.userAverageSpend.toFixed(2)}</span>
+                      <span>Benchmark: $ {bench.peerAverageSpend.toFixed(2)}</span>
                     </div>
                     <div className="h-3 w-full bg-[#181522] rounded-full overflow-hidden relative border border-white/5">
                       {/* Peer Target Marker Line */}

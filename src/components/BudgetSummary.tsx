@@ -173,7 +173,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 Monthly Income
               </span>
               <span className="text-xl font-black text-slate-900 tracking-tight">
-                ${totalIncome.toLocaleString()}
+                $ {totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">
                 On Track
@@ -238,7 +238,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   Discharge Repayment Progress (Month {completedMonths} of {totalTargetMonths})
                 </span>
                 <span className="text-sm font-normal text-white">
-                  $ {totalPaidToEstate.toLocaleString()} of $ {totalTargetToEstate.toLocaleString()} Paid to LIT
+                  $ {totalPaidToEstate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of $ {totalTargetToEstate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Paid to LIT
                 </span>
               </div>
               <div className="text-right">
@@ -262,7 +262,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
               <span className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="font-normal">Current monthly surplus: <strong>${estatePayment}/mo</strong></span>
+                <span className="font-normal">Current monthly surplus: <strong>$ {estatePayment.toFixed(2)}/mo</strong></span>
               </span>
               <span className="text-slate-400 text-[10px]">
                 Target Discharge: <strong>June 2024</strong>

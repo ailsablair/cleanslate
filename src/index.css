@@ -10,6 +10,32 @@
       "wdth" 100,
       "ROND" 0;
   }
+
+  /* Global Input Requirements:
+   * 1. Default to "light" Google Sans Flex font weight (300) and color #101010
+   * 4. Placeholder text in WCAG AA compliant grey (#767676, 4.54:1 contrast ratio),
+   *    italicized by default, returning to normal style on focus.
+   */
+  input,
+  textarea,
+  select {
+    font-family: 'Google Sans Flex', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 300;
+    color: #101010;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #767676;
+    font-style: italic;
+    font-weight: 300;
+    opacity: 1;
+  }
+
+  input:focus::placeholder,
+  textarea:focus::placeholder {
+    font-style: normal;
+  }
 }
 
 /* Custom scrollbar for clean dashboard styling */

@@ -8,12 +8,12 @@ import {
   CheckCircle2, 
   ArrowUpRight, 
   ArrowDownRight, 
-  ExternalLink,
-  ShieldCheck,
-  Zap,
+  ShieldCheck, 
+  Lock,
   Clock
 } from 'lucide-react';
 import { BankAccount } from '../types';
+import { formatCurrency } from '../lib/formatters';
 
 interface BankAccountsViewProps {
   bankAccounts: BankAccount[];
@@ -49,9 +49,9 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
   // Form states for new connection
   const [institution, setInstitution] = useState(SUPPORTED_INSTITUTIONS[0]);
-  const [name, setName] = useState('RBC MAIN CHEQUING');
+  const [name, setName] = useState('RBC Main Chequing');
   const [accountType, setAccountType] = useState<BankAccount['accountType']>('Chequing');
-  const [accountMask, setAccountMask] = useState('******5678');
+  const [accountMask, setAccountMask] = useState('•••• 5678');
   const [balance, setBalance] = useState<number>(2450.00);
 
   const handleCreate = (e: React.FormEvent) => {
@@ -60,9 +60,9 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
       userId: 'demo-user-chad-001',
       institution,
       name,
-      accountMask,
+      accountMask: accountMask.startsWith('••••') ? accountMask : `•••• ${accountMask.slice(-4)}`,
       accountType,
-      balance,
+      balance: Number(balance.toFixed(2)),
       currency: 'CAD',
       lastSyncedAt: 'Just now',
       status: 'connected',
@@ -75,103 +75,117 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingAccount) {
-      onUpdateAccount(editingAccount);
+      onUpdateAccount({
+        ...editingAccount,
+        balance: Number(editingAccount.balance.toFixed(2))
+      });
       setEditingAccount(null);
     }
   };
 
   const resetForm = () => {
     setInstitution(SUPPORTED_INSTITUTIONS[0]);
-    setName('NEW ACCOUNT');
-    setAccountMask('******' + Math.floor(1000 + Math.random() * 9000));
-    setBalance(1500);
+    setName('New Everyday Chequing');
+    setAccountMask('•••• ' + Math.floor(1000 + Math.random() * 9000));
+    setBalance(1500.00);
   };
 
-  const totalBalance = bankAccounts.reduce((acc, a) => acc + a.balance, 0);
+  const totalBalance = bankAccounts.reduce((acc, a) => acc + (a.balance || 0), 0);
 
   return (
     <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
-      {/* Header card with API Status */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-          <div>
+      {/* Overview Card: Purpose, Reassurance & Key Actions */}
+      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-[#242031]" />
-              <h2 className="text-lg font-black tracking-wider uppercase text-slate-900">
-                BANK AGGREGATOR & LIVE API INTEGRATION
+              <Building2 className="w-5 h-5 text-slate-800" />
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-wide">
+                Bank Accounts & Statement Feeds
               </h2>
             </div>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl">
-              Connected via read-only financial aggregator API with Canadian institutions. Balances automatically populate your CleanSlate Dashboard and statutory Form 65 reports.
+            <p className="text-xs text-slate-600 max-w-xl leading-relaxed font-light">
+              Your connected accounts automatically import balances and transactions into your monthly Form 65 reports for your Licensed Insolvency Trustee. CleanSlate uses bank-level, read-only connections—funds cannot be moved or withdrawn.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={onSyncAll}
               disabled={isSyncing}
-              className="px-5 py-3 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs"
+              className="px-3.5 py-2.5 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-medium transition flex items-center gap-2 shadow-xs disabled:opacity-70 active:scale-95"
+              title="Refresh balances now from Canadian financial institutions"
             >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-[#b4b1fc]' : ''}`} />
-              <span>{isSyncing ? 'Synchronizing API...' : 'Sync Bank Accounts Now'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#b4b1fc]' : 'text-slate-300'}`} />
+              <span className="font-normal">{isSyncing ? 'Syncing Feeds...' : 'Sync All Feeds'}</span>
             </button>
 
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="px-5 py-3 rounded-2xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black transition flex items-center gap-1.5 shadow-xs"
+              className="px-4 py-2.5 rounded-xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#1d1a27] text-xs font-semibold transition flex items-center gap-1.5 shadow-xs active:scale-95"
             >
-              <Plus className="w-4 h-4" />
-              <span>Connect Bank API</span>
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Link Account</span>
             </button>
           </div>
         </div>
 
-        {/* Aggregator Metrics Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
+        {/* Clean Typographic Summary Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-5">
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Total Liquid Estate Funds
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 block mb-1">
+              Total Available Balance
             </span>
-            <div className="text-2xl font-black text-slate-900">
-              $ {totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
+            <div className="text-xl sm:text-2xl font-bold text-slate-900">
+              {formatCurrency(totalBalance)} <span className="text-xs font-normal text-slate-500">CAD</span>
             </div>
+            <span className="text-[11px] text-slate-500 font-light mt-0.5 block">
+              Across {bankAccounts.length} connected accounts
+            </span>
           </div>
 
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Connected Institutions
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 block mb-1">
+              Form 65 Integration
             </span>
-            <div className="text-2xl font-black text-slate-900 flex items-center gap-2">
-              <span>{bankAccounts.length} Accounts</span>
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <span>{bankAccounts.length} Accounts Linked</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
+            <span className="text-[11px] text-slate-500 font-light mt-0.5 block">
+              Feeds monthly income & expense ledger
+            </span>
           </div>
 
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Sync Frequency
+            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 block mb-1">
+              Trustee Privacy & Security
             </span>
-            <div className="text-2xl font-black text-slate-900 flex items-center gap-2">
-              <span>Weekly Auto-Sync</span>
-              <Clock className="w-5 h-5 text-[#b4b1fc]" />
+            <div className="text-xl sm:text-2xl font-bold text-emerald-800 flex items-center gap-2">
+              <span>256-Bit Read-Only</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
+            <span className="text-[11px] text-slate-500 font-light mt-0.5 block">
+              Encrypted statement feed for LIT audit
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Account Cards Grid */}
+      {/* Account Cards Grid: Clean, Calm Hierarchy */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {bankAccounts.map((account) => (
           <div 
             key={account.id} 
-            className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between space-y-6"
+            className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm border border-slate-200/80 flex flex-col justify-between space-y-5 hover:border-slate-300 transition"
           >
             <div>
+              {/* Card Header: Institution & Type with discrete actions */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-200/70 px-2.5 py-0.5 rounded-full">
-                  {account.institution}
+                <span className="text-xs font-medium text-slate-600">
+                  {account.institution} · {account.accountType}
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => setEditingAccount(account)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 transition"
@@ -189,32 +203,36 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                 </div>
               </div>
 
-              <div className="text-base font-black text-slate-900 mb-1">
+              {/* Account Nickname */}
+              <div className="text-sm font-semibold text-slate-900 mb-0.5 truncate">
                 {account.name}
               </div>
-              <div className="text-xs font-mono text-slate-400">
-                {account.accountMask} · {account.accountType}
+              <div className="text-xs font-mono text-slate-400 font-light">
+                {account.accountMask}
               </div>
             </div>
 
             <div>
+              {/* Balance & Trend */}
               <div className="flex items-baseline justify-between mb-3">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900">
-                  $ {account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <div className="text-2xl font-bold text-slate-900 tracking-tight">
+                  {formatCurrency(account.balance)}
                 </div>
                 <div>
                   {account.trendDirection === 'up' ? (
-                    <ArrowUpRight className="w-5 h-5 text-emerald-600 stroke-[2.5]" />
+                    <ArrowUpRight className="w-4 h-4 text-emerald-600 stroke-[2]" />
                   ) : (
-                    <ArrowDownRight className="w-5 h-5 text-rose-500 stroke-[2.5]" />
+                    <ArrowDownRight className="w-4 h-4 text-rose-500 stroke-[2]" />
                   )}
                 </div>
               </div>
-              <div className="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-200/80 pt-2.5">
+
+              {/* Footer status */}
+              <div className="text-[11px] text-slate-500 font-light flex items-center justify-between border-t border-slate-200/80 pt-2.5">
                 <span>Last updated: {account.lastSyncedAt}</span>
-                <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Live Feed
+                <span className="text-emerald-700 font-normal flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  Form 65 Linked
                 </span>
               </div>
             </div>
@@ -222,23 +240,23 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
         ))}
       </div>
 
-      {/* Connect Bank Modal */}
+      {/* Link Account Modal */}
       {isAddModalOpen && (
         <div 
           className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in"
           onClick={() => setIsAddModalOpen(false)}
         >
           <div 
-            className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5"
+            className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#b6b3ff]">
-                Connect Financial Institution (API)
+              <h3 className="text-sm font-semibold tracking-wide text-white">
+                Link Canadian Bank Account
               </h3>
               <button 
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
+                className="text-slate-400 hover:text-white text-xs font-bold p-1"
               >
                 ✕
               </button>
@@ -246,19 +264,20 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="text-xs text-slate-300 font-bold block mb-1.5">
-                  Select Financial Institution
+                <label className="text-xs text-slate-300 font-medium block mb-1.5">
+                  Financial Institution
                 </label>
                 <select
                   value={institution}
                   onChange={e => {
                     setInstitution(e.target.value);
-                    setName(`${e.target.value.split(' ')[0].toUpperCase()} CHEQUING`);
+                    setName(`${e.target.value.split(' ')[0]} Everyday Chequing`);
                   }}
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 >
                   {SUPPORTED_INSTITUTIONS.map(inst => (
-                    <option key={inst} value={inst} className="bg-[#2e293f] text-white">
+                    <option key={inst} value={inst}>
                       {inst}
                     </option>
                   ))}
@@ -266,38 +285,41 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
               </div>
 
               <div>
-                <label className="text-xs text-slate-300 font-bold block mb-1.5">
-                  Account Nickname (Display on Dashboard)
+                <label className="text-xs text-slate-300 font-medium block mb-1.5">
+                  Account Nickname
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   required
-                  placeholder="e.g. RBC CHEQUING"
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                />
+                  placeholder="e.g. RBC Everyday Chequing"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+                >
+                </input>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-300 font-bold block mb-1.5">
+                  <label className="text-xs text-slate-300 font-medium block mb-1.5">
                     Account Type
                   </label>
                   <select
                     value={accountType}
                     onChange={e => setAccountType(e.target.value as any)}
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3 py-3.5 min-h-[44px] text-xs font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   >
-                    <option value="Chequing" className="bg-[#2e293f]">Chequing</option>
-                    <option value="Savings" className="bg-[#2e293f]">Savings</option>
-                    <option value="Rent Savings" className="bg-[#2e293f]">Rent Savings</option>
-                    <option value="Tax Buffer" className="bg-[#2e293f]">Tax Buffer</option>
+                    <option value="Chequing">Chequing</option>
+                    <option value="Savings">Savings</option>
+                    <option value="Rent Savings">Rent Savings</option>
+                    <option value="Tax Buffer">Tax Buffer</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-300 font-bold block mb-1.5">
-                    Starting Balance ($)
+                  <label className="text-xs text-slate-300 font-medium block mb-1.5">
+                    Current Balance ($ CAD)
                   </label>
                   <input
                     type="number"
@@ -305,17 +327,25 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                     value={balance}
                     onChange={e => setBalance(parseFloat(e.target.value) || 0)}
                     required
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   />
                 </div>
               </div>
 
-              <div className="pt-3 flex gap-3">
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-white/20 hover:bg-white/10 text-xs font-medium text-slate-300"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-[#fbf050] text-[#1d1a27] font-black text-xs hover:bg-[#eade41] transition"
+                  className="flex-1 py-3 rounded-xl bg-[#fbf050] text-[#1d1a27] font-semibold text-xs hover:bg-[#f3e73b] transition"
                 >
-                  Authorize & Sync API Feed
+                  Confirm & Link Account
                 </button>
               </div>
             </form>
@@ -330,16 +360,16 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
           onClick={() => setEditingAccount(null)}
         >
           <div 
-            className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5"
+            className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#b6b3ff]">
-                Edit Account Nickname & Balance
+              <h3 className="text-sm font-semibold tracking-wide text-white">
+                Edit Account Details
               </h3>
               <button 
                 onClick={() => setEditingAccount(null)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
+                className="text-slate-400 hover:text-white text-xs font-bold p-1"
               >
                 ✕
               </button>
@@ -347,7 +377,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
-                <label className="text-xs text-slate-300 font-bold block mb-1.5">
+                <label className="text-xs text-slate-300 font-medium block mb-1.5">
                   Account Nickname
                 </label>
                 <input
@@ -355,12 +385,13 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   value={editingAccount.name}
                   onChange={e => setEditingAccount({ ...editingAccount, name: e.target.value })}
                   required
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 />
               </div>
 
               <div>
-                <label className="text-xs text-slate-300 font-bold block mb-1.5">
+                <label className="text-xs text-slate-300 font-medium block mb-1.5">
                   Balance ($ CAD)
                 </label>
                 <input
@@ -369,16 +400,24 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   value={editingAccount.balance}
                   onChange={e => setEditingAccount({ ...editingAccount, balance: parseFloat(e.target.value) || 0 })}
                   required
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 />
               </div>
 
-              <div className="pt-3 flex gap-3">
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingAccount(null)}
+                  className="px-4 py-3 rounded-xl border border-white/20 hover:bg-white/10 text-xs font-medium text-slate-300"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-[#b6b3ff] text-[#242031] font-black text-xs hover:bg-white transition"
+                  className="flex-1 py-3 rounded-xl bg-[#b6b3ff] text-[#242031] font-semibold text-xs hover:bg-white transition"
                 >
-                  Save Account Changes
+                  Save Changes
                 </button>
               </div>
             </form>
