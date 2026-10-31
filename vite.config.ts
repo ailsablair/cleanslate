@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import { defineConfig, type Plugin } from 'vite';
 import { parseReceiptImageWithAI } from './src/server/receiptParser';
 
+plugins: [react()],
+  base: '/cleanslate/', // Ensures assets load correctly from /cleanslate/
+
 dotenv.config();
 
 function receiptParserPlugin(): Plugin {
