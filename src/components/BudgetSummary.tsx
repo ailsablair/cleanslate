@@ -231,7 +231,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           <div className="bg-[#1d1a27] text-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3 mt-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#b4b1fc] block">
+                <span 
+                  className="text-[10px] font-bold uppercase tracking-wider text-[#b4b1fc] block"
+                  style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
+                >
                   Discharge Repayment Progress (Month {completedMonths} of {totalTargetMonths})
                 </span>
                 <span className="text-sm font-normal text-white">
