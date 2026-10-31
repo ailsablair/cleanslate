@@ -4,10 +4,6 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { defineConfig, type Plugin } from 'vite';
 import { parseReceiptImageWithAI } from './src/server/receiptParser';
-
-plugins: [react()],
-  base: '/cleanslate/', // Ensures assets load correctly from /cleanslate/
-
 dotenv.config();
 
 function receiptParserPlugin(): Plugin {
@@ -47,8 +43,9 @@ function receiptParserPlugin(): Plugin {
   };
 }
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
   return {
+    base: command === 'build' ? '/cleanslate/' : '/',
     plugins: [react(), tailwindcss(), receiptParserPlugin()],
     resolve: {
       alias: {

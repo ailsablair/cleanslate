@@ -78,7 +78,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={onNavigateToReports}
                 className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5 self-start sm:self-center"
               >
-                <span className="font-normal">Complete Form 65</span>
+                <span className="font-normal">Complete</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -185,7 +185,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 style={{ color: '#FF6BBC' }}
                 className="text-xs transition flex items-center gap-1"
               >
-                <span className="font-normal underline">AI Categorizer</span>
+                <span className="font-normal underline text-right">AI Categorizer</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -269,7 +269,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 style={{ color: '#FF6BBC' }}
                 className="text-xs transition flex items-center gap-1"
               >
-                <span className="font-normal underline">Manage & Add Accounts</span>
+                <span className="font-normal underline text-right">Manage & Add Accounts</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
