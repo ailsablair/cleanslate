@@ -120,10 +120,19 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-bold transition flex items-center gap-1.5 shadow-xs shrink-0"
+              style={{
+                background: 'var(--colour-dark-highlight, #F9F45D)',
+                boxShadow: '4px 6px 0px black',
+                borderRadius: 8,
+                color: 'var(--colour-dark-accent, #3E4A4F)',
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13.34px',
+                fontWeight: '700',
+              }}
+              className="px-4 py-2 transition-all flex items-center gap-1.5 shrink-0 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Upload Proof Receipt</span>
+              <Plus className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
+              <span style={{ fontWeight: '700' }}>Upload Proof Receipt</span>
             </button>
           </div>
         </div>

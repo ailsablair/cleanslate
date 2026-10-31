@@ -121,8 +121,11 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full whitespace-nowrap">
-              Top Category: <strong className="text-white">{highestCat.category}</strong> (${highestCat.amount.toFixed(2)})
+            <span 
+              className="text-[10px] font-normal text-slate-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full whitespace-nowrap"
+              style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+            >
+              Top Category: <strong className="text-white font-normal">{highestCat.category}</strong> (${highestCat.amount.toFixed(2)})
             </span>
             <button
               onClick={fetchInsight}
@@ -147,11 +150,14 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
                   <span className="text-xs font-bold text-white">
                     Targeted Saving Strategy
                   </span>
-                  <span className="text-[11px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-normal text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                     Potential Savings: {insight.estimatedSavings}
                   </span>
                 </div>
-                <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                <p 
+                  className="text-xs text-slate-200 leading-relaxed font-medium"
+                  style={{ fontSize: '12px' }}
+                >
                   "{insight.tip}"
                 </p>
               </div>

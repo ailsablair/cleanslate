@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="Sync connected bank accounts now via API"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#b6b3ff]' : 'text-slate-300'}`} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync Bank API'}</span>
+              <span className="font-normal">{isSyncing ? 'Syncing...' : 'Sync Bank API'}</span>
             </button>
           )}
 
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <MailCheck className="w-4 h-4 text-[#b6b3ff]" />
             <span className="hidden sm:inline text-slate-300">LIT:</span>
-            <span className="text-white font-semibold truncate max-w-[140px]">
+            <span className="text-white font-normal truncate max-w-[140px]">
               {profile.litName?.split(',')[0] || 'Trustee'}
             </span>
             {unreadDispatchesCount > 0 && (

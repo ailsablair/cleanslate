@@ -97,10 +97,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm sm:text-base font-bold tracking-wide uppercase text-[#242031]">
+            <h3 className="text-sm font-bold tracking-wide uppercase text-[#242031]">
               BUDGET SUMMARY & REPAYMENT TRACKER
             </h3>
-            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-normal px-2 py-0.5 rounded-full flex items-center gap-1">
               <ShieldCheck className="w-3 h-3" />
               BIA Form 65
             </span>
@@ -112,9 +112,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
 
         <button
           onClick={onNavigateToReports}
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition self-start sm:self-center"
+          style={{ color: '#FF6BBC' }}
+          className="text-xs font-normal flex items-center gap-1 transition self-start sm:self-center"
         >
-          <span>{currentReport?.month || 'September'} {currentReport?.year || '2022'} Ledger</span>
+          <span className="font-normal underline text-right">{currentReport?.month || 'September'} {currentReport?.year || '2022'} Ledger</span>
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -167,7 +168,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             </ResponsiveContainer>
 
             {/* Center Label in the Doughnut Hole */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center font-normal">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Monthly Income
               </span>
@@ -216,7 +217,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between text-xs pt-0.5">
-                    <span className="text-sm font-black text-slate-900">
+                    <span className="text-sm font-normal text-slate-900">
                       $ {item.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">CAD</span>
@@ -233,15 +234,15 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#b4b1fc] block">
                   Discharge Repayment Progress (Month {completedMonths} of {totalTargetMonths})
                 </span>
-                <span className="text-sm font-black text-white">
+                <span className="text-sm font-normal text-white">
                   $ {totalPaidToEstate.toLocaleString()} of $ {totalTargetToEstate.toLocaleString()} Paid to LIT
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-xs font-black text-[#fbf050]">
+                <span className="text-xs font-bold text-[#fbf050]">
                   {repaymentProgressPercent}% Complete
                 </span>
-                <span className="block text-[10px] text-slate-400 font-medium">
+                <span className="block text-[10px] text-slate-400 font-normal">
                   {totalTargetMonths - completedMonths} months remaining
                 </span>
               </div>
@@ -258,7 +259,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
               <span className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Current monthly surplus: <strong>${estatePayment}/mo</strong></span>
+                <span className="font-normal">Current monthly surplus: <strong>${estatePayment}/mo</strong></span>
               </span>
               <span className="text-slate-400 text-[10px]">
                 Target Discharge: <strong>June 2024</strong>

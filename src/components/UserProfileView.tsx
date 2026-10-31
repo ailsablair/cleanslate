@@ -561,10 +561,19 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              className="px-10 py-3.5 rounded-2xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black transition shadow-sm flex items-center gap-2"
+              style={{
+                background: 'var(--colour-dark-highlight, #F9F45D)',
+                boxShadow: '4px 6px 0px black',
+                borderRadius: 8,
+                color: 'var(--colour-dark-accent, #3E4A4F)',
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13.34px',
+                fontWeight: '700',
+              }}
+              className="px-8 py-2.5 transition-all flex items-center gap-2 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
             >
-              <Save className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
-              <span>{isSaving ? 'Dispatching to LIT...' : 'Save'}</span>
+              <Save className={`w-4 h-4 stroke-[2.5] ${isSaving ? 'animate-spin' : ''}`} style={{ color: '#3E4A4F' }} />
+              <span style={{ fontWeight: '700' }}>{isSaving ? 'Dispatching to LIT...' : 'Save'}</span>
             </button>
           </div>
         </div>

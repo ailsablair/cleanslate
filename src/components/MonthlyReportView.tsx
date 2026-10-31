@@ -188,8 +188,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Left Column: HISTORY Card (4 cols) matching mockups */}
-        <div className="lg:col-span-4 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-6">
+        <div 
+          className="lg:col-span-4 bg-[#fbf9f5] text-[#242031] rounded-3xl shadow-sm"
+          style={{ paddingLeft: '4px', paddingRight: '12px', paddingTop: '24px', paddingBottom: '24px' }}
+        >
+          <div className="flex items-center gap-2 mb-6" style={{ paddingLeft: '20px' }}>
             <Hourglass className="w-4 h-4 text-slate-700" />
             <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
               HISTORY
@@ -218,7 +221,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   )}
 
                   <div className="pl-3 min-w-0">
-                    <div className="text-sm font-extrabold text-slate-900">
+                    <div className="text-sm font-bold text-slate-900">
                       {rep.month}
                     </div>
                     <div className="text-xs text-slate-400 truncate">
@@ -230,13 +233,21 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className={`text-xs font-bold ${
-                      isOverdue 
-                        ? 'text-rose-500' 
-                        : isSubmitted 
-                        ? 'text-slate-500' 
-                        : 'text-slate-400'
-                    }`}>
+                    <span 
+                      className={`text-xs ${
+                        isCurrent 
+                          ? '' 
+                          : isOverdue 
+                          ? 'text-rose-500' 
+                          : isSubmitted 
+                          ? 'text-slate-500' 
+                          : 'text-slate-400'
+                      }`}
+                      style={{
+                        fontWeight: 'normal',
+                        color: isCurrent ? '#748295' : undefined
+                      }}
+                    >
                       {rep.status}
                     </span>
                   </div>
@@ -245,7 +256,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100">
+          <div className="mt-6 pt-4 border-t border-slate-100" style={{ paddingLeft: '8px' }}>
             <button
               onClick={() => {}}
               className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5"
@@ -266,7 +277,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 <Calendar className="w-4 h-4" />
               </div>
               <h2 
-                className="text-lg font-black tracking-wider uppercase text-slate-900"
+                className="text-lg font-bold tracking-wider uppercase text-slate-900"
                 style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
               >
                 {activeReport.month} {activeReport.year}
@@ -288,14 +299,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 title={`Download Form 65 PDF Summary for ${activeReport.month} ${activeReport.year}`}
               >
                 <Download className={`w-3.5 h-3.5 text-[#b6b3ff] ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
-                <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
+                <span className="font-bold">{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
               </button>
 
               <button
                 onClick={onNavigateToProfile}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition"
+                style={{ color: '#FF6BBC' }}
+                className="text-xs flex items-center gap-1 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition"
               >
-                <span>Update Profile</span>
+                <span className="font-normal text-right">Update Profile</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -435,8 +447,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Total combined */}
               <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-between text-xs font-bold text-slate-800">
-                <span>Combined Monthly Household Gross:</span>
-                <span className="text-base font-black text-slate-900">
+                <span className="font-bold">Combined Monthly Household Gross:</span>
+                <span className="text-base font-normal text-slate-900">
                   $ {totalGrossIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
                 </span>
               </div>
@@ -884,10 +896,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="flex-1 w-full py-4 rounded-2xl bg-[#e7f742] hover:bg-[#d6e537] text-[#1d1a27] font-black text-sm tracking-wide transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 active:scale-95"
+                  style={{
+                    background: 'var(--colour-dark-highlight, #F9F45D)',
+                    boxShadow: '4px 6px 0px black',
+                    borderRadius: 8,
+                    color: 'var(--colour-dark-accent, #3E4A4F)',
+                    fontFamily: "'Google Sans Flex', sans-serif",
+                    fontSize: '13.34px',
+                    fontWeight: '700',
+                    lineHeight: '20.96px'
+                  }}
+                  className="flex-1 w-full py-3.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
                 >
-                  <Send className={`w-4 h-4 ${isSubmitting ? 'animate-pulse' : ''}`} />
-                  <span>
+                  <Send className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-pulse' : ''}`} style={{ color: '#3E4A4F' }} />
+                  <span style={{ fontWeight: '700' }}>
                     {isSubmitting 
                       ? 'Generating Form 65 & Dispatching to LIT...' 
                       : `Submit ${activeReport.month} Report & Email to Trustee (${profile.litName?.split(',')[0] || 'LIT'})`}
@@ -914,10 +936,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <button
                 type="button"
                 onClick={() => setCurrentStep(prev => prev + 1)}
-                className="px-6 py-3 rounded-2xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black transition flex items-center gap-1.5 shadow-xs"
+                style={{
+                  background: 'var(--colour-dark-highlight, #F9F45D)',
+                  boxShadow: '4px 6px 0px black',
+                  borderRadius: 8,
+                  color: 'var(--colour-dark-accent, #3E4A4F)',
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '13.34px',
+                  fontWeight: '700',
+                  lineHeight: '20.96px'
+                }}
+                className="px-5 py-2.5 transition-all flex items-center gap-2 cursor-pointer hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
               >
-                <span>Next Section</span>
-                <ChevronRight className="w-4 h-4" />
+                <span style={{ fontWeight: '700' }}>Next Section</span>
+                <ChevronRight className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
               </button>
             )}
           </div>

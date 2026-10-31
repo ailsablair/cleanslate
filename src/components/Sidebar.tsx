@@ -63,11 +63,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Section: MAIN MENU */}
         <div className="mb-8">
-          <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-3">
+          <div className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-3">
             MAIN MENU
           </div>
           <nav className="space-y-1.5">
-            {navItems.map((item) => {
+            {navItems.map((item, idx) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
               return (
@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#242031]' : 'text-slate-400'}`} />
-                  <span className="truncate">{item.label}</span>
+                  <span className={`truncate ${idx === 0 ? 'font-bold' : ''}`}>{item.label}</span>
                 </button>
               );
             })}
@@ -90,7 +90,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Section: HELP & SUPPORT */}
         <div>
-          <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-3">
+          <div 
+            className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-3"
+            style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+          >
             HELP & SUPPORT
           </div>
           <nav className="space-y-1.5">
@@ -122,13 +125,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
           </div>
-          <div className="text-xs font-bold text-white truncate">
+          <div className="text-xs font-normal text-white truncate">
             {profile.litName || 'Sarah Jenkins, LIT'}
           </div>
           <div className="text-[11px] text-slate-400 truncate">
             {profile.litFirm || 'BDO Canada Limited'}
           </div>
-          <div className="mt-2 text-[10px] text-slate-400 underline decoration-slate-500 group-hover:text-slate-300">
+          <div 
+            className="mt-2 text-[10px] underline decoration-slate-500"
+            style={{ color: '#FF6BBC' }}
+          >
             View Trustee Email Log &rarr;
           </div>
         </button>

@@ -67,7 +67,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <h2 className="text-base sm:text-lg font-bold tracking-tight">
                   You have {outstandingCount} outstanding monthly reports to submit
                 </h2>
-                <p className="text-xs font-medium text-[#2d283c] leading-relaxed max-w-xl">
+                <p 
+                  className="text-xs font-medium text-[#2d283c] leading-relaxed max-w-xl"
+                  style={{ fontSize: '14px' }}
+                >
                   You're on track! Reports are due on the <span className="font-bold underline decoration-slate-900/30">15th of every month</span>. Completing them on time is important for early discharge.
                 </p>
               </div>
@@ -75,7 +78,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={onNavigateToReports}
                 className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5 self-start sm:self-center"
               >
-                <span>Complete Form 65</span>
+                <span className="font-normal">Complete Form 65</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -88,11 +91,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={onNavigateToReports}
               className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
             >
-              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+              <div 
+                className="font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
+                style={{ fontSize: '6px', fontFamily: "'Google Sans Flex', sans-serif" }}
+              >
                 MONTHLY REPORTS
               </div>
               <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-bold">
+                <div className="text-xl sm:text-2xl font-normal">
                   {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount})</span>
                 </div>
                 <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
@@ -121,7 +127,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </span>
               </div>
               <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-bold">
+                <div className="text-xl sm:text-2xl font-normal">
                   $ 2,397.22
                 </div>
                 <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
@@ -142,7 +148,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 CURRENT PAYMENT
               </div>
               <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-bold">
+                <div className="text-xl sm:text-2xl font-normal">
                   $ {currentPayment}
                 </div>
                 <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
@@ -171,14 +177,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* LATEST TRANSACTIONS Card (Off-white / cream `#fbf9f5`) */}
           <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
+              <h3 className="text-sm font-bold tracking-wider uppercase text-[#242031]">
                 LATEST TRANSACTIONS
               </h3>
               <button
                 onClick={onNavigateToCategorize}
-                className="text-xs font-bold text-slate-500 hover:text-slate-900 transition flex items-center gap-1"
+                style={{ color: '#FF6BBC' }}
+                className="text-xs transition flex items-center gap-1"
               >
-                <span>AI Categorizer</span>
+                <span className="font-normal underline">AI Categorizer</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -187,10 +194,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80 pb-3">
-                    <th className="pb-3 font-semibold">Transaction ID</th>
-                    <th className="pb-3 font-semibold">Company</th>
-                    <th className="pb-3 font-semibold">Date</th>
-                    <th className="pb-3 font-semibold text-right">Amount</th>
+                    <th 
+                      className="pb-3 font-semibold"
+                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif", height: '30px', width: '175.805px' }}
+                    >
+                      Transaction ID
+                    </th>
+                    <th 
+                      className="pb-3 font-semibold"
+                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
+                    >
+                      Company
+                    </th>
+                    <th 
+                      className="pb-3 font-semibold"
+                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
+                    >
+                      Date
+                    </th>
+                    <th 
+                      className="pb-3 font-semibold text-right"
+                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
+                    >
+                      Amount
+                    </th>
                     <th className="pb-3 w-8"></th>
                   </tr>
                 </thead>
@@ -207,10 +234,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <td className="py-4 font-bold text-slate-800">
                         {tx.company}
                       </td>
-                      <td className="py-4 text-xs text-slate-500">
+                      <td className="py-4 text-xs text-slate-500 font-normal">
                         {tx.date}
                       </td>
-                      <td className="py-4 text-right font-black text-slate-900">
+                      <td className="py-4 text-right font-bold text-slate-900">
                         $ {tx.amount.toFixed(2)}
                       </td>
                       <td className="py-4 text-right text-slate-300 group-hover:text-slate-700 transition">
@@ -239,9 +266,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <button
                 onClick={onNavigateToBankAccounts}
-                className="text-xs font-bold text-[#b6b3ff] hover:text-white transition flex items-center gap-1"
+                style={{ color: '#FF6BBC' }}
+                className="text-xs transition flex items-center gap-1"
               >
-                <span>Manage & Add Accounts</span>
+                <span className="font-normal underline">Manage & Add Accounts</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -253,14 +281,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onClick={onNavigateToBankAccounts}
                   className="bg-[#fbf9f5] hover:bg-white text-[#242031] rounded-3xl p-6 shadow-sm transition cursor-pointer group relative"
                 >
-                  <div className="text-[12px] font-extrabold uppercase tracking-wide text-slate-900 mb-1 truncate">
+                  <div className="text-[12px] font-bold uppercase tracking-wide text-slate-900 mb-1 truncate">
                     {account.name}
                   </div>
                   <div className="text-xs font-mono text-slate-400 mb-6">
                     {account.accountMask}
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <div className="text-2xl font-black text-slate-900 tracking-tight">
+                    <div className="text-2xl font-normal text-slate-900 tracking-tight">
                       $ {account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     <div className="text-slate-400 group-hover:text-slate-900 transition">
@@ -279,7 +307,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Right Side Column (1/3 width): RECENT ACTIVITY */}
         <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 text-sm">
             <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
               RECENT ACTIVITY
             </h3>
@@ -296,7 +324,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   {/* Vendor Avatar / Logo icon */}
-                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center font-bold text-xs text-slate-800 shadow-2xs shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center font-normal text-xs text-slate-800 shadow-2xs shrink-0">
                     {act.company.substring(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -321,10 +349,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-6 pt-4 border-t border-slate-100">
             <button
               onClick={onNavigateToCategorize}
-              className="w-full py-3 px-4 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-sm"
+              style={{ 
+                background: 'var(--colour-dark-highlight, #F9F45D)',
+                boxShadow: '4px 6px 0px black',
+                borderRadius: 8,
+                color: 'var(--colour-dark-accent, #3E4A4F)',
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13.34px',
+                fontWeight: '700',
+                lineHeight: '20.96px'
+              }}
+              className="w-full py-2.5 px-4 flex items-center justify-center gap-2 transition-all hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
             >
-              <span>See All Activity</span>
-              <ChevronRight className="w-4 h-4" />
+              <span style={{ fontWeight: 'bold', color: '#3E4A4F' }}>See All Activity</span>
+              <ChevronRight className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
             </button>
           </div>
         </div>

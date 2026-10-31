@@ -662,10 +662,19 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddGoalModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#242031] font-bold text-xs shadow-md transition"
+              style={{
+                background: 'var(--colour-dark-highlight, #F9F45D)',
+                boxShadow: '4px 6px 0px black',
+                borderRadius: 8,
+                color: 'var(--colour-dark-accent, #3E4A4F)',
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13.34px',
+                fontWeight: '700',
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 transition-all hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              Add Custom Goal
+              <Plus className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
+              <span style={{ fontWeight: '700' }}>Add Custom Goal</span>
             </button>
           </div>
         </div>
@@ -1039,9 +1048,18 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#242031] font-bold shadow-lg"
+                  style={{
+                    background: 'var(--colour-dark-highlight, #F9F45D)',
+                    boxShadow: '4px 6px 0px black',
+                    borderRadius: 8,
+                    color: 'var(--colour-dark-accent, #3E4A4F)',
+                    fontFamily: "'Google Sans Flex', sans-serif",
+                    fontSize: '13.34px',
+                    fontWeight: '700',
+                  }}
+                  className="px-6 py-2 transition-all hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
                 >
-                  Save Goal
+                  <span style={{ fontWeight: '700' }}>Save Goal</span>
                 </button>
               </div>
             </form>
