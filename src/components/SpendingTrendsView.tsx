@@ -36,6 +36,7 @@ import {
   saveGoalToDb, 
   deleteGoalFromDb 
 } from '../lib/spendingTrendsData';
+import { DebtProgress } from './DebtProgress';
 
 interface SpendingTrendsViewProps {
   reports: MonthlyReport[];
@@ -201,116 +202,49 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
       
       {/* Top Banner: Financial Rehabilitation & Behaviour Change Overview */}
-      <div className="bg-[#1d1a27] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+      {/* Main Header Card with simplified typography and quick actions */}
+      <div className="bg-[#1d1a27] border border-white/10 rounded-3xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#b6b3ff]/5 rounded-full blur-3xl pointer-events-none" />
         
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#b6b3ff]/15 border border-[#b6b3ff]/30 text-[#b6b3ff] text-xs font-bold tracking-wide uppercase mb-3">
-              <TrendingUp className="w-3.5 h-3.5" />
-              Financial Behaviour & Discharge Progress
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#b6b3ff]/15 border border-[#b6b3ff]/30 text-[#b6b3ff] text-[11px] font-bold tracking-wide uppercase">
+              <TrendingUp className="w-3 h-3" />
+              <span>Financial Behaviour & Discharge Milestones</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-white tracking-wide">
               Spending Trends & Bankruptcy Discharge Goals
             </h1>
-            <p className="text-slate-300 text-sm mt-1 max-w-2xl">
-              Track your financial behaviour change over the past 6 months, benchmark your statutory Form 65 expenses against peer Canadian households, and set progressive milestones toward your official discharge certificate.
+            <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
+              Track how your spending habits have improved over the past 6 months, see how your expenses compare to other Canadians with similar incomes, and monitor your progress toward discharge.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setIsAddGoalModalOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#242031] font-bold text-sm shadow-lg transition-transform active:scale-95"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#242031] font-bold text-xs shadow-md transition-transform active:scale-95"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              Set Discharge Goal
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <span>Set Discharge Goal</span>
             </button>
             <button
               onClick={onNavigateToReports}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/10 transition"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs border border-white/10 transition"
             >
-              <Calendar className="w-4 h-4 text-[#b6b3ff]" />
-              View Form 65 Reports
+              <Calendar className="w-3.5 h-3.5 text-[#b6b3ff]" />
+              <span>View Form 65</span>
             </button>
           </div>
         </div>
-
-        {/* 4 Key Summary Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/10">
-          
-          {/* Stat 1: Discretionary Spending Reduction */}
-          <div className="bg-[#242031]/80 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-              <span>6-Mo Discretionary Trend</span>
-              <span className={`inline-flex items-center gap-1 font-bold text-xs ${
-                summaryMetrics.discretionaryChangePct <= 0 ? 'text-emerald-400' : 'text-amber-400'
-              }`}>
-                {summaryMetrics.discretionaryChangePct <= 0 ? (
-                  <TrendingDown className="w-3.5 h-3.5" />
-                ) : (
-                  <TrendingUp className="w-3.5 h-3.5" />
-                )}
-                {Math.abs(summaryMetrics.discretionaryChangePct)}%
-              </span>
-            </div>
-            <div className="text-2xl font-black text-white">
-              {summaryMetrics.discretionaryChangePct <= 0 ? 'Disciplined' : 'Fluctuating'}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-1">
-              {summaryMetrics.discretionaryChangePct <= 0 
-                ? 'Healthy reduction in non-essential lifestyle spending'
-                : 'Focus on dining & personal leisure reduction'}
-            </div>
-          </div>
-
-          {/* Stat 2: Current Spend vs 6-Mo Average */}
-          <div className="bg-[#242031]/80 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-              <span>Current vs 6-Mo Average</span>
-              <span className="text-[#b6b3ff] text-xs font-bold">Avg ${summaryMetrics.avgSpend.toLocaleString()}</span>
-            </div>
-            <div className="text-2xl font-black text-white">
-              ${summaryMetrics.currentSpend.toLocaleString()}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-1">
-              ${Math.abs(summaryMetrics.avgSpend - summaryMetrics.currentSpend)} {summaryMetrics.currentSpend <= summaryMetrics.avgSpend ? 'under' : 'over'} past 6-month average
-            </div>
-          </div>
-
-          {/* Stat 3: Surplus Income Obligation */}
-          <div className="bg-[#242031]/80 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-              <span>Statutory Surplus Payment</span>
-              <span className="text-emerald-400 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-400/10">STABLE</span>
-            </div>
-            <div className="text-2xl font-black text-white">
-              ${summaryMetrics.surplusPayment} <span className="text-xs font-normal text-slate-400">/ month</span>
-            </div>
-            <div className="text-[11px] text-slate-400 mt-1">
-              Required estate installment to LIT Sarah Jenkins
-            </div>
-          </div>
-
-          {/* Stat 4: Discharge Progress */}
-          <div className="bg-[#242031]/80 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-              <span>9-Month Discharge Target</span>
-              <span className="text-[#fbf050] font-bold text-xs">Month 7 of 9</span>
-            </div>
-            <div className="text-2xl font-black text-white flex items-center gap-2">
-              79%
-              <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
-                On Track
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-400 mt-1">
-              Target discharge date: June 2023 (~63 days remaining)
-            </div>
-          </div>
-
-        </div>
       </div>
+
+      {/* Prominent Debt Progress & Statutory Discharge Milestones Component */}
+      <DebtProgress
+        reports={reports}
+        profile={profile}
+        onNavigateToReports={onNavigateToReports}
+      />
 
       {/* SECTION 1: 6-Month Spending Trends Interactive Line Graph */}
       <div className="bg-[#1d1a27] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">

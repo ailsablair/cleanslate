@@ -13,6 +13,7 @@ import {
 import { BankAccount, Transaction, MonthlyReport, UserProfile } from '../types';
 import { INITIAL_RECENT_ACTIVITY } from '../lib/mockData';
 import { BudgetSummary } from './BudgetSummary';
+import { FinancialInsightCard } from './FinancialInsightCard';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -60,19 +61,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Main Column (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Top Outstanding Alert Banner (Yellow / Amber card from design) */}
-          <div className="bg-[#fbf050] text-[#1d1a27] rounded-3xl p-6 sm:p-7 shadow-sm transition-all">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight mb-2">
+          <div className="bg-[#fbf050] text-[#1d1a27] rounded-3xl p-5 sm:p-6 shadow-sm transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight">
                   You have {outstandingCount} outstanding monthly reports to submit
                 </h2>
-                <p className="text-sm font-medium text-[#2d283c] leading-relaxed max-w-xl">
+                <p className="text-xs font-medium text-[#2d283c] leading-relaxed max-w-xl">
                   You're on track! Reports are due on the <span className="font-bold underline decoration-slate-900/30">15th of every month</span>. Completing them on time is important for early discharge.
                 </p>
               </div>
               <button
                 onClick={onNavigateToReports}
-                className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold px-5 py-3 rounded-2xl shadow transition flex items-center justify-center gap-1.5 self-start sm:self-center"
+                className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5 self-start sm:self-center"
               >
                 <span>Complete Form 65</span>
                 <ChevronRight className="w-4 h-4" />
@@ -81,21 +82,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 3 Metric Cards (Lavender `#b4b1fc` from design) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Metric 1: Monthly Reports */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-3xl p-6 transition cursor-pointer shadow-sm relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
             >
-              <div className="text-[11px] font-bold tracking-wider uppercase text-[#3f3b54] mb-3">
+              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
                 MONTHLY REPORTS
               </div>
-              <div className="flex items-baseline justify-between mb-3">
-                <div className="text-2xl sm:text-3xl font-black">
-                  {completionPercent}% <span className="text-sm font-semibold opacity-75">({submittedCount})</span>
+              <div className="flex items-baseline justify-between mb-2">
+                <div className="text-xl sm:text-2xl font-bold">
+                  {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount})</span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                  <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
               {/* Progress bar line matching the screenshot */}
@@ -110,21 +111,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
             <div 
               onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-3xl p-6 transition cursor-pointer shadow-sm relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
               title="Click to view 6-month spending trends & peer benchmarks"
             >
-              <div className="flex items-center justify-between text-[11px] font-bold tracking-wider uppercase text-[#3f3b54] mb-3">
+              <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
                 <span>AVERAGE SPEND</span>
-                <span className="text-[10px] font-extrabold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
+                <span className="text-[9px] font-bold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
                   View Trends &rarr;
                 </span>
               </div>
-              <div className="flex items-baseline justify-between mb-3">
-                <div className="text-2xl sm:text-3xl font-black">
+              <div className="flex items-baseline justify-between mb-2">
+                <div className="text-xl sm:text-2xl font-bold">
                   $ 2,397.22
                 </div>
-                <div className="w-8 h-8 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowDownRight className="w-5 h-5 stroke-[2.5]" />
+                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
               <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
@@ -135,24 +136,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Metric 3: Current Payment */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-3xl p-6 transition cursor-pointer shadow-sm relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
             >
-              <div className="text-[11px] font-bold tracking-wider uppercase text-[#3f3b54] mb-3">
+              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
                 CURRENT PAYMENT
               </div>
-              <div className="flex items-baseline justify-between mb-3">
-                <div className="text-2xl sm:text-3xl font-black">
+              <div className="flex items-baseline justify-between mb-2">
+                <div className="text-xl sm:text-2xl font-bold">
                   $ {currentPayment}
                 </div>
-                <div className="w-8 h-8 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowDownRight className="w-5 h-5 stroke-[2.5]" />
+                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
-              <div className="text-[11px] font-medium text-[#3f3b54] opacity-90 truncate">
+              <div className="text-[10px] font-medium text-[#3f3b54] opacity-90 truncate">
                 Superintendent surplus target
               </div>
             </div>
           </div>
+
+          {/* AI Financial Insight Section (Requirement 13) */}
+          <FinancialInsightCard
+            monthlyReports={monthlyReports}
+            profile={profile}
+          />
 
           {/* Budget Summary Component with Recharts Doughnut Chart */}
           <BudgetSummary

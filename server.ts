@@ -15,6 +15,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'CleanSlate Bankruptcy API' });
 });
 
+import { generateFinancialInsightWithAI } from './src/server/financialInsight';
+
 // AI Receipt parsing endpoint
 app.post('/api/parse-receipt', async (req, res) => {
   try {
@@ -27,6 +29,18 @@ app.post('/api/parse-receipt', async (req, res) => {
     return res.json(result);
   } catch (error: any) {
     console.error('Server error in /api/parse-receipt:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// AI Financial Insight endpoint
+app.post('/api/financial-insight', async (req, res) => {
+  try {
+    const { category = 'Food & Grocery', amount = 650, month = 'August 2022', householdSize = 2 } = req.body;
+    const result = await generateFinancialInsightWithAI(category, amount, month, householdSize);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/financial-insight:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });

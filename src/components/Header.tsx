@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="relative px-8 pt-8 pb-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-wider text-white uppercase">
+          <h1 className="text-lg sm:text-xl font-bold tracking-wide text-white uppercase whitespace-nowrap">
             {title}
           </h1>
         </div>
@@ -60,23 +60,14 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          {/* Notification Button 1 */}
+          {/* Notification Button */}
           <button 
             onClick={onOpenEmailLog}
-            className="w-10 h-10 rounded-xl bg-[#2e293f] hover:bg-[#38324d] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition relative"
+            className="w-9 h-9 rounded-xl bg-[#2e293f] hover:bg-[#38324d] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition relative"
             title="LIT Status & Alerts"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#fbf050]" />
-          </button>
-
-          {/* Notification Button 2 (as seen in screenshots with dual bells) */}
-          <button 
-            onClick={onOpenEmailLog}
-            className="w-10 h-10 rounded-xl bg-[#2e293f] hover:bg-[#38324d] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition relative"
-            title="Statutory Deadlines"
-          >
-            <Bell className="w-4 h-4" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#fbf050]" />
           </button>
         </div>
       </div>

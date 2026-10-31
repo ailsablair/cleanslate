@@ -97,7 +97,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
+            <h3 className="text-sm sm:text-base font-bold tracking-wide uppercase text-[#242031]">
               BUDGET SUMMARY & REPAYMENT TRACKER
             </h3>
             <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">

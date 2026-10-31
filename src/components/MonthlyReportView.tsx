@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
+import { FloatingInput } from './FloatingInput';
 
 interface MonthlyReportViewProps {
   reports: MonthlyReport[];
@@ -360,39 +361,46 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   ].map(row => (
                     <div key={row.key} className="relative">
                       <div className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            placeholder={row.label}
-                            value={activeReport.income.debtor[row.key as keyof typeof activeReport.income.debtor] || ''}
-                            onChange={(e) => handleDebtorIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent font-medium"
-                          />
-                        </div>
+                        <FloatingInput
+                          type="number"
+                          prefix="$"
+                          label={row.label}
+                          value={activeReport.income.debtor[row.key as keyof typeof activeReport.income.debtor] || ''}
+                          onChange={(e) => handleDebtorIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
+                        />
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
                           title="Statutory Definition"
                         >
                           ?
                         </button>
                       </div>
                       {activeTooltip === row.key && (
-                        <div className="mt-1.5 p-2 bg-slate-800 text-white text-[11px] rounded-lg shadow-lg z-10 relative">
-                          {statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}
+                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                          <div className="flex items-start justify-between gap-2">
+                            <span>{statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}</span>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTooltip(null)}
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
                   ))}
-                  <div className="pt-2 text-sm font-extrabold text-slate-900">
+                  <div className="pt-2 text-xs font-bold text-slate-900">
                     Total: $ {debtorIncomeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
 
                 {/* Column 2: Spouse */}
                 <div className="space-y-3">
-                  <div className="font-extrabold text-sm text-slate-900 mb-1">
+                  <div className="font-bold text-xs sm:text-sm text-slate-900 mb-1">
                     {profile.spouseName || 'Jane Johnson'} (Spouse / Partner)
                   </div>
                   {[
@@ -407,18 +415,16 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'otherNetIncome', label: 'Other Net Income' }
                   ].map(row => (
                     <div key={row.key} className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="number"
-                          placeholder={row.label}
-                          value={activeReport.income.spouse[row.key as keyof typeof activeReport.income.spouse] || ''}
-                          onChange={(e) => handleSpouseIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent font-medium"
-                        />
-                      </div>
+                      <FloatingInput
+                        type="number"
+                        prefix="$"
+                        label={row.label}
+                        value={activeReport.income.spouse[row.key as keyof typeof activeReport.income.spouse] || ''}
+                        onChange={(e) => handleSpouseIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
+                      />
                     </div>
                   ))}
-                  <div className="pt-2 text-sm font-extrabold text-slate-900">
+                  <div className="pt-2 text-xs font-bold text-slate-900">
                     Total: $ {spouseIncomeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
@@ -453,27 +459,25 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 ].map(row => {
                   const hasAttachment = activeReport.nonDiscretionary.attachments?.[row.key]?.length;
                   return (
-                    <div key={row.key} className="space-y-1">
+                    <div key={row.key} className="relative">
                       <div className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            placeholder={row.label}
-                            value={
-                              typeof activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] === 'number'
-                                ? (activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] as number)
-                                : ''
-                            }
-                            onChange={(e) => handleNonDiscChange(row.key as any, parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] focus:border-transparent font-medium"
-                          />
-                        </div>
+                        <FloatingInput
+                          type="number"
+                          prefix="$"
+                          label={row.label}
+                          value={
+                            typeof activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] === 'number'
+                              ? (activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] as number)
+                              : ''
+                          }
+                          onChange={(e) => handleNonDiscChange(row.key as any, parseFloat(e.target.value) || 0)}
+                        />
 
                         {/* Attach button matching screenshot */}
                         <button
                           type="button"
                           onClick={() => setAttachingCategory(row.key)}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
                             hasAttachment
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                               : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
@@ -486,15 +490,25 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          title="Statutory Definition"
                         >
                           ?
                         </button>
                       </div>
 
                       {activeTooltip === row.key && (
-                        <div className="p-2 bg-slate-800 text-white text-[11px] rounded-lg shadow-lg">
-                          {statutoryExplanations[row.key] || 'Statutory deduction item.'}
+                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                          <div className="flex items-start justify-between gap-2">
+                            <span>{statutoryExplanations[row.key] || 'Statutory deduction item.'}</span>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTooltip(null)}
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -540,31 +554,48 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        placeholder={row.label}
-                        value={activeReport.discretionary.housing[row.key as keyof typeof activeReport.discretionary.housing] || ''}
-                        onChange={(e) => handleDiscretionaryChange('housing', row.key, parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                        className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0"
-                      >
-                        ?
-                      </button>
+                    <div key={row.key} className="relative">
+                      <div className="flex items-center gap-2">
+                        <FloatingInput
+                          type="number"
+                          prefix="$"
+                          label={row.label}
+                          value={activeReport.discretionary.housing[row.key as keyof typeof activeReport.discretionary.housing] || ''}
+                          onChange={(e) => handleDiscretionaryChange('housing', row.key, parseFloat(e.target.value) || 0)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          title="Statutory Guidance"
+                        >
+                          ?
+                        </button>
+                      </div>
+                      {activeTooltip === row.key && (
+                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                          <div className="flex items-start justify-between gap-2">
+                            <span>Form 65 housing allowance guideline. Keep bills and rent receipts for audit.</span>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTooltip(null)}
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
-                  <div className="pt-2 text-sm font-extrabold text-slate-900">
+                  <div className="pt-2 text-xs font-bold text-slate-900">
                     Total: $ {housingTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
 
                 {/* Personal */}
                 <div className="space-y-3">
-                  <div className="font-extrabold text-sm text-slate-900 mb-1">
+                  <div className="font-bold text-xs sm:text-sm text-slate-900 mb-1">
                     Personal
                   </div>
                   {[
@@ -578,24 +609,41 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        placeholder={row.label}
-                        value={activeReport.discretionary.personal[row.key as keyof typeof activeReport.discretionary.personal] || ''}
-                        onChange={(e) => handleDiscretionaryChange('personal', row.key, parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                        className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0"
-                      >
-                        ?
-                      </button>
+                    <div key={row.key} className="relative">
+                      <div className="flex items-center gap-2">
+                        <FloatingInput
+                          type="number"
+                          prefix="$"
+                          label={row.label}
+                          value={activeReport.discretionary.personal[row.key as keyof typeof activeReport.discretionary.personal] || ''}
+                          onChange={(e) => handleDiscretionaryChange('personal', row.key, parseFloat(e.target.value) || 0)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          title="Statutory Guidance"
+                        >
+                          ?
+                        </button>
+                      </div>
+                      {activeTooltip === row.key && (
+                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                          <div className="flex items-start justify-between gap-2">
+                            <span>Form 65 personal expenditure allowance item.</span>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTooltip(null)}
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
-                  <div className="pt-2 text-sm font-extrabold text-slate-900">
+                  <div className="pt-2 text-xs font-bold text-slate-900">
                     Total: $ {personalTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
@@ -622,19 +670,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <div className="space-y-3">
                 <div className="font-extrabold text-sm text-slate-900">Non-recoverable Medical</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Prescriptions"
+                    prefix="$"
+                    label="Prescriptions"
                     value={activeReport.discretionary.medical.prescriptions || ''}
                     onChange={(e) => handleDiscretionaryChange('medical', 'prescriptions', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Dental"
+                    prefix="$"
+                    label="Dental"
                     value={activeReport.discretionary.medical.dental || ''}
                     onChange={(e) => handleDiscretionaryChange('medical', 'dental', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
@@ -644,35 +692,35 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Group 2: Day-to-day Living */}
               <div className="space-y-3 pt-2">
-                <div className="font-extrabold text-sm text-slate-900">Day-to-day Living</div>
+                <div className="font-bold text-xs sm:text-sm text-slate-900">Day-to-day Living</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Food & Grocery"
+                    prefix="$"
+                    label="Food & Grocery"
                     value={activeReport.discretionary.dayToDay.foodGrocery || ''}
                     onChange={(e) => handleDiscretionaryChange('dayToDay', 'foodGrocery', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Clothing"
+                    prefix="$"
+                    label="Clothing"
                     value={activeReport.discretionary.dayToDay.clothing || ''}
                     onChange={(e) => handleDiscretionaryChange('dayToDay', 'clothing', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Laundry & Dry Cleaning"
+                    prefix="$"
+                    label="Laundry & Dry Cleaning"
                     value={activeReport.discretionary.dayToDay.laundryDryCleaning || ''}
                     onChange={(e) => handleDiscretionaryChange('dayToDay', 'laundryDryCleaning', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Grooming & Toiletries"
+                    prefix="$"
+                    label="Grooming & Toiletries"
                     value={activeReport.discretionary.dayToDay.groomingToiletries || ''}
                     onChange={(e) => handleDiscretionaryChange('dayToDay', 'groomingToiletries', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
@@ -682,21 +730,21 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Group 3: Transportation */}
               <div className="space-y-3 pt-2">
-                <div className="font-extrabold text-sm text-slate-900">Transportation</div>
+                <div className="font-bold text-xs sm:text-sm text-slate-900">Transportation</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Repair, Maintenance & Gas"
+                    prefix="$"
+                    label="Repair, Maintenance & Gas"
                     value={activeReport.discretionary.transportation.repairMaintenanceGas || ''}
                     onChange={(e) => handleDiscretionaryChange('transportation', 'repairMaintenanceGas', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Public Transportation"
+                    prefix="$"
+                    label="Public Transportation"
                     value={activeReport.discretionary.transportation.publicTransportation || ''}
                     onChange={(e) => handleDiscretionaryChange('transportation', 'publicTransportation', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
@@ -715,35 +763,35 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Insurance */}
               <div className="space-y-3">
-                <div className="font-extrabold text-sm text-slate-900">Insurance Expenses</div>
+                <div className="font-bold text-xs sm:text-sm text-slate-900">Insurance Expenses</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Vehicle Insurance"
+                    prefix="$"
+                    label="Vehicle Insurance"
                     value={activeReport.discretionary.insurance.vehicle || ''}
                     onChange={(e) => handleDiscretionaryChange('insurance', 'vehicle', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="House Insurance"
+                    prefix="$"
+                    label="House Insurance"
                     value={activeReport.discretionary.insurance.house || ''}
                     onChange={(e) => handleDiscretionaryChange('insurance', 'house', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Furniture & Contents"
+                    prefix="$"
+                    label="Furniture & Contents"
                     value={activeReport.discretionary.insurance.furnitureContents || ''}
                     onChange={(e) => handleDiscretionaryChange('insurance', 'furnitureContents', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Life Insurance"
+                    prefix="$"
+                    label="Life Insurance"
                     value={activeReport.discretionary.insurance.lifeInsurance || ''}
                     onChange={(e) => handleDiscretionaryChange('insurance', 'lifeInsurance', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
@@ -753,28 +801,28 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Payments */}
               <div className="space-y-3 pt-2">
-                <div className="font-extrabold text-sm text-slate-900">Payments</div>
+                <div className="font-bold text-xs sm:text-sm text-slate-900">Payments</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="To The Estate (Monthly Trustee Dividend)"
+                    prefix="$"
+                    label="To The Estate (Trustee Dividend)"
                     value={activeReport.discretionary.payments.toEstate || ''}
                     onChange={(e) => handleDiscretionaryChange('payments', 'toEstate', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="To Secured Creditor"
+                    prefix="$"
+                    label="To Secured Creditor"
                     value={activeReport.discretionary.payments.toSecuredCreditor || ''}
                     onChange={(e) => handleDiscretionaryChange('payments', 'toSecuredCreditor', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
-                  <input
+                  <FloatingInput
                     type="number"
-                    placeholder="Other Than Mortgage or Vehicle"
+                    prefix="$"
+                    label="Other Than Mortgage or Vehicle"
                     value={activeReport.discretionary.payments.otherThanMortgageOrVehicle || ''}
                     onChange={(e) => handleDiscretionaryChange('payments', 'otherThanMortgageOrVehicle', parseFloat(e.target.value) || 0)}
-                    className="bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-medium"
                   />
                 </div>
               </div>

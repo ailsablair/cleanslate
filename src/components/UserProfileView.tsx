@@ -17,6 +17,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { UserProfile, LIT } from '../types';
+import { FloatingInput } from './FloatingInput';
 
 interface UserProfileViewProps {
   profile: UserProfile;
@@ -34,22 +35,26 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [formData, setFormData] = useState<UserProfile>(profile);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+  const [sendHistoryToLIT, setSendHistoryToLIT] = useState<boolean>(false);
 
   // LIT Search and Dropdown State
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [provinceFilter, setProvinceFilter] = useState<string>('All');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filtered LITs based on user search
+  // Filtered LITs based on user search and province
   const filteredLITs = lits.filter(lit => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesQuery = 
       lit.name.toLowerCase().includes(q) ||
       lit.firm.toLowerCase().includes(q) ||
       lit.province.toLowerCase().includes(q) ||
       lit.city.toLowerCase().includes(q) ||
-      lit.licenseNumber.toLowerCase().includes(q)
-    );
+      lit.licenseNumber.toLowerCase().includes(q);
+    
+    const matchesProvince = provinceFilter === 'All' || lit.province.toLowerCase().includes(provinceFilter.toLowerCase());
+    return matchesQuery && matchesProvince;
   });
 
   // Close dropdown on click outside
@@ -170,91 +175,61 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
+              <FloatingInput
+                label="First Name"
+                value={formData.firstName}
+                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                required
+              />
+              <FloatingInput
+                label="Last Name"
+                value={formData.lastName}
+                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                required
+              />
+              <FloatingInput
+                type="email"
+                label="Email Address"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
+              <FloatingInput
+                type="tel"
+                label="Phone Number"
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                required
+              />
             </div>
 
             <div className="pt-2 text-xs font-bold text-slate-600">
               Address
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Address Line 1"
-                  value={formData.addressLine1}
-                  onChange={e => setFormData({ ...formData, addressLine1: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Address Line 2 (Optional)"
-                  value={formData.addressLine2 || ''}
-                  onChange={e => setFormData({ ...formData, addressLine2: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Province / State"
-                  value={formData.province}
-                  onChange={e => setFormData({ ...formData, province: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Postal Code"
-                  value={formData.postalCode}
-                  onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] font-medium"
-                />
-              </div>
+              <FloatingInput
+                label="Address Line 1"
+                value={formData.addressLine1}
+                onChange={e => setFormData({ ...formData, addressLine1: e.target.value })}
+                required
+              />
+              <FloatingInput
+                label="Address Line 2 (Optional)"
+                value={formData.addressLine2 || ''}
+                onChange={e => setFormData({ ...formData, addressLine2: e.target.value })}
+              />
+              <FloatingInput
+                label="Province / Territory"
+                value={formData.province}
+                onChange={e => setFormData({ ...formData, province: e.target.value })}
+                required
+              />
+              <FloatingInput
+                label="Postal Code"
+                value={formData.postalCode}
+                onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
+                required
+              />
             </div>
           </div>
 
@@ -451,7 +426,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               </div>
 
               {isDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 p-3 space-y-2 animate-in fade-in duration-150">
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 p-3 space-y-2.5 animate-in fade-in duration-150">
                   <div className="relative">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -463,6 +438,28 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                       autoFocus
                     />
+                  </div>
+
+                  {/* Province Quick Filter Pills */}
+                  <div className="flex flex-wrap items-center gap-1 text-[11px] font-semibold text-slate-600 pb-1 border-b border-slate-100">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase mr-1">Province:</span>
+                    {['All', 'British Columbia', 'Alberta', 'Ontario', 'Quebec', 'Manitoba', 'Saskatchewan', 'Nova Scotia'].map((prov) => (
+                      <button
+                        key={prov}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProvinceFilter(prov);
+                        }}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] transition ${
+                          provinceFilter === prov
+                            ? 'bg-[#1d1a27] text-white font-bold'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {prov === 'British Columbia' ? 'BC' : prov === 'Alberta' ? 'AB' : prov === 'Ontario' ? 'ON' : prov === 'Quebec' ? 'QC' : prov === 'Manitoba' ? 'MB' : prov === 'Saskatchewan' ? 'SK' : prov === 'Nova Scotia' ? 'NS' : 'All Canada'}
+                      </button>
+                    ))}
                   </div>
 
                   <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
@@ -504,7 +501,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                       })
                     ) : (
                       <div className="p-4 text-center text-xs text-slate-400">
-                        No Licensed Insolvency Trustees found matching "{searchQuery}".
+                        No Licensed Insolvency Trustees found matching "{searchQuery}" in {provinceFilter}.
                       </div>
                     )}
                   </div>
@@ -513,18 +510,39 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             </div>
           </div>
 
-          {/* Automated LIT Email Dispatch Notice */}
-          <div className="bg-slate-100 border border-slate-200 rounded-2xl p-4 text-xs text-slate-700 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5">
-              <Mail className="w-4 h-4 text-slate-600 shrink-0" />
-              <span>
-                <strong>Automated Trustee Sync:</strong> When you click <span className="font-bold text-slate-900">Save</span>, all updated contact, address, and employment details will automatically be transmitted to <strong className="text-slate-900">{formData.litEmail || 'your LIT'}</strong>.
-              </span>
+          {/* Explicit Opt-In Toggle for LIT Historical Data Transmission */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-700 space-y-2.5">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="sendHistoryCheckbox"
+                checked={sendHistoryToLIT}
+                onChange={e => setSendHistoryToLIT(e.target.checked)}
+                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-[#1d1a27] focus:ring-[#b4b1fc] cursor-pointer"
+              />
+              <label htmlFor="sendHistoryCheckbox" className="cursor-pointer space-y-1 select-none">
+                <div className="font-bold text-slate-900 text-xs">
+                  Transmit past bankruptcy filing reports and document history to newly assigned LIT upon saving
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Defaulting to sending all history may result in spamming trustees during exploration. Keep this unchecked unless you are officially transferring your active bankruptcy estate to <strong className="text-slate-800">{formData.litEmail || 'the selected trustee'}</strong>.
+                </p>
+              </label>
             </div>
+
+            {sendHistoryToLIT && (
+              <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 font-medium flex items-center gap-2">
+                <Mail className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>
+                  <strong>Transmission target:</strong> {formData.litEmail} will receive full estate history upon clicking Save.
+                </span>
+              </div>
+            )}
+
             {saveSuccess && (
-              <span className="shrink-0 bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-xl text-xs flex items-center gap-1.5 animate-in fade-in">
+              <span className="inline-flex bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-xl text-xs items-center gap-1.5 animate-in fade-in">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Dispatched to LIT!
+                Profile saved {sendHistoryToLIT ? `and data dispatched to ${formData.litEmail}` : 'without sending historical reports to LIT.'}
               </span>
             )}
           </div>
