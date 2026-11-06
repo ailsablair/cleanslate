@@ -14,6 +14,7 @@ import { BankAccount, Transaction, MonthlyReport, UserProfile } from '../types';
 import { INITIAL_RECENT_ACTIVITY } from '../lib/mockData';
 import { BudgetSummary } from './BudgetSummary';
 import { FinancialInsightCard } from './FinancialInsightCard';
+import { formatCurrency } from '../lib/formatters';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -60,23 +61,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Main Column (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Top Outstanding Alert Banner (Yellow / Amber card from design) */}
-          <div className="bg-[#fbf050] text-[#1d1a27] rounded-3xl p-5 sm:p-6 shadow-sm transition-all">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-1">
-                <h2 className="text-base sm:text-lg font-bold tracking-tight">
+          {/* Top Outstanding Alert Banner */}
+          <div className="bg-[#fbf050] text-[#1d1a27] rounded-3xl p-6 shadow-sm transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-950">
                   You have {outstandingCount} outstanding monthly reports to submit
                 </h2>
-                <p 
-                  className="text-xs font-medium text-[#2d283c] leading-relaxed max-w-xl"
-                  style={{ fontSize: '14px' }}
-                >
-                  You're on track! Reports are due on the <span className="font-bold underline decoration-slate-900/30">15th of every month</span>. Completing them on time is important for early discharge.
+                <p className="text-sm font-normal text-[#2d283c] leading-relaxed max-w-xl">
+                  You're on track! Reports are due on the <span className="font-semibold underline decoration-slate-900/30">15th of every month</span>. Completing them on time is important for early discharge.
                 </p>
               </div>
               <button
                 onClick={onNavigateToReports}
-                className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5 self-start sm:self-center"
+                className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs px-5 py-3 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 self-start sm:self-center cursor-pointer active:scale-95"
               >
                 <span className="font-normal">Complete</span>
                 <ChevronRight className="w-4 h-4" />
@@ -84,79 +82,99 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* 3 Metric Cards (Lavender `#b4b1fc` from design) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 3 Metric Cards (Lavender `#b4b1fc`) with Balanced Height and Alignment */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Metric 1: Monthly Reports */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[148px] flex flex-col justify-between"
             >
-              <div 
-                className="font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
-                style={{ fontSize: '6px', fontFamily: "'Google Sans Flex', sans-serif" }}
-              >
-                MONTHLY REPORTS
-              </div>
-              <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-normal">
-                  {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount})</span>
-                </div>
-                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                </div>
-              </div>
-              {/* Progress bar line matching the screenshot */}
-              <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
+              <div>
                 <div 
-                  className="bg-[#242031] h-full rounded-full transition-all duration-500" 
-                  style={{ width: `${completionPercent}%` }}
-                />
+                  className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+                >
+                  MONTHLY REPORTS
+                </div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="text-2xl font-bold tracking-tight">
+                    {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount}/{monthlyReports.length || 12})</span>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden mb-1">
+                  <div 
+                    className="bg-[#242031] h-full rounded-full transition-all duration-500" 
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-medium text-[#3f3b54] block">
+                  {monthlyReports.length - submittedCount} reports remaining for discharge
+                </span>
               </div>
             </div>
 
             {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
             <div 
               onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[148px] flex flex-col justify-between"
               title="Click to view 6-month spending trends & peer benchmarks"
             >
-              <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-                <span>AVERAGE SPEND</span>
-                <span className="text-[9px] font-bold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
-                  View Trends &rarr;
+              <div>
+                <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+                  <span>AVERAGE SPEND</span>
+                  <span className="text-[9px] font-bold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
+                    View Trends &rarr;
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="text-2xl font-bold tracking-tight">
+                    {formatCurrency(avgSpend)}
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                    <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden mb-1">
+                  <div className="bg-[#242031] h-full rounded-full" style={{ width: '64%' }} />
+                </div>
+                <span className="text-[10px] font-medium text-[#3f3b54] block">
+                  Within Canadian guideline parameters
                 </span>
-              </div>
-              <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-normal">
-                  $ 2,397.22
-                </div>
-                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
-                </div>
-              </div>
-              <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-[#242031] h-full rounded-full w-2/3" />
               </div>
             </div>
 
             {/* Metric 3: Current Payment */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 transition cursor-pointer shadow-xs relative group"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[148px] flex flex-col justify-between"
             >
-              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-                CURRENT PAYMENT
-              </div>
-              <div className="flex items-baseline justify-between mb-2">
-                <div className="text-xl sm:text-2xl font-normal">
-                  $ {currentPayment.toFixed(2)}
+              <div>
+                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+                  CURRENT PAYMENT
                 </div>
-                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
-                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="text-2xl font-bold tracking-tight">
+                    {formatCurrency(currentPayment)}
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition">
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                 </div>
               </div>
-              <div className="text-[10px] font-medium text-[#3f3b54] opacity-90 truncate">
-                Superintendent surplus target
+              <div>
+                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden mb-1">
+                  <div className="bg-[#242031] h-full rounded-full w-full" />
+                </div>
+                <span className="text-[10px] font-medium text-[#3f3b54] block">
+                  Superintendent surplus target met
+                </span>
               </div>
             </div>
           </div>
@@ -193,29 +211,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80 pb-3">
-                    <th 
-                      className="pb-3 font-semibold"
-                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif", height: '30px', width: '175.805px' }}
-                    >
+                  <tr className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200/80 pb-3">
+                    <th className="pb-3">
                       Transaction ID
                     </th>
-                    <th 
-                      className="pb-3 font-semibold"
-                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
-                    >
+                    <th className="pb-3">
                       Company
                     </th>
-                    <th 
-                      className="pb-3 font-semibold"
-                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
-                    >
+                    <th className="pb-3">
                       Date
                     </th>
-                    <th 
-                      className="pb-3 font-semibold text-right"
-                      style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
-                    >
+                    <th className="pb-3 text-right">
                       Amount
                     </th>
                     <th className="pb-3 w-8"></th>
@@ -238,7 +244,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {tx.date}
                       </td>
                       <td className="py-4 text-right font-bold text-slate-900">
-                        $ {tx.amount.toFixed(2)}
+                        {formatCurrency(tx.amount)}
                       </td>
                       <td className="py-4 text-right text-slate-300 group-hover:text-slate-700 transition">
                         <ChevronRight className="w-4 h-4 ml-auto" />
@@ -250,12 +256,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Connected Bank Accounts (Bottom 3 cards - dynamic API driven!) */}
+          {/* Connected Bank Accounts */}
           <div>
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  CONNECTED BANK ACCOUNTS (LIVE AGGREGATOR API)
+                  CONNECTED BANK ACCOUNTS
                 </span>
                 {isSyncing && (
                   <span className="text-[11px] font-semibold text-[#b6b3ff] flex items-center gap-1">
@@ -289,7 +295,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                   <div className="flex items-baseline justify-between">
                     <div className="text-2xl font-normal text-slate-900 tracking-tight">
-                      $ {account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {formatCurrency(account.balance)}
                     </div>
                     <div className="text-slate-400 group-hover:text-slate-900 transition">
                       {account.trendDirection === 'up' ? (
@@ -308,7 +314,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Right Side Column (1/3 width): RECENT ACTIVITY */}
         <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
           <div className="flex items-center justify-between mb-6 text-sm">
-            <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
+            <h3 className="text-sm font-bold tracking-wider uppercase text-[#242031]">
               RECENT ACTIVITY
             </h3>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -390,8 +396,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </div>
             <div>
-              <div className="text-2xl font-black text-white">{selectedTx.company}</div>
-              <div className="text-xl font-black text-[#fbf050] mt-1">$ {selectedTx.amount.toFixed(2)}</div>
+              <div className="text-xl font-bold text-white">{selectedTx.company}</div>
+              <div className="text-lg font-bold text-[#fbf050] mt-1">{formatCurrency(selectedTx.amount)}</div>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="bg-white/5 p-3 rounded-xl">

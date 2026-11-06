@@ -11,6 +11,7 @@ import {
   Award
 } from 'lucide-react';
 import { MonthlyReport, UserProfile } from '../types';
+import { formatCurrency } from '../lib/formatters';
 
 interface DebtProgressProps {
   reports: MonthlyReport[];
@@ -107,7 +108,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
           <div className="text-base sm:text-lg font-bold text-white">
             $ {totalDischargeTarget.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <span className="text-[10px] text-slate-400">9 months @ $ 159.00/mo</span>
+          <span className="text-[10px] text-slate-400">9 months @ {formatCurrency(159)}/mo</span>
         </div>
 
         <div className="bg-white/5 border border-white/5 rounded-xl p-3">
@@ -196,7 +197,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
             What this means in plain language:
           </span>
           <p className="text-slate-300 text-[11px] leading-relaxed">
-            You only have <strong className="text-white">{remainingMonths} monthly reports and ${remainingBalance.toFixed(2)}</strong> left to complete. As long as you submit on time and attend your second counselling session, your trustee will certify your full legal discharge at month 9, wiping away all qualifying debts.
+            You only have <strong className="text-white">{remainingMonths} monthly reports and {formatCurrency(remainingBalance)}</strong> left to complete. As long as you submit on time and attend your second counselling session, your trustee will certify your full legal discharge at month 9, wiping away all qualifying debts.
           </p>
         </div>
       </div>

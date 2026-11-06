@@ -420,7 +420,8 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                     type="text"
                     value={extractedTitle}
                     onChange={e => setExtractedTitle(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] font-medium"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   />
                 </div>
 
@@ -435,7 +436,8 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                       step="0.01"
                       value={extractedAmount}
                       onChange={e => setExtractedAmount(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] font-black text-base"
+                      className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                      style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                     />
                   </div>
 
@@ -448,7 +450,8 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                       type="text"
                       value={extractedDate}
                       onChange={e => setExtractedDate(e.target.value)}
-                      className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] font-medium"
+                      className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                      style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                     />
                   </div>
                 </div>

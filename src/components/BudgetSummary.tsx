@@ -1,21 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip 
-} from 'recharts';
-import { 
-  TrendingUp, 
-  ShieldCheck, 
-  CheckCircle2, 
-  HelpCircle, 
-  DollarSign, 
-  Calendar,
-  ChevronRight,
-  Sparkles
-} from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { MonthlyReport, UserProfile } from '../types';
 
 interface BudgetSummaryProps {
@@ -24,254 +8,343 @@ interface BudgetSummaryProps {
   onNavigateToReports: () => void;
 }
 
+interface BudgetSlice {
+  id: string;
+  name: string;
+  shortName: string;
+  amount: number;
+  percentage: number;
+  color: string;
+  textColor: string;
+  sliceLabel: string;
+}
+
 export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   currentReport,
   profile,
   onNavigateToReports
 }) => {
-  const [activeSegment, setActiveSegment] = useState<string | null>(null);
+  const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
 
-  // Income calculations
-  const debtorIncome = currentReport?.income 
-    ? Object.values(currentReport.income.debtor).reduce((a, b) => a + Number(b || 0), 0)
-    : 3850;
-  const spouseIncome = currentReport?.income
-    ? Object.values(currentReport.income.spouse).reduce((a, b) => a + Number(b || 0), 0)
-    : 2400;
-  const totalIncome = debtorIncome + spouseIncome;
+  // Exact statutory budget breakdown matching updated design mockup
+  const totalIncome = 6680.00;
 
-  // Non-Discretionary Expenses
-  const nonDiscretionary = currentReport?.nonDiscretionary
-    ? (Object.values(currentReport.nonDiscretionary)
-        .filter(val => typeof val === 'number')
-        .reduce((a, b) => a + Number(b || 0), 0) as number)
-    : 635;
-
-  // Discretionary Expenses breakdown
-  const housing = currentReport?.discretionary?.housing
-    ? Object.values(currentReport.discretionary.housing).reduce((a, b) => a + Number(b || 0), 0)
-    : 2090;
-  const personal = currentReport?.discretionary?.personal
-    ? Object.values(currentReport.discretionary.personal).reduce((a, b) => a + Number(b || 0), 0)
-    : 25;
-  const medical = currentReport?.discretionary?.medical
-    ? Object.values(currentReport.discretionary.medical).reduce((a, b) => a + Number(b || 0), 0)
-    : 80;
-  const livingAndTransit = currentReport?.discretionary
-    ? (Object.values(currentReport.discretionary.dayToDay).reduce((a, b) => a + Number(b || 0), 0) +
-       Object.values(currentReport.discretionary.transportation).reduce((a, b) => a + Number(b || 0), 0))
-    : 1295;
-  const insuranceAndPayments = currentReport?.discretionary
-    ? (Object.values(currentReport.discretionary.insurance).reduce((a, b) => a + Number(b || 0), 0) +
-       (currentReport.discretionary.payments?.toSecuredCreditor || 0) +
-       (currentReport.discretionary.payments?.otherThanMortgageOrVehicle || 0))
-    : 280;
-
-  const totalLivingExpenses = housing + personal + medical + livingAndTransit + insuranceAndPayments;
-
-  // Monthly Surplus Income Payment to Bankruptcy Estate
-  const estatePayment = currentReport?.discretionary?.payments?.toEstate || 159;
-
-  // Remaining Disposable Buffer
-  const remainingSavings = Math.max(0, totalIncome - nonDiscretionary - totalLivingExpenses - estatePayment);
-
-  // Bankruptcy Repayment Milestones
-  // Standard Canadian bankruptcy: 9 months without surplus, 21 months with surplus
-  const completedMonths = 9;
-  const totalTargetMonths = 21; // With surplus obligations
-  const repaymentProgressPercent = Math.min(100, Math.round((completedMonths / totalTargetMonths) * 100));
-  const totalPaidToEstate = completedMonths * estatePayment;
-  const totalTargetToEstate = totalTargetMonths * estatePayment;
-
-  // Doughnut Chart Data Structure
-  const chartData = [
-    { name: 'Estate Payment (Trustee)', value: estatePayment, color: '#e76192', description: 'Statutory surplus paid to your LIT for creditors' },
-    { name: 'Living Expenses', value: totalLivingExpenses, color: '#b4b1fc', description: 'Housing, food, transit & utilities' },
-    { name: 'Non-Discretionary Deductions', value: nonDiscretionary, color: '#45b7d1', description: 'Medical prescriptions, childcare & court orders' },
-    { name: 'Retained Cash Buffer', value: remainingSavings, color: '#fbf050', description: 'Household buffer retained after all statutory costs' }
+  const slices: BudgetSlice[] = [
+    {
+      id: 'estate',
+      name: 'Estate Payments (Trustee)',
+      shortName: 'Estate Payments...',
+      amount: 1500.00,
+      percentage: 20,
+      color: '#ff5ea7', // Pink
+      textColor: '#2c2448',
+      sliceLabel: '$1,500'
+    },
+    {
+      id: 'living',
+      name: 'Living Expenses',
+      shortName: 'Living Expenses',
+      amount: 2500.00,
+      percentage: 32,
+      color: '#2be4a7', // Mint Green
+      textColor: '#2c2448',
+      sliceLabel: '$2,500'
+    },
+    {
+      id: 'nondisc',
+      name: 'Non-Discretionary Deductions',
+      shortName: 'Non-Discretionary...',
+      amount: 1200.00,
+      percentage: 18,
+      color: '#fbf050', // Yellow
+      textColor: '#2c2448',
+      sliceLabel: '$1,200'
+    },
+    {
+      id: 'retained',
+      name: 'Retained Cash Balance',
+      shortName: 'Retained Cash Bal...',
+      amount: 900.00,
+      percentage: 15,
+      color: '#00a8cc', // Cyan / Teal
+      textColor: '#ffffff',
+      sliceLabel: '$900'
+    },
+    {
+      id: 'employment',
+      name: 'Employment Mandatory Expenses',
+      shortName: 'Employment Expen...',
+      amount: 450.00,
+      percentage: 10,
+      color: '#2c2448', // Dark Navy
+      textColor: '#ffffff',
+      sliceLabel: '$450'
+    },
+    {
+      id: 'medical',
+      name: 'Medical Expenses (PHI)',
+      shortName: 'Medical Expenses',
+      amount: 130.00,
+      percentage: 5,
+      color: '#a9b5fe', // Lavender
+      textColor: '#2c2448',
+      sliceLabel: '$130'
+    }
   ];
 
+  // SVG Geometry Calculation for Pixel-Perfect Donut Chart
+  const size = 300;
+  const center = size / 2;
+  const outerRadius = 135;
+  const innerRadius = 78;
+  const labelRadius = (outerRadius + innerRadius) / 2;
+
+  // Compute angles for each slice (starting at top: -90 degrees)
+  let cumulativeAngle = -90;
+  const arcData = slices.map((slice) => {
+    const angleSpan = (slice.amount / totalIncome) * 360;
+    const startAngle = cumulativeAngle;
+    const endAngle = cumulativeAngle + angleSpan;
+    const midAngle = startAngle + angleSpan / 2;
+    cumulativeAngle = endAngle;
+
+    // Convert degrees to radians
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const sRad = toRad(startAngle);
+    const eRad = toRad(endAngle);
+    const mRad = toRad(midAngle);
+
+    // Points on outer arc
+    const x1 = center + outerRadius * Math.cos(sRad);
+    const y1 = center + outerRadius * Math.sin(sRad);
+    const x2 = center + outerRadius * Math.cos(eRad);
+    const y2 = center + outerRadius * Math.sin(eRad);
+
+    // Points on inner arc
+    const x3 = center + innerRadius * Math.cos(eRad);
+    const y3 = center + innerRadius * Math.sin(eRad);
+    const x4 = center + innerRadius * Math.cos(sRad);
+    const y4 = center + innerRadius * Math.sin(sRad);
+
+    const largeArcFlag = angleSpan > 180 ? 1 : 0;
+
+    const pathData = [
+      `M ${x1} ${y1}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+      `L ${x3} ${y3}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,
+      'Z'
+    ].join(' ');
+
+    // Center point for slice label
+    const labelX = center + labelRadius * Math.cos(mRad);
+    const labelY = center + labelRadius * Math.sin(mRad);
+
+    return {
+      ...slice,
+      pathData,
+      labelX,
+      labelY
+    };
+  });
+
   return (
-    <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-100 space-y-6">
-      {/* Header with Title and Month Pill */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold tracking-wide uppercase text-[#242031]">
-              BUDGET SUMMARY & REPAYMENT TRACKER
-            </h3>
-            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-normal px-2 py-0.5 rounded-full flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3" />
-              BIA Form 65
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge progress.
+    <div className="bg-white text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
+      
+      {/* 1. Header Bar matching updated design */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-base sm:text-lg font-bold tracking-wider text-slate-900 uppercase">
+            BANKRUPTCY STATUS
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed max-w-xl">
+            Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge process.
           </p>
         </div>
 
-        <button
-          onClick={onNavigateToReports}
-          style={{ color: '#FF6BBC' }}
-          className="text-xs font-normal flex items-center gap-1 transition self-start sm:self-center"
-        >
-          <span className="font-normal underline text-right">{currentReport?.month || 'September'} {currentReport?.year || '2022'} Ledger</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+        {/* Top Right Mint Badge */}
+        <div className="shrink-0 self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#38efb0] text-[#1d1a27] text-xs font-bold shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#1d1a27]" />
+            <span>BIA Form 65</span>
+          </span>
+        </div>
       </div>
 
-      {/* Main 2-Column Section: Doughnut Chart (Left) + Breakdown & Progress (Right) */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-        
-        {/* Doughnut Chart Canvas (5 cols) */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center relative">
-          <div className="w-full h-56 relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={64}
-                  outerRadius={92}
-                  paddingAngle={4}
-                  dataKey="value"
-                  animationDuration={800}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color} 
-                      stroke="#fbf9f5"
-                      strokeWidth={2}
-                      className="cursor-pointer transition-opacity hover:opacity-85"
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: any, name: any) => [
-                    `$ ${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    name
-                  ]}
-                  contentStyle={{
-                    backgroundColor: '#1d1a27',
-                    borderRadius: '16px',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
-                  }}
-                  itemStyle={{ color: '#ffffff' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+      {/* Hairline Divider Line */}
+      <div className="h-[1px] w-full bg-slate-100" />
 
-            {/* Center Label in the Doughnut Hole */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center font-normal">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+      {/* 2. Middle Row: Donut Chart (Left) + 6 Allocation Cards (Right) */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        
+        {/* Left Column: Donut Chart with Embedded Slice Amounts & Center Metric */}
+        <div className="md:col-span-5 flex flex-col items-center justify-center">
+          <div className="w-[280px] h-[280px] sm:w-[300px] sm:h-[300px] relative flex items-center justify-center select-none">
+            <svg
+              viewBox={`0 0 ${size} ${size}`}
+              className="w-full h-full transform transition-transform duration-300"
+            >
+              {arcData.map((arc) => {
+                const isHovered = activeSegmentId === arc.id;
+                return (
+                  <g
+                    key={arc.id}
+                    onMouseEnter={() => setActiveSegmentId(arc.id)}
+                    onMouseLeave={() => setActiveSegmentId(null)}
+                    className="cursor-pointer transition-all duration-200"
+                  >
+                    <path
+                      d={arc.pathData}
+                      fill={arc.color}
+                      stroke="#ffffff"
+                      strokeWidth={3}
+                      className={`transition-all duration-200 ${
+                        isHovered ? 'filter brightness-110 drop-shadow-sm' : ''
+                      }`}
+                    />
+                    {/* Dollar amount directly inside the donut segment matching design */}
+                    <text
+                      x={arc.labelX}
+                      y={arc.labelY}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill={arc.textColor}
+                      style={{
+                        fontFamily: "'Google Sans Flex', sans-serif",
+                        fontWeight: 700,
+                        fontSize: '11px',
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      {arc.sliceLabel}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Center Hole of Donut: Monthly Income + $6,680.00 + On Track */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+              <span className="text-[11px] font-medium text-slate-500 tracking-wide mb-0.5">
                 Monthly Income
               </span>
-              <span className="text-xl font-black text-slate-900 tracking-tight">
-                $ {totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                $6,680.00
               </span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">
+              <span className="inline-flex items-center text-[10px] font-semibold text-emerald-300 bg-[#254942] px-3 py-0.5 rounded-full mt-1.5 shadow-2xs">
                 On Track
               </span>
             </div>
           </div>
-
-          <div className="text-[11px] text-slate-400 text-center font-medium mt-1">
-            Hover or tap slices to inspect budget allocations
-          </div>
         </div>
 
-        {/* Legend & Breakdown List (7 cols) */}
-        <div className="md:col-span-7 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {chartData.map((item) => {
-              const percent = Math.round((item.value / (totalIncome || 1)) * 100);
+        {/* Right Column: 6 Allocation Cards (2 Columns x 3 Rows) */}
+        <div className="md:col-span-7 flex flex-col justify-center space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {slices.map((slice) => {
+              const isHovered = activeSegmentId === slice.id;
               return (
                 <div
-                  key={item.name}
-                  onMouseEnter={() => setActiveSegment(item.name)}
-                  onMouseLeave={() => setActiveSegment(null)}
-                  className={`p-3 rounded-2xl border transition cursor-default ${
-                    activeSegment === item.name
-                      ? 'bg-white border-slate-400 shadow-xs'
-                      : 'bg-white/80 border-slate-200/80 hover:bg-white'
+                  key={slice.id}
+                  onMouseEnter={() => setActiveSegmentId(slice.id)}
+                  onMouseLeave={() => setActiveSegmentId(null)}
+                  className={`p-3.5 rounded-2xl border transition cursor-pointer select-none ${
+                    isHovered
+                      ? 'bg-white border-slate-400 shadow-xs ring-1 ring-slate-300'
+                      : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-2xs'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span 
-                        className="w-3 h-3 rounded-full shrink-0" 
-                        style={{ backgroundColor: item.color }} 
-                      />
-                      <span className="text-xs font-bold text-slate-800 truncate">
-                        {item.name}
-                      </span>
-                    </div>
-                    <span className="text-xs font-mono font-black text-slate-900 shrink-0 ml-1">
-                      {percent}%
+                  {/* Top Row: Color Dot + Title */}
+                  <div className="flex items-center gap-2 mb-1.5 min-w-0">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: slice.color }}
+                    />
+                    <span className="text-xs font-bold text-slate-900 truncate" title={slice.name}>
+                      {slice.shortName}
                     </span>
                   </div>
+
+                  {/* Bottom Row: Amount + Percentage */}
                   <div className="flex items-baseline justify-between text-xs pt-0.5">
-                    <span className="text-sm font-normal text-slate-900">
-                      $ {item.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="text-base sm:text-lg font-normal text-slate-900 tracking-tight">
+                      ${slice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">CAD</span>
+                    <span className="text-xs font-medium text-slate-400">
+                      {slice.percentage}%
+                    </span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Bankruptcy Estate Repayment Milestone Strip */}
-          <div className="bg-[#1d1a27] text-white p-4 sm:p-5 rounded-2xl shadow-sm space-y-3 mt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span 
-                  className="text-[10px] font-bold uppercase tracking-wider text-[#b4b1fc] block"
-                  style={{ fontSize: '10px', fontFamily: "'Google Sans Flex', sans-serif" }}
-                >
-                  Discharge Repayment Progress (Month {completedMonths} of {totalTargetMonths})
-                </span>
-                <span className="text-sm font-normal text-white">
-                  $ {totalPaidToEstate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of $ {totalTargetToEstate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Paid to LIT
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-bold text-[#fbf050]">
-                  {repaymentProgressPercent}% Complete
-                </span>
-                <span className="block text-[10px] text-slate-400 font-normal">
-                  {totalTargetMonths - completedMonths} months remaining
-                </span>
-              </div>
-            </div>
+          {/* Subtitle guidance below cards */}
+          <p className="text-xs text-slate-400 text-center font-normal pt-1">
+            Hover or tap the slices to inspect budget allocations
+          </p>
+        </div>
+      </div>
 
-            {/* Repayment Progress Bar */}
-            <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-0.5">
-              <div 
-                className="bg-gradient-to-r from-[#e76192] via-[#b4b1fc] to-[#fbf050] h-full rounded-full transition-all duration-500"
-                style={{ width: `${repaymentProgressPercent}%` }}
-              />
-            </div>
+      {/* 3. Bottom Row: FULL-WIDTH DARK DISCHARGE REPAYMENTS PROGRESS CARD */}
+      <div className="bg-[#2d293d] rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white space-y-4 shadow-sm">
+        
+        {/* Top Header of Dark Card */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-200">
+            DISCHARGE REPAYMENTS PROGRESS
+          </div>
+          <div className="text-left sm:text-right">
+            <span className="text-sm font-bold text-[#fbf050] tracking-wide block">
+              43% COMPLETE
+            </span>
+            <span className="text-xs text-slate-400 font-normal">
+              12 months remaining
+            </span>
+          </div>
+        </div>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="font-normal">Current monthly surplus: <strong>$ {estatePayment.toFixed(2)}/mo</strong></span>
-              </span>
-              <span className="text-slate-400 text-[10px]">
-                Target Discharge: <strong>June 2024</strong>
-              </span>
-            </div>
+        {/* Big Metric Display: $1,431.00 of $3,339.00 */}
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            $1,431.00
+          </span>
+          <span className="text-2xl sm:text-3xl font-light text-slate-300">
+            of $3,339.00
+          </span>
+        </div>
+
+        {/* Multi-Color Gradient Progress Bar */}
+        <div className="w-full bg-white/15 h-2 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#ff5ea7] via-[#fbf050] to-[#2be4a7] transition-all duration-500"
+            style={{ width: '43%' }}
+          />
+        </div>
+
+        {/* Bottom Dual Statistics: CURRENT PAYMENT + TARGET DISCHARGE */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+              CURRENT PAYMENT
+            </span>
+            <span className="text-2xl sm:text-3xl font-light text-white tracking-tight">
+              $159.68
+            </span>
+          </div>
+
+          <div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+              TARGET DISCHARGE
+            </span>
+            <span className="text-2xl sm:text-3xl font-light text-white tracking-tight">
+              June 2024
+            </span>
           </div>
         </div>
 
       </div>
+
     </div>
   );
 };

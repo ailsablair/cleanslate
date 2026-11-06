@@ -9,6 +9,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { MonthlyReport, UserProfile } from '../types';
+import { formatCurrency } from '../lib/formatters';
 
 interface FinancialInsightCardProps {
   monthlyReports: MonthlyReport[];
@@ -125,7 +126,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
               className="text-[10px] font-normal text-slate-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full whitespace-nowrap"
               style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
             >
-              Top Category: <strong className="text-white font-normal">{highestCat.category}</strong> (${highestCat.amount.toFixed(2)})
+              Top Category: <strong className="text-white font-normal">{highestCat.category}</strong> ({formatCurrency(highestCat.amount)})
             </span>
             <button
               onClick={fetchInsight}

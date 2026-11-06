@@ -1,6 +1,7 @@
 import React from 'react';
 import { Headphones, ShieldCheck, Mail, Phone, ExternalLink, HelpCircle, FileText } from 'lucide-react';
 import { UserProfile } from '../types';
+import { getMailtoUrl } from '../lib/formatters';
 
 interface SupportViewProps {
   profile: UserProfile;
@@ -36,7 +37,13 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
             <div className="text-xs text-slate-500 pt-1 flex flex-wrap items-center gap-4">
               <span className="flex items-center gap-1 font-bold text-slate-800">
                 <Mail className="w-3.5 h-3.5 text-slate-400" />
-                {profile.litEmail}
+                <a
+                  href={getMailtoUrl(profile.litEmail)}
+                  className="underline hover:opacity-80 transition"
+                  title="Email LIT"
+                >
+                  {profile.litEmail}
+                </a>
               </span>
               <span className="flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5 text-slate-400" />
@@ -46,7 +53,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
           </div>
 
           <a
-            href={`mailto:${profile.litEmail}?subject=CleanSlate Estate Inquiry - ${profile.firstName} ${profile.lastName}`}
+            href={getMailtoUrl(profile.litEmail, `Estate Inquiry - ${profile.firstName} ${profile.lastName}`)}
             className="px-5 py-3 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs shrink-0"
           >
             <Mail className="w-4 h-4 text-[#b4b1fc]" />

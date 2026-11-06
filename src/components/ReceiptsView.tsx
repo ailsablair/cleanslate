@@ -19,6 +19,7 @@ import {
 import { Receipt } from '../types';
 import { CameraReceiptModal } from './CameraReceiptModal';
 import { FloatingInput } from './FloatingInput';
+import { formatCurrency } from '../lib/formatters';
 
 interface ReceiptsViewProps {
   receipts: Receipt[];
@@ -165,7 +166,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
               Total Verified Deductions
             </span>
             <div className="text-xl font-bold text-slate-900">
-              $ {totalVaultAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalVaultAmount)}
             </div>
           </div>
 
@@ -174,7 +175,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
               Protected Medical Documents (PHI)
             </span>
             <div className="text-xl font-bold text-emerald-800 flex items-center gap-2">
-              <span>$ {medicalTotal.toFixed(2)}</span>
+              <span>{formatCurrency(medicalTotal)}</span>
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
           </div>
@@ -231,12 +232,12 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
-              <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 pb-3">
-                <th className="pb-3 font-semibold">Document Title</th>
-                <th className="pb-3 font-semibold">Statutory Category</th>
-                <th className="pb-3 font-semibold">Privacy Level</th>
-                <th className="pb-3 font-semibold">Report Period</th>
-                <th className="pb-3 font-semibold text-right">Amount</th>
+              <tr className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 pb-3">
+                <th className="pb-3">Document Title</th>
+                <th className="pb-3">Statutory Category</th>
+                <th className="pb-3">Privacy Level</th>
+                <th className="pb-3">Report Period</th>
+                <th className="pb-3 text-right">Amount</th>
                 <th className="pb-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -253,18 +254,18 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                       </div>
                     </td>
                     <td className="py-3.5">
-                      <span className="bg-slate-200/80 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      <span className="bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-medium px-2.5 py-1 rounded-md">
                         {rec.category}
                       </span>
                     </td>
                     <td className="py-3.5">
                       {isMed ? (
-                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[10px] font-medium px-2 py-0.5 rounded-md">
                           <ShieldCheck className="w-3 h-3 text-emerald-700" />
                           <span>Protected Health (PHI)</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded-md">
                           <Lock className="w-2.5 h-2.5" />
                           <span>Standard Encrypted</span>
                         </span>
@@ -274,7 +275,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                       {rec.reportMonth || 'September 2022'} · {rec.date}
                     </td>
                     <td className="py-3.5 text-right font-bold text-slate-900">
-                      $ {rec.amount.toFixed(2)}
+                      {formatCurrency(rec.amount)}
                     </td>
                     <td className="py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
@@ -393,7 +394,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 <select
                   value={privacyClassification}
                   onChange={e => setPrivacyClassification(e.target.value as any)}
-                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
+                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 >
                   <option value="PHI">Protected Health Information (Medical / Prescriptions)</option>
                   <option value="Statutory">Non-Discretionary (Childcare / Court Order)</option>
@@ -408,7 +409,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 <select
                   value={category}
                   onChange={e => setCategory(e.target.value)}
-                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
+                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 >
                   <option value="Medical Condition Expenses">Medical Condition Expenses (Non-Discretionary)</option>
                   <option value="Child Care">Child Care (Non-Discretionary)</option>
@@ -462,7 +463,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-black"
+                  className="px-5 py-2.5 rounded-xl bg-[#fbf050] hover:bg-[#eade41] text-[#1d1a27] text-xs font-bold transition shadow-xs"
                 >
                   Save to Vault
                 </button>
@@ -492,7 +493,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             </div>
             <div>
               <div className="text-lg font-bold text-white">{selectedReceipt.title}</div>
-              <div className="text-xl font-bold text-[#fbf050] mt-1">$ {selectedReceipt.amount.toFixed(2)}</div>
+              <div className="text-xl font-bold text-[#fbf050] mt-1">{formatCurrency(selectedReceipt.amount)}</div>
             </div>
             <div className="grid grid-cols-2 gap-2.5 text-xs">
               <div className="bg-white/5 p-3 rounded-xl">

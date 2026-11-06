@@ -20,6 +20,7 @@ import {
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
 import { FloatingInput } from './FloatingInput';
+import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
 interface MonthlyReportViewProps {
   reports: MonthlyReport[];
@@ -187,15 +188,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
     <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column: HISTORY Card (4 cols) matching mockups */}
-        <div 
-          className="lg:col-span-4 bg-[#fbf9f5] text-[#242031] rounded-3xl shadow-sm"
-          style={{ paddingLeft: '4px', paddingRight: '12px', paddingTop: '24px', paddingBottom: '24px' }}
-        >
-          <div className="flex items-center gap-2 mb-6" style={{ paddingLeft: '20px' }}>
+        {/* Left Column: HISTORY Card (4 cols) */}
+        <div className="lg:col-span-4 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-5">
             <Hourglass className="w-4 h-4 text-slate-700" />
-            <h3 className="text-base font-extrabold tracking-wider uppercase text-[#242031]">
-              HISTORY
+            <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
+              MONTHLY HISTORY
             </h3>
           </div>
 
@@ -215,7 +213,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                       : 'hover:bg-slate-50'
                   }`}
                 >
-                  {/* Active highlight bar on left from design */}
+                  {/* Active highlight bar on left */}
                   {isCurrent && (
                     <div className="absolute left-1 top-2.5 bottom-2.5 w-1.5 rounded-full bg-[#242031]" />
                   )}
@@ -236,17 +234,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     <span 
                       className={`text-xs ${
                         isCurrent 
-                          ? '' 
+                          ? 'text-slate-500 font-medium' 
                           : isOverdue 
-                          ? 'text-rose-500' 
+                          ? 'text-rose-500 font-semibold' 
                           : isSubmitted 
-                          ? 'text-slate-500' 
-                          : 'text-slate-400'
+                          ? 'text-emerald-700 font-semibold' 
+                          : 'text-slate-400 font-normal'
                       }`}
-                      style={{
-                        fontWeight: 'normal',
-                        color: isCurrent ? '#748295' : undefined
-                      }}
                     >
                       {rep.status}
                     </span>
@@ -256,10 +250,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100" style={{ paddingLeft: '8px' }}>
+          <div className="mt-6 pt-4 border-t border-slate-100">
             <button
               onClick={() => {}}
-              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>See All (12 Months)</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -267,7 +261,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Multi-Step Form 65 Wizard (8 cols) matching mockups */}
+        {/* Right Column: Multi-Step Form 65 Wizard (8 cols) */}
         <div className="lg:col-span-8 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
           
           {/* Top Bar: Calendar + Month/Year + Download Report + Update Profile Link */}
@@ -409,7 +403,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
-                    Total: $ {debtorIncomeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Total: {formatCurrency(debtorIncomeTotal)}
                   </div>
                 </div>
 
@@ -440,7 +434,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
-                    Total: $ {spouseIncomeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Total: {formatCurrency(spouseIncomeTotal)}
                   </div>
                 </div>
               </div>
@@ -449,7 +443,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-between text-xs font-bold text-slate-800">
                 <span className="font-bold">Combined Monthly Household Gross:</span>
                 <span className="text-base font-normal text-slate-900">
-                  $ {totalGrossIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
+                  {formatCurrency(totalGrossIncome)} CAD
                 </span>
               </div>
             </div>
@@ -531,13 +525,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 })}
               </div>
 
-              <div className="pt-2 text-sm font-extrabold text-slate-900">
-                Total: $ {totalNonDiscretionary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div className="pt-2 text-sm font-bold text-slate-900">
+                Total: {formatCurrency(totalNonDiscretionary)}
               </div>
 
               {/* Did you know? callout matching screenshot */}
               <div className="bg-slate-100 border border-slate-200/90 rounded-2xl p-5 text-xs text-slate-700 space-y-1">
-                <div className="font-extrabold text-slate-900 text-sm">Did you know?</div>
+                <div className="font-bold text-slate-900 text-sm">Did you know?</div>
                 <p>
                   <span className="font-bold text-slate-900">Medical Condition Expenses</span> include medical marijuana prescriptions and can be submitted with other medicines.
                 </p>
@@ -548,14 +542,14 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           {/* STEP 3: HOUSEHOLD DISCRETIONARY EXPENSES (Screen 3) */}
           {currentStep === 3 && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-900">
                 HOUSEHOLD DISCRETIONARY EXPENSES: HOUSING & PERSONAL
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Housing & Properties */}
                 <div className="space-y-3">
-                  <div className="font-extrabold text-sm text-slate-900 mb-1">
+                  <div className="font-bold text-sm text-slate-900 mb-1">
                     Housing & Properties
                   </div>
                   {[
@@ -604,7 +598,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
-                    Total: $ {housingTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Total: {formatCurrency(housingTotal)}
                   </div>
                 </div>
 
@@ -659,7 +653,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
-                    Total: $ {personalTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Total: {formatCurrency(personalTotal)}
                   </div>
                 </div>
               </div>
@@ -677,13 +671,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           {/* STEP 4: HOUSEHOLD DISCRETIONARY EXPENSES (Screen 4) */}
           {currentStep === 4 && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-900">
                 HOUSEHOLD DISCRETIONARY EXPENSES: MEDICAL, LIVING & TRANSIT
               </div>
 
               {/* Group 1: Non-recoverable Medical */}
               <div className="space-y-3">
-                <div className="font-extrabold text-sm text-slate-900">Non-recoverable Medical</div>
+                <div className="font-bold text-sm text-slate-900">Non-recoverable Medical</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FloatingInput
                     type="number"
@@ -701,7 +695,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
-                  Medical Subtotal: $ {medicalTotal.toFixed(2)}
+                  Medical Subtotal: {formatCurrency(medicalTotal)}
                 </div>
               </div>
 
@@ -739,7 +733,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
-                  Living Subtotal: $ {dayToDayTotal.toFixed(2)}
+                  Living Subtotal: {formatCurrency(dayToDayTotal)}
                 </div>
               </div>
 
@@ -763,7 +757,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
-                  Transportation Subtotal: $ {transportTotal.toFixed(2)}
+                  Transportation Subtotal: {formatCurrency(transportTotal)}
                 </div>
               </div>
             </div>
@@ -772,7 +766,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           {/* STEP 5: INSURANCE, PAYMENTS & STATUTORY FILING TO LIT (Screen 5 + Submission) */}
           {currentStep === 5 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-900">
                 INSURANCE, STATUTORY PAYMENTS & STATUTORY REVIEW
               </div>
 
@@ -810,7 +804,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   />
                 </div>
                 <div className="text-xs font-bold text-slate-700">
-                  Insurance Total: $ {insuranceTotal.toFixed(2)}
+                  Insurance Total: {formatCurrency(insuranceTotal)}
                 </div>
               </div>
 
@@ -845,7 +839,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               {/* Statutory Surplus Income Calculation Breakdown (OSB Official Standard) */}
               <div className="bg-[#1d1a27] text-white p-6 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                  <div className="text-sm font-black uppercase tracking-wider text-[#b6b3ff]">
+                  <div className="text-sm font-bold uppercase tracking-wider text-[#b6b3ff]">
                     Superintendent of Bankruptcy Surplus Calculation
                   </div>
                   <span className="text-[11px] text-slate-400">
@@ -856,26 +850,26 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                   <div>
                     <span className="text-slate-400 block mb-1">Gross Household:</span>
-                    <span className="text-base font-black text-white">$ {totalGrossIncome.toFixed(2)}</span>
+                    <span className="text-base font-bold text-white">{formatCurrency(totalGrossIncome)}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block mb-1">Non-Discretionary:</span>
-                    <span className="text-base font-black text-white">$ {totalNonDiscretionary.toFixed(2)}</span>
+                    <span className="text-base font-bold text-white">{formatCurrency(totalNonDiscretionary)}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block mb-1">OSB Threshold:</span>
-                    <span className="text-base font-black text-slate-300">$ {householdThreshold.toFixed(2)}</span>
+                    <span className="text-base font-bold text-slate-300">{formatCurrency(householdThreshold)}</span>
                   </div>
                   <div>
                     <span className="text-[#fbf050] font-bold block mb-1">Surplus Owed (50%):</span>
-                    <span className="text-xl font-black text-[#fbf050]">$ {calculatedSurplus.toFixed(2)}</span>
+                    <span className="text-xl font-bold text-[#fbf050]">{formatCurrency(calculatedSurplus)}</span>
                   </div>
                 </div>
 
                 <div className="pt-2 text-[11px] text-slate-400 flex items-start gap-2">
                   <ShieldAlert className="w-4 h-4 text-[#b6b3ff] shrink-0 mt-0.5" />
                   <span>
-                    When submitted, this Form 65 report and all linked receipt proofs will be automatically transmitted to <strong className="text-white">{profile.litName} ({profile.litEmail})</strong> at {profile.litFirm} for official filing in your bankruptcy estate.
+                    When submitted, this Form 65 report and all linked receipt proofs will be automatically transmitted to <strong className="text-white">{profile.litName} (<a href={getMailtoUrl(profile.litEmail, `Form 65 Filing - ${activeReport.month} ${activeReport.year}`)} className="text-[#b6b3ff] underline hover:text-white transition" title="Email LIT">{profile.litEmail}</a>)</strong> at {profile.litFirm} for official filing in your bankruptcy estate.
                   </span>
                 </div>
               </div>
@@ -1005,7 +999,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                       <div className="text-[11px] text-slate-400 font-mono">{r.fileName || 'Document.pdf'} · {r.date}</div>
                     </div>
                   </div>
-                  <span className="font-black text-[#fbf050]">${r.amount.toFixed(2)}</span>
+                  <span className="font-bold text-[#fbf050]">{formatCurrency(r.amount)}</span>
                 </label>
               ))}
             </div>

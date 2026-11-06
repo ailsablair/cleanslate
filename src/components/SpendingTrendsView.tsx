@@ -37,6 +37,7 @@ import {
   deleteGoalFromDb 
 } from '../lib/spendingTrendsData';
 import { DebtProgress } from './DebtProgress';
+import { formatCurrency } from '../lib/formatters';
 
 interface SpendingTrendsViewProps {
   reports: MonthlyReport[];
@@ -421,7 +422,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                           )}
                         </div>
                         <div className="pt-2 border-t border-white/10 text-[10px] text-slate-400">
-                          Surplus Income Obligation: <span className="text-white font-semibold">$ {Number(data.surplusPayment || 0).toFixed(2)}/mo</span>
+                          Surplus Income Obligation: <span className="text-white font-semibold">{formatCurrency(Number(data.surplusPayment || 0))}/mo</span>
                         </div>
                       </div>
                     );
@@ -492,7 +493,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
               Trustee Behaviour Insight (OSB Section 168.1 Compliance)
             </div>
             <div className="text-slate-300 leading-relaxed">
-              Your average monthly spend has stabilized by <strong>-14.2%</strong> over the past 6 months. By eliminating impulsive dining and keeping utility usage steady, your surplus income obligation remains locked at <strong>$ 159.00/mo</strong> instead of fluctuating. This consistent budgeting proves debtor rehabilitation to both your Licensed Insolvency Trustee and the Superintendent of Bankruptcy.
+              Your average monthly spend has stabilized by <strong>-14.2%</strong> over the past 6 months. By eliminating impulsive dining and keeping utility usage steady, your surplus income obligation remains locked at <strong>{formatCurrency(159)}/mo</strong> instead of fluctuating. This consistent budgeting proves debtor rehabilitation to both your Licensed Insolvency Trustee and the Superintendent of Bankruptcy.
             </div>
           </div>
         </div>
@@ -600,8 +601,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   {/* Visual Comparison Progress Bar */}
                   <div className="space-y-1.5 my-2">
                     <div className="flex justify-between text-[10px] text-slate-400">
-                      <span>You: $ {bench.userAverageSpend.toFixed(2)}</span>
-                      <span>Benchmark: $ {bench.peerAverageSpend.toFixed(2)}</span>
+                      <span>You: {formatCurrency(bench.userAverageSpend)}</span>
+                      <span>Benchmark: {formatCurrency(bench.peerAverageSpend)}</span>
                     </div>
                     <div className="h-3 w-full bg-[#181522] rounded-full overflow-hidden relative border border-white/5">
                       {/* Peer Target Marker Line */}
@@ -862,10 +863,10 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400">Target Progress</span>
                       <span className="font-bold text-white">
-                        {goal.unit === '$' && '$'}
-                        {currentVal.toLocaleString()}
-                        {goal.unit === '%' && '%'} / {goal.unit === '$' && '$'}
-                        {targetVal.toLocaleString()}
+                        {goal.unit === '$' && '$ '}
+                        {goal.unit === '$' ? currentVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : currentVal.toLocaleString()}
+                        {goal.unit === '%' && '%'} / {goal.unit === '$' && '$ '}
+                        {goal.unit === '$' ? targetVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : targetVal.toLocaleString()}
                         {goal.unit === '%' && '%'}
                         {goal.unit === 'tasks' && ` / ${targetVal} Completed`}
                       </span>
@@ -927,10 +928,11 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Keep Day-to-Day Food Spend under $700/mo"
+                  placeholder="e.g. Keep Day-to-Day Food Spend under $700.00/mo"
                   value={newGoalTitle}
                   onChange={(e) => setNewGoalTitle(e.target.value)}
-                  className="w-full bg-[#242031] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 />
               </div>
 
@@ -942,7 +944,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <select
                     value={newGoalTimeframe}
                     onChange={(e) => setNewGoalTimeframe(parseInt(e.target.value, 10))}
-                    className="w-full bg-[#242031] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   >
                     <option value={3}>3 Months (Counselling & Discretionary)</option>
                     <option value={6}>6 Months (Midway Review & Buffer)</option>
@@ -958,7 +961,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <select
                     value={newGoalCategory}
                     onChange={(e) => setNewGoalCategory(e.target.value as FinancialGoal['category'])}
-                    className="w-full bg-[#242031] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   >
                     <option value="Discretionary Spending">Discretionary Spending</option>
                     <option value="Emergency Buffer">Emergency Buffer</option>
@@ -978,7 +982,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   placeholder="Explain how this habit proves debtor rehabilitation or supports post-discharge security..."
                   value={newGoalDesc}
                   onChange={(e) => setNewGoalDesc(e.target.value)}
-                  className="w-full bg-[#242031] border border-white/10 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3 font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 />
               </div>
 
@@ -990,7 +995,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <select
                     value={newGoalUnit}
                     onChange={(e) => setNewGoalUnit(e.target.value as '$' | '%' | 'tasks')}
-                    className="w-full bg-[#242031] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   >
                     <option value="$">Dollars ($)</option>
                     <option value="%">Percent (%)</option>
@@ -1004,10 +1010,11 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   </label>
                   <input
                     type="number"
-                    step="any"
+                    step="0.01"
                     value={newGoalTargetAmount}
                     onChange={(e) => setNewGoalTargetAmount(e.target.value)}
-                    className="w-full bg-[#242031] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   />
                 </div>
 
@@ -1017,10 +1024,11 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   </label>
                   <input
                     type="number"
-                    step="any"
+                    step="0.01"
                     value={newGoalCurrentAmount}
                     onChange={(e) => setNewGoalCurrentAmount(e.target.value)}
-                    className="w-full bg-[#242031] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#b6b3ff]"
+                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                   />
                 </div>
               </div>
@@ -1034,7 +1042,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   placeholder="e.g. Recommended during counseling session #1 with Sarah Jenkins"
                   value={newGoalNotes}
                   onChange={(e) => setNewGoalNotes(e.target.value)}
-                  className="w-full bg-[#242031] border border-white/10 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-[#b6b3ff]"
+                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                 />
               </div>
 

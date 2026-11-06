@@ -274,6 +274,11 @@ export default function App() {
     setTransactions(prev => prev.map(t => t.id === updatedTx.id ? updatedTx : t));
   };
 
+  const handleUpdateTransactions = (updatedTxs: Transaction[]) => {
+    const updatedMap = new Map(updatedTxs.map(t => [t.id, t]));
+    setTransactions(prev => prev.map(t => updatedMap.get(t.id) || t));
+  };
+
   // Dynamic Page Title
   const getPageTitle = () => {
     switch (currentTab) {
@@ -376,6 +381,7 @@ export default function App() {
             <CategorizeView
               transactions={transactions}
               onUpdateTransaction={handleUpdateTransaction}
+              onUpdateTransactions={handleUpdateTransactions}
             />
           )}
 

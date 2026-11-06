@@ -4,15 +4,20 @@ import {
   Sparkles, 
   Check, 
   CheckCircle2, 
-  Save,
-  RotateCcw,
-  AlertCircle
+  Save, 
+  RotateCcw, 
+  AlertCircle,
+  Layers,
+  X,
+  ListFilter
 } from 'lucide-react';
 import { Transaction } from '../types';
+import { formatCurrency } from '../lib/formatters';
 
 interface CategorizeViewProps {
   transactions: Transaction[];
   onUpdateTransaction: (updated: Transaction) => void;
+  onUpdateTransactions?: (updated: Transaction[]) => void;
 }
 
 export const FORM_65_SECTIONED_CATEGORIES = [
@@ -105,7 +110,8 @@ export const FORM_65_SECTIONED_CATEGORIES = [
 
 export const CategorizeView: React.FC<CategorizeViewProps> = ({
   transactions,
-  onUpdateTransaction
+  onUpdateTransaction,
+  onUpdateTransactions
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'needs-review' | 'categorized'>('needs-review');
   const [aiRunning, setAiRunning] = useState<boolean>(false);
@@ -115,11 +121,84 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
   const [pendingCategories, setPendingCategories] = useState<Record<string, string>>({});
   const [saveToast, setSaveToast] = useState<{ id: string; message: string } | null>(null);
 
+  // Bulk Selection State
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCategory, setBulkCategory] = useState<string>('');
+
   const filtered = transactions.filter(t => {
     if (filterMode === 'needs-review') return !t.isCategorized;
     if (filterMode === 'categorized') return t.isCategorized;
     return true;
   });
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(t => selectedIds.includes(t.id));
+  const someFilteredSelected = filtered.some(t => selectedIds.includes(t.id));
+
+  const handleToggleSelect = (txId: string) => {
+    setSelectedIds(prev => 
+      prev.includes(txId) ? prev.filter(id => id !== txId) : [...prev, txId]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (allFilteredSelected) {
+      // Deselect all filtered items
+      const filteredIdSet = new Set(filtered.map(f => f.id));
+      setSelectedIds(prev => prev.filter(id => !filteredIdSet.has(id)));
+    } else {
+      // Select all filtered items
+      const filteredIds = filtered.map(t => t.id);
+      setSelectedIds(prev => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedIds([]);
+    setBulkCategory('');
+  };
+
+  const handleApplyBulkCategory = () => {
+    if (!bulkCategory || selectedIds.length === 0) return;
+
+    const targetIds = new Set(selectedIds);
+    const updatedTxs: Transaction[] = [];
+
+    transactions.forEach(t => {
+      if (targetIds.has(t.id)) {
+        updatedTxs.push({
+          ...t,
+          form65Category: bulkCategory,
+          isCategorized: true
+        });
+      }
+    });
+
+    if (onUpdateTransactions) {
+      onUpdateTransactions(updatedTxs);
+    } else {
+      updatedTxs.forEach(t => onUpdateTransaction(t));
+    }
+
+    // Clear any pending state for affected transactions
+    setPendingCategories(prev => {
+      const copy = { ...prev };
+      selectedIds.forEach(id => delete copy[id]);
+      return copy;
+    });
+
+    const count = selectedIds.length;
+    setSelectedIds([]);
+    setBulkCategory('');
+    setSaveToast({
+      id: `bulk-${Date.now()}`,
+      message: `Successfully applied "${bulkCategory}" to ${count} transaction${count === 1 ? '' : 's'}!`
+    });
+    setTimeout(() => setSaveToast(null), 4000);
+  };
+
+  const selectedTotalAmount = transactions
+    .filter(t => selectedIds.includes(t.id))
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
 
   const handleSelectPendingCategory = (txId: string, category: string) => {
     setPendingCategories(prev => ({
@@ -269,6 +348,130 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
 
       {/* Ledger Items List */}
       <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
+        {/* Bulk Actions Floating/Docked Toolbar */}
+        {selectedIds.length > 0 && (
+          <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-[#1d1a27] text-white border border-white/10 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#b4b1fc]/20 text-[#b4b1fc] flex items-center justify-center shrink-0">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5 min-w-0">
+                <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-2 flex-wrap">
+                  <span>{selectedIds.length} of {filtered.length} Selected</span>
+                  <span className="text-[#fbf050] font-bold">({formatCurrency(selectedTotalAmount)})</span>
+                </div>
+                <div className="text-[11px] text-slate-300 font-light">
+                  Assign one Form 65 statutory category to all selected statement items
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 sm:justify-end">
+              {/* Category Selector for Bulk Action */}
+              <div className="relative flex-1 sm:flex-initial">
+                <select
+                  value={bulkCategory}
+                  onChange={e => setBulkCategory(e.target.value)}
+                  className="w-full sm:w-auto bg-[#2b263b] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs font-light text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] max-w-xs truncate"
+                >
+                  <option value="">Choose category for selected...</option>
+                  {FORM_65_SECTIONED_CATEGORIES.map(section => (
+                    <optgroup key={section.group} label={section.group} className="bg-[#1d1a27] text-white">
+                      {section.options.map(opt => (
+                        <option key={opt} value={opt} className="bg-[#2b263b] text-white">
+                          {opt}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+
+              {/* Primary Apply Button */}
+              <button
+                type="button"
+                onClick={handleApplyBulkCategory}
+                disabled={!bulkCategory}
+                style={{
+                  background: bulkCategory ? 'var(--colour-dark-highlight, #F9F45D)' : undefined,
+                  boxShadow: bulkCategory ? '4px 6px 0px black' : undefined,
+                  borderRadius: 8,
+                  color: bulkCategory ? 'var(--colour-dark-accent, #3E4A4F)' : undefined,
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '13.34px',
+                  fontWeight: '700',
+                  lineHeight: '20.96px'
+                }}
+                className={`px-4 min-h-[44px] py-2 transition-all flex items-center gap-1.5 shrink-0 ${
+                  bulkCategory 
+                    ? 'hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black] cursor-pointer' 
+                    : 'bg-white/10 text-slate-500 border border-white/10 cursor-not-allowed'
+                }`}
+                title={bulkCategory ? `Apply "${bulkCategory}" to ${selectedIds.length} items` : 'Select a category above first'}
+              >
+                <Check className="w-4 h-4 stroke-[2.5]" style={{ color: bulkCategory ? '#3E4A4F' : undefined }} />
+                <span>Apply to {selectedIds.length} Items</span>
+              </button>
+
+              {/* Clear Selection */}
+              <button
+                type="button"
+                onClick={handleDeselectAll}
+                className="px-3 min-h-[44px] py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center gap-1 shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* List Header Toolbar: Select All Checkbox + Status */}
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-slate-200/90 text-xs text-slate-600">
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={allFilteredSelected}
+                  ref={input => {
+                    if (input) input.indeterminate = someFilteredSelected && !allFilteredSelected;
+                  }}
+                  onChange={handleToggleSelectAll}
+                  aria-label="Select or deselect all visible transactions"
+                  className="w-4 h-4 rounded border-slate-300 text-[#242031] focus:ring-[#b4b1fc] cursor-pointer accent-[#242031]"
+                />
+                <span className="font-semibold text-slate-800 text-xs">
+                  {allFilteredSelected 
+                    ? `Deselect All (${filtered.length})` 
+                    : `Select All (${filtered.length})`}
+                </span>
+              </label>
+
+              {selectedIds.length > 0 && !allFilteredSelected && (
+                <span className="text-[11px] text-slate-500 font-medium bg-slate-200/70 px-2 py-0.5 rounded-md">
+                  {selectedIds.length} selected
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDeselectAll}
+                  className="text-[11px] text-slate-500 hover:text-slate-900 underline transition"
+                >
+                  Clear selection
+                </button>
+              )}
+              <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                Showing {filtered.length} items
+              </span>
+            </div>
+          </div>
+        )}
+
         {filtered.length === 0 ? (
           <div className="py-12 text-center text-xs font-bold text-slate-400">
             No transactions match this filter. All imported items are categorized!
@@ -279,28 +482,44 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               const pendingVal = pendingCategories[tx.id];
               const activeVal = pendingVal !== undefined ? pendingVal : (tx.form65Category || '');
               const hasUnsavedChange = pendingVal !== undefined && pendingVal !== (tx.form65Category || '');
+              const isSelected = selectedIds.includes(tx.id);
 
               return (
                 <div 
                   key={tx.id}
-                  className={`bg-white border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition ${
-                    hasUnsavedChange ? 'border-[#b6b3ff] ring-2 ring-[#b6b3ff]/30' : 'border-slate-200/80 hover:border-slate-300'
+                  className={`border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition ${
+                    isSelected
+                      ? 'border-[#b4b1fc] bg-[#b4b1fc]/10 shadow-xs ring-1 ring-[#b4b1fc]/50'
+                      : hasUnsavedChange 
+                      ? 'bg-white border-[#b6b3ff] ring-2 ring-[#b6b3ff]/30' 
+                      : 'bg-white border-slate-200/80 hover:border-slate-300'
                   }`}
                 >
-                  <div className="space-y-0.5 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">{tx.company}</span>
-                      <span className="font-mono text-[11px] text-slate-400 shrink-0">#{tx.id}</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-normal">
-                      {tx.date} · Bank Import Feed
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Item Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleSelect(tx.id)}
+                      aria-label={`Select transaction ${tx.company}`}
+                      className="w-4 h-4 rounded border-slate-300 text-[#242031] focus:ring-[#b4b1fc] cursor-pointer accent-[#242031] shrink-0"
+                    />
+
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">{tx.company}</span>
+                        <span className="font-mono text-[11px] text-slate-400 shrink-0">#{tx.id}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-normal">
+                        {tx.date} · Bank Import Feed
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+                  <div className="flex flex-wrap items-center gap-3 sm:justify-end pl-7 sm:pl-0">
                     <div className="text-right mr-1">
                       <span className="text-sm sm:text-base font-bold text-slate-900 block">
-                        $ {tx.amount.toFixed(2)}
+                        {formatCurrency(tx.amount)}
                       </span>
                       <span className="text-[9px] uppercase font-normal text-slate-400">
                         CAD
@@ -312,7 +531,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                       <select
                         value={activeVal}
                         onChange={e => handleSelectPendingCategory(tx.id, e.target.value)}
-                        className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] max-w-[260px] truncate"
+                        className="bg-slate-50 border border-slate-300 rounded-xl px-3 min-h-[44px] py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] max-w-[260px] truncate"
                       >
                         <option value="">Select Form 65 Category...</option>
                         {FORM_65_SECTIONED_CATEGORIES.map(section => (
@@ -333,7 +552,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         <button
                           type="button"
                           onClick={() => handleSaveCategory(tx)}
-                          className="px-3 py-1.5 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#fbf050] text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                          className="px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#fbf050] text-xs font-bold transition flex items-center gap-1 shadow-xs"
                           title="Save this category assignment"
                         >
                           <Save className="w-3.5 h-3.5" />
@@ -342,19 +561,19 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         <button
                           type="button"
                           onClick={() => handleCancelPending(tx.id)}
-                          className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition"
+                          className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition"
                           title="Cancel changes"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ) : tx.isCategorized ? (
-                      <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-xl flex items-center gap-1">
-                        <Check className="w-3 h-3" />
+                      <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-600" />
                         Mapped
                       </span>
                     ) : (
-                      <span className="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-xl">
+                      <span className="bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-medium px-2.5 py-1 rounded-md">
                         Unclassified
                       </span>
                     )}

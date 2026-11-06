@@ -1,6 +1,7 @@
 import React from 'react';
 import { MailCheck, CheckCircle2, Clock, X, ExternalLink, Copy, Check } from 'lucide-react';
 import { EmailDispatch } from '../types';
+import { getMailtoUrl } from '../lib/formatters';
 
 interface EmailDispatchModalProps {
   dispatches: EmailDispatch[];
@@ -123,7 +124,13 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Recipient LIT:</span>
-                      <span className="font-semibold text-[#b6b3ff]">{current.recipientEmail}</span>
+                      <a 
+                        href={getMailtoUrl(current.recipientEmail, current.subject)} 
+                        className="font-semibold text-[#b6b3ff] underline hover:text-white transition"
+                        title="Send email to LIT"
+                      >
+                        {current.recipientEmail}
+                      </a>
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Timestamp:</span>
