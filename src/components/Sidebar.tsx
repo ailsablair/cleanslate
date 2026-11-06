@@ -8,13 +8,17 @@ import {
   Shapes, 
   UserCircle2, 
   Headphones,
-  MailCheck
+  MailCheck,
+  Award,
+  Calculator
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
 export type NavTab = 
   | 'dashboard' 
   | 'monthly-reports' 
+  | 'discharge-pathway'
+  | 'simulator'
   | 'spending-trends'
   | 'bank-accounts' 
   | 'receipts' 
@@ -38,6 +42,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: FileText },
+    { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: Award },
+    { id: 'simulator' as NavTab, label: 'Surplus Simulator', icon: Calculator },
     { id: 'spending-trends' as NavTab, label: 'Spending Trends', icon: TrendingUp },
     { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: Building2 },
     { id: 'receipts' as NavTab, label: 'Receipts', icon: ReceiptIcon },
@@ -46,10 +52,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 shrink-0 min-h-screen bg-[#242031] text-white flex flex-col justify-between p-6 select-none border-r border-[#2d283c]">
+    <aside className="hidden lg:flex w-64 shrink-0 min-h-screen bg-[#242031] text-white flex-col justify-between p-6 select-none border-r border-[#2d283c]">
       <div>
         {/* Brand Logo matching the Figma / attachment */}
-        <div className="mb-10 px-2 pt-1 flex items-center">
+        <div className="mb-8 px-2 pt-1 flex items-center">
           <img 
             src="/assets/aistudio/type_logo-brand-white_4fdd6b68.png" 
             alt="CleanSlate" 
@@ -62,19 +68,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Section: MAIN MENU */}
-        <div className="mb-8">
-          <div className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-3">
+        <div className="mb-6">
+          <div className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-2.5">
             MAIN MENU
           </div>
-          <nav className="space-y-1.5">
-            {navItems.map((item, idx) => {
+          <nav className="space-y-1">
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => onSelectTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 whitespace-nowrap ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'bg-[#b6b3ff] text-[#242031] shadow-xs font-bold'
                       : 'text-slate-300 hover:text-white hover:bg-white/5'

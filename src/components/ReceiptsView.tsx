@@ -14,28 +14,36 @@ import {
   Lock, 
   Info, 
   FileLock2, 
-  AlertCircle 
+  AlertCircle,
+  Download
 } from 'lucide-react';
-import { Receipt } from '../types';
+import { Receipt, UserProfile, MonthlyReport } from '../types';
 import { CameraReceiptModal } from './CameraReceiptModal';
 import { FloatingInput } from './FloatingInput';
 import { formatCurrency } from '../lib/formatters';
+import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 
 interface ReceiptsViewProps {
   receipts: Receipt[];
   onAddReceipt: (receipt: Omit<Receipt, 'id'>) => void;
   onDeleteReceipt: (id: string) => void;
+  profile?: UserProfile;
+  monthlyReports?: MonthlyReport[];
 }
 
 export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
   receipts,
   onAddReceipt,
-  onDeleteReceipt
+  onDeleteReceipt,
+  profile,
+  monthlyReports = []
 }) => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isComplianceModalOpen, setIsComplianceModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [isExportingAudit, setIsExportingAudit] = useState(false);
+  const [auditToast, setAuditToast] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'medical' | 'general'>('all');
 
   // Form fields
@@ -103,7 +111,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setIsComplianceModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs shrink-0"
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs shrink-0 cursor-pointer"
               title="View Statutory and Health Privacy Safeguards"
             >
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -111,8 +119,35 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             </button>
 
             <button
+              onClick={() => {
+                if (profile) {
+                  setIsExportingAudit(true);
+                  try {
+                    generateLITAuditPacketPDF({
+                      profile,
+                      reports: monthlyReports,
+                      receipts
+                    });
+                    setAuditToast('Complete OSB Audit Packet PDF dossier downloaded!');
+                    setTimeout(() => setAuditToast(null), 4000);
+                  } catch (e) {
+                    console.error('Audit export error:', e);
+                  } finally {
+                    setIsExportingAudit(false);
+                  }
+                }
+              }}
+              disabled={isExportingAudit}
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs shrink-0 cursor-pointer disabled:opacity-60"
+              title="Download compiled PDF dossier of all receipts and Form 65 reports for LIT audit or taxes"
+            >
+              <Download className={`w-3.5 h-3.5 text-slate-600 ${isExportingAudit ? 'animate-bounce' : ''}`} />
+              <span>{isExportingAudit ? 'Exporting...' : 'Export LIT Audit Packet'}</span>
+            </button>
+
+            <button
               onClick={() => setIsCameraOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs shrink-0"
+              className="px-4 py-2.5 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs shrink-0 cursor-pointer active:scale-95"
               title="Use device camera to take photo of physical receipt with AI parsing"
             >
               <Camera className="w-3.5 h-3.5 text-[#b6b3ff]" />
@@ -130,13 +165,20 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 fontSize: '13.34px',
                 fontWeight: '700',
               }}
-              className="px-4 py-2 transition-all flex items-center gap-1.5 shrink-0 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
+              className="px-4 py-2 transition-all flex items-center gap-1.5 shrink-0 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black] cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
               <span style={{ fontWeight: '700' }}>Upload Proof Receipt</span>
             </button>
           </div>
         </div>
+
+        {auditToast && (
+          <div className="mt-3 p-3 bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-semibold rounded-2xl flex items-center gap-2 shadow-xs animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>{auditToast}</span>
+          </div>
+        )}
 
         {/* Compliance and Security Shield Banner */}
         <div className="mt-4 p-3 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">

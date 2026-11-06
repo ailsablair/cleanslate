@@ -14,6 +14,8 @@ import { CategorizeView } from './components/CategorizeView';
 import { SupportView } from './components/SupportView';
 import { EmailDispatchModal } from './components/EmailDispatchModal';
 import { SpendingTrendsView } from './components/SpendingTrendsView';
+import { DischargePathwayView } from './components/DischargePathwayView';
+import { SurplusSimulatorView } from './components/SurplusSimulatorView';
 
 import { 
   UserProfile, 
@@ -284,6 +286,8 @@ export default function App() {
     switch (currentTab) {
       case 'dashboard': return 'DASHBOARD';
       case 'monthly-reports': return 'MONTHLY REPORT(S)';
+      case 'discharge-pathway': return 'PATHWAY TO DISCHARGE';
+      case 'simulator': return 'VIRTUAL LIT & SURPLUS SIMULATOR';
       case 'spending-trends': return 'SPENDING TRENDS & GOALS';
       case 'bank-accounts': return 'BANK ACCOUNT(S)';
       case 'receipts': return 'RECEIPTS';
@@ -295,7 +299,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#242031] text-slate-100 flex flex-col md:flex-row antialiased">
+    <div className="min-h-screen bg-[#242031] text-slate-100 flex flex-col lg:flex-row antialiased">
       {/* Left Sidebar */}
       <Sidebar
         currentTab={currentTab}
@@ -313,6 +317,8 @@ export default function App() {
           onOpenEmailLog={() => setIsEmailModalOpen(true)}
           onSyncBankAccounts={currentTab === 'dashboard' || currentTab === 'bank-accounts' ? handleSyncAllBanks : undefined}
           isSyncing={isSyncingBanks}
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
         />
 
         {/* View Routing */}
@@ -346,6 +352,24 @@ export default function App() {
             />
           )}
 
+          {currentTab === 'discharge-pathway' && (
+            <DischargePathwayView
+              profile={profile}
+              monthlyReports={monthlyReports}
+              receipts={receipts}
+              onNavigateToReports={() => setCurrentTab('monthly-reports')}
+              onNavigateToSimulator={() => setCurrentTab('simulator')}
+            />
+          )}
+
+          {currentTab === 'simulator' && (
+            <SurplusSimulatorView
+              profile={profile}
+              onNavigateToReports={() => setCurrentTab('monthly-reports')}
+              onNavigateToPathway={() => setCurrentTab('discharge-pathway')}
+            />
+          )}
+
           {currentTab === 'spending-trends' && (
             <SpendingTrendsView
               reports={monthlyReports}
@@ -374,6 +398,8 @@ export default function App() {
               receipts={receipts}
               onAddReceipt={handleAddReceipt}
               onDeleteReceipt={handleDeleteReceipt}
+              profile={profile}
+              monthlyReports={monthlyReports}
             />
           )}
 

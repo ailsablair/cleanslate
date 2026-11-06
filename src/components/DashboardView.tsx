@@ -125,11 +125,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               title="Click to view 6-month spending trends & peer benchmarks"
             >
               <div>
-                <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-                  <span>AVERAGE SPEND</span>
-                  <span className="text-[9px] font-bold text-[#242031] underline decoration-[#242031]/40 opacity-0 group-hover:opacity-100 transition">
-                    View Trends &rarr;
-                  </span>
+                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+                  AVERAGE SPEND
                 </div>
                 <div className="flex items-baseline justify-between mb-2">
                   <div className="text-2xl font-bold tracking-tight">

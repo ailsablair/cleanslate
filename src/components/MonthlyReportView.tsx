@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
+import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 import { FloatingInput } from './FloatingInput';
 import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
@@ -51,6 +52,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   const [selectedReceiptId, setSelectedReceiptId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
+  const [isExportingAuditPacket, setIsExportingAuditPacket] = useState<boolean>(false);
   const [pdfSuccessToast, setPdfSuccessToast] = useState<string | null>(null);
 
   const activeReport = reports.find(r => r.id === currentReportId) || reports[0];
@@ -70,6 +72,24 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       console.error('Error generating PDF report:', err);
     } finally {
       setIsGeneratingPdf(false);
+    }
+  };
+
+  const handleExportAuditPacket = () => {
+    setIsExportingAuditPacket(true);
+    try {
+      generateLITAuditPacketPDF({
+        profile,
+        reports,
+        receipts,
+        transactions
+      });
+      setPdfSuccessToast('Complete OSB Audit Packet PDF dossier generated & downloaded!');
+      setTimeout(() => setPdfSuccessToast(null), 4000);
+    } catch (err) {
+      console.error('Error exporting audit packet:', err);
+    } finally {
+      setIsExportingAuditPacket(false);
     }
   };
 
@@ -297,6 +317,17 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </button>
 
               <button
+                type="button"
+                onClick={handleExportAuditPacket}
+                disabled={isExportingAuditPacket}
+                className="px-3.5 py-2 rounded-xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#1d1a27] text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 disabled:opacity-75"
+                title="Compile all 12 monthly reports, receipts & signed Form 65 declarations into a single OSB audit dossier PDF"
+              >
+                <FileCheck className={`w-3.5 h-3.5 text-slate-900 ${isExportingAuditPacket ? 'animate-bounce' : ''}`} />
+                <span className="font-bold">{isExportingAuditPacket ? 'Exporting Dossier...' : 'Export LIT Audit Packet'}</span>
+              </button>
+
+              <button
                 onClick={onNavigateToProfile}
                 style={{ color: '#FF6BBC' }}
                 className="text-xs flex items-center gap-1 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition"
@@ -306,6 +337,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </button>
             </div>
           </div>
+
+          {pdfSuccessToast && (
+            <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-semibold rounded-2xl flex items-center gap-2 shadow-xs animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>{pdfSuccessToast}</span>
+            </div>
+          )}
 
           {/* Debtor Overview Strip matching mockups */}
           <div className="bg-white border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-600 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -368,7 +406,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'childTaxBenefit', label: 'Child Tax Benefit' },
                     { key: 'otherNetIncome', label: 'Other Net Income' }
                   ].map(row => (
-                    <div key={row.key} className="relative">
+                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
                       <div className="flex items-center gap-2">
                         <FloatingInput
                           type="number"
@@ -380,20 +418,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
                           title="Statutory Definition"
                         >
                           ?
                         </button>
                       </div>
                       {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
                           <div className="flex items-start justify-between gap-2">
                             <span>{statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}</span>
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
                             >
                               ✕
                             </button>
@@ -468,7 +506,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 ].map(row => {
                   const hasAttachment = activeReport.nonDiscretionary.attachments?.[row.key]?.length;
                   return (
-                    <div key={row.key} className="relative">
+                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
                       <div className="flex items-center gap-2">
                         <FloatingInput
                           type="number"
@@ -486,7 +524,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setAttachingCategory(row.key)}
-                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
                             hasAttachment
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                               : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
@@ -499,7 +537,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
                           title="Statutory Definition"
                         >
                           ?
@@ -507,13 +545,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                       </div>
 
                       {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
                           <div className="flex items-start justify-between gap-2">
                             <span>{statutoryExplanations[row.key] || 'Statutory deduction item.'}</span>
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
                             >
                               ✕
                             </button>
@@ -563,7 +601,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className="relative">
+                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
                       <div className="flex items-center gap-2">
                         <FloatingInput
                           type="number"
@@ -575,20 +613,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
                           title="Statutory Guidance"
                         >
                           ?
                         </button>
                       </div>
                       {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
                           <div className="flex items-start justify-between gap-2">
                             <span>Form 65 housing allowance guideline. Keep bills and rent receipts for audit.</span>
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
                             >
                               ✕
                             </button>
@@ -618,7 +656,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className="relative">
+                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
                       <div className="flex items-center gap-2">
                         <FloatingInput
                           type="number"
@@ -630,20 +668,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0"
+                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
                           title="Statutory Guidance"
                         >
                           ?
                         </button>
                       </div>
                       {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1 p-2.5 bg-slate-900/95 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/20 z-50 pointer-events-auto">
+                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
                           <div className="flex items-start justify-between gap-2">
                             <span>Form 65 personal expenditure allowance item.</span>
                             <button
                               type="button"
                               onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0"
+                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
                             >
                               ✕
                             </button>
