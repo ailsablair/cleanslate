@@ -290,9 +290,16 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                   <tr key={rec.id} className="hover:bg-slate-50 transition">
                     <td className="py-3.5">
                       <div className="font-bold text-slate-900 text-xs sm:text-sm">{rec.title}</div>
-                      <div className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5 mt-0.5">
-                        <FileText className="w-3 h-3" />
-                        <span>{rec.fileName || 'Proof_Document.pdf'}</span>
+                      <div className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <FileText className="w-3 h-3 text-slate-400" />
+                          <span>{rec.fileName || 'Proof_Document.pdf'}</span>
+                        </span>
+                        {rec.linkedTransactionId && (
+                          <span className="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-medium text-[#242031] bg-[#b4b1fc]/30 border border-[#b4b1fc] px-1.5 py-0.2 rounded">
+                            Tx #{rec.linkedTransactionId}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="py-3.5">

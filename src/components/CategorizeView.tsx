@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
+import { isProofRequiredForTransaction, getProofRequirementInfo } from '../lib/transactionUtils';
 
 interface CategorizeViewProps {
   transactions: Transaction[];
@@ -506,9 +507,24 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                     />
 
                     <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">{tx.company}</span>
                         <span className="font-mono text-[11px] text-slate-400 shrink-0">#{tx.id}</span>
+                        {isProofRequiredForTransaction(tx) && (
+                          <span 
+                            title={getProofRequirementInfo(tx).explanation}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-900 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-full"
+                          >
+                            <AlertCircle className="w-3 h-3 text-amber-600 shrink-0" />
+                            <span>{getProofRequirementInfo(tx).type === 'prescription' ? 'Prescription Receipt Required' : 'Proof Receipt Required'}</span>
+                          </span>
+                        )}
+                        {tx.receiptFileName && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-2 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>Receipt Attached</span>
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-slate-500 font-normal">
                         {tx.date} · Bank Import Feed

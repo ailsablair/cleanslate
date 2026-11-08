@@ -180,6 +180,10 @@ export interface Transaction {
   form65Category?: string;
   isCategorized: boolean;
   status?: 'cleared' | 'pending';
+  requiresProof?: boolean;
+  receiptId?: string;
+  receiptFileName?: string;
+  receiptFileUrl?: string;
 }
 
 export interface Receipt {
@@ -192,6 +196,7 @@ export interface Receipt {
   fileUrl?: string;
   fileName?: string;
   linkedLineItem?: string;
+  linkedTransactionId?: string;
   reportMonth?: string;
 }
 

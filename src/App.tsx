@@ -329,6 +329,9 @@ export default function App() {
               bankAccounts={bankAccounts}
               transactions={transactions}
               monthlyReports={monthlyReports}
+              receipts={receipts}
+              onUpdateTransaction={handleUpdateTransaction}
+              onAddReceipt={handleAddReceipt}
               onNavigateToReports={() => setCurrentTab('monthly-reports')}
               onNavigateToBankAccounts={() => setCurrentTab('bank-accounts')}
               onNavigateToCategorize={() => setCurrentTab('categorize')}
