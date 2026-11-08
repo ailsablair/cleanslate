@@ -406,38 +406,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'childTaxBenefit', label: 'Child Tax Benefit' },
                     { key: 'otherNetIncome', label: 'Other Net Income' }
                   ].map(row => (
-                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
-                      <div className="flex items-center gap-2">
-                        <FloatingInput
-                          type="number"
-                          prefix="$"
-                          label={row.label}
-                          value={activeReport.income.debtor[row.key as keyof typeof activeReport.income.debtor] || ''}
-                          onChange={(e) => handleDebtorIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
-                          title="Statutory Definition"
-                        >
-                          ?
-                        </button>
-                      </div>
-                      {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
-                          <div className="flex items-start justify-between gap-2">
-                            <span>{statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}</span>
-                            <button
-                              type="button"
-                              onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                    <div key={row.key} className="relative">
+                      <FloatingInput
+                        type="number"
+                        prefix="$"
+                        label={row.label}
+                        helpText={statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}
+                        value={activeReport.income.debtor[row.key as keyof typeof activeReport.income.debtor] || ''}
+                        onChange={(e) => handleDebtorIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
+                      />
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
@@ -506,58 +483,37 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 ].map(row => {
                   const hasAttachment = activeReport.nonDiscretionary.attachments?.[row.key]?.length;
                   return (
-                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
+                    <div key={row.key} className="relative">
                       <div className="flex items-center gap-2">
-                        <FloatingInput
-                          type="number"
-                          prefix="$"
-                          label={row.label}
-                          value={
-                            typeof activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] === 'number'
-                              ? (activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] as number)
-                              : ''
-                          }
-                          onChange={(e) => handleNonDiscChange(row.key as any, parseFloat(e.target.value) || 0)}
-                        />
+                        <div className="flex-1 min-w-0">
+                          <FloatingInput
+                            type="number"
+                            prefix="$"
+                            label={row.label}
+                            helpText={statutoryExplanations[row.key] || 'Statutory deduction item.'}
+                            value={
+                              typeof activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] === 'number'
+                                ? (activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] as number)
+                                : ''
+                            }
+                            onChange={(e) => handleNonDiscChange(row.key as any, parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
 
-                        {/* Attach button matching screenshot */}
+                        {/* Attach button matching input design */}
                         <button
                           type="button"
                           onClick={() => setAttachingCategory(row.key)}
-                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer min-h-[52px] ${
                             hasAttachment
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
+                              : 'bg-white border border-[#2d2d2d] text-slate-700 hover:bg-slate-100 shadow-[0_2px_0_rgba(0,0,0,0.22)]'
                           }`}
                         >
                           <Paperclip className="w-3.5 h-3.5" />
                           <span>{hasAttachment ? 'Attached' : 'Attach'}</span>
                         </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
-                          title="Statutory Definition"
-                        >
-                          ?
-                        </button>
                       </div>
-
-                      {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
-                          <div className="flex items-start justify-between gap-2">
-                            <span>{statutoryExplanations[row.key] || 'Statutory deduction item.'}</span>
-                            <button
-                              type="button"
-                              onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -601,38 +557,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
-                      <div className="flex items-center gap-2">
-                        <FloatingInput
-                          type="number"
-                          prefix="$"
-                          label={row.label}
-                          value={activeReport.discretionary.housing[row.key as keyof typeof activeReport.discretionary.housing] || ''}
-                          onChange={(e) => handleDiscretionaryChange('housing', row.key, parseFloat(e.target.value) || 0)}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
-                          title="Statutory Guidance"
-                        >
-                          ?
-                        </button>
-                      </div>
-                      {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
-                          <div className="flex items-start justify-between gap-2">
-                            <span>Form 65 housing allowance guideline. Keep bills and rent receipts for audit.</span>
-                            <button
-                              type="button"
-                              onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                    <div key={row.key} className="relative">
+                      <FloatingInput
+                        type="number"
+                        prefix="$"
+                        label={row.label}
+                        helpText="Form 65 housing allowance guideline. Keep bills and rent receipts for audit."
+                        value={activeReport.discretionary.housing[row.key as keyof typeof activeReport.discretionary.housing] || ''}
+                        onChange={(e) => handleDiscretionaryChange('housing', row.key, parseFloat(e.target.value) || 0)}
+                      />
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
@@ -656,38 +589,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     { key: 'furniture', label: 'Furniture' },
                     { key: 'other', label: 'Other' }
                   ].map(row => (
-                    <div key={row.key} className={`relative ${activeTooltip === row.key ? 'z-[9999]' : 'z-0'}`}>
-                      <div className="flex items-center gap-2">
-                        <FloatingInput
-                          type="number"
-                          prefix="$"
-                          label={row.label}
-                          value={activeReport.discretionary.personal[row.key as keyof typeof activeReport.discretionary.personal] || ''}
-                          onChange={(e) => handleDiscretionaryChange('personal', row.key, parseFloat(e.target.value) || 0)}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setActiveTooltip(activeTooltip === row.key ? null : row.key)}
-                          className="w-7 h-7 rounded-xl bg-slate-200 text-slate-700 hover:bg-[#b4b1fc] hover:text-[#242031] flex items-center justify-center text-xs font-bold transition shrink-0 cursor-pointer"
-                          title="Statutory Guidance"
-                        >
-                          ?
-                        </button>
-                      </div>
-                      {activeTooltip === row.key && (
-                        <div className="absolute left-0 right-0 top-full mt-1.5 p-3 bg-slate-900/98 backdrop-blur-md text-white text-[11px] rounded-xl shadow-2xl border border-white/30 z-[9999] pointer-events-auto filter drop-shadow-2xl">
-                          <div className="flex items-start justify-between gap-2">
-                            <span>Form 65 personal expenditure allowance item.</span>
-                            <button
-                              type="button"
-                              onClick={() => setActiveTooltip(null)}
-                              className="text-slate-400 hover:text-white p-0.5 text-xs font-bold leading-none shrink-0 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                    <div key={row.key} className="relative">
+                      <FloatingInput
+                        type="number"
+                        prefix="$"
+                        label={row.label}
+                        helpText="Form 65 personal expenditure allowance item."
+                        value={activeReport.discretionary.personal[row.key as keyof typeof activeReport.discretionary.personal] || ''}
+                        onChange={(e) => handleDiscretionaryChange('personal', row.key, parseFloat(e.target.value) || 0)}
+                      />
                     </div>
                   ))}
                   <div className="pt-2 text-xs font-bold text-slate-900">
