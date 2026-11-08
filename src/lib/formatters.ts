@@ -9,10 +9,10 @@
  */
 export function formatCurrency(amount: number | string | undefined | null): string {
   if (amount === undefined || amount === null || amount === '') {
-    return '$ 0.00';
+    return '$\u00A00.00';
   }
   const numericVal = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(/[^0-9.-]/g, '')) || 0;
-  return `$ ${numericVal.toLocaleString('en-US', {
+  return `$\u00A0${numericVal.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;

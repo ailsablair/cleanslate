@@ -124,21 +124,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onOpenEmailLog}
           className="w-full text-left bg-[#1d1a28] hover:bg-[#1a1724] border border-white/5 rounded-xl p-3 transition-colors group"
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-semibold tracking-wider text-[#b6b3ff] uppercase flex items-center gap-1.5">
-              <MailCheck className="w-3.5 h-3.5 text-[#b6b3ff]" />
-              LIT Auto-Dispatch
+          <div className="flex items-center justify-between mb-1 gap-2">
+            <span className="text-[10px] font-semibold tracking-wider text-[#b6b3ff] uppercase flex items-center gap-1.5 truncate">
+              <MailCheck className="w-3.5 h-3.5 text-[#b6b3ff] shrink-0" />
+              <span className="truncate whitespace-nowrap">Your Advocate</span>
             </span>
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20 shrink-0" />
           </div>
-          <div className="text-xs font-normal text-white truncate">
+          <div className="text-xs font-normal text-white truncate whitespace-nowrap">
             {profile.litName || 'Sarah Jenkins, LIT'}
           </div>
-          <div className="text-[11px] text-slate-400 truncate">
+          <div className="text-[11px] text-slate-400 truncate whitespace-nowrap">
             {profile.litFirm || 'BDO Canada Limited'}
           </div>
           <div 
-            className="mt-2 text-[10px] underline decoration-slate-500"
+            className="mt-2 text-[10px] underline decoration-slate-500 truncate whitespace-nowrap"
             style={{ color: '#FF6BBC' }}
           >
             View Trustee Email Log &rarr;

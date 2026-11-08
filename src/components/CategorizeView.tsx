@@ -513,15 +513,15 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         {isProofRequiredForTransaction(tx) && (
                           <span 
                             title={getProofRequirementInfo(tx).explanation}
-                            className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-900 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-full"
+                            className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300 px-1.5 py-[2px] rounded-full"
                           >
-                            <AlertCircle className="w-3 h-3 text-amber-600 shrink-0" />
+                            <AlertCircle className="w-2 h-2 text-amber-600 shrink-0" />
                             <span>{getProofRequirementInfo(tx).type === 'prescription' ? 'Prescription Receipt Required' : 'Proof Receipt Required'}</span>
                           </span>
                         )}
                         {tx.receiptFileName && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-1.5 py-[2px] rounded-full">
+                            <CheckCircle2 className="w-2 h-2 text-emerald-600 shrink-0" />
                             <span>Receipt Attached</span>
                           </span>
                         )}
@@ -584,12 +584,12 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         </button>
                       </div>
                     ) : tx.isCategorized ? (
-                      <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" />
+                      <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full flex items-center gap-0.5">
+                        <Check className="w-2 h-2 text-emerald-600" />
                         Mapped
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-800 border border-amber-200/80 text-[10px] font-medium px-2.5 py-1 rounded-md">
+                      <span className="bg-amber-50 text-amber-800 border border-amber-200/80 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
                         Unclassified
                       </span>
                     )}

@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
   Lightbulb, 
-  TrendingDown, 
   RefreshCw, 
   CheckCircle2, 
-  ArrowRight,
-  ShieldAlert
+  Shapes
 } from 'lucide-react';
 import { MonthlyReport, UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
@@ -19,6 +17,7 @@ interface FinancialInsightCardProps {
 interface InsightData {
   category: string;
   amount: number;
+  strategyTitle?: string;
   tip: string;
   estimatedSavings: string;
   impact: string;
@@ -30,7 +29,6 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
 }) => {
   const [insight, setInsight] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Find previous month's report (e.g. August 2022)
   const prevReport = monthlyReports.find(r => r.month === 'August' && r.year === 2022) 
@@ -39,10 +37,10 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
 
   // Calculate highest variable spending category from previous month
   const getHighestVariableCategory = () => {
-    if (!prevReport) return { category: 'Food & Grocery', amount: 650, month: 'August 2022' };
+    if (!prevReport) return { category: 'Food & Grocery', amount: 720, month: 'August 2022' };
 
     const candidates = [
-      { category: 'Food & Grocery', amount: prevReport.discretionary.dayToDay.foodGrocery || 650 },
+      { category: 'Food & Grocery', amount: prevReport.discretionary.dayToDay.foodGrocery || 720 },
       { category: 'Repair, Maintenance & Gas', amount: prevReport.discretionary.transportation.repairMaintenanceGas || 310 },
       { category: 'Clothing', amount: prevReport.discretionary.dayToDay.clothing || 120 },
       { category: 'Dining Out / Takeout', amount: prevReport.discretionary.personal.alcohol || 180 },
@@ -61,7 +59,6 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
 
   const fetchInsight = async () => {
     setLoading(true);
-    setError(null);
     try {
       const response = await fetch('/api/financial-insight', {
         method: 'POST',
@@ -79,15 +76,18 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
       }
 
       const data = await response.json();
-      setInsight(data);
+      setInsight({
+        ...data,
+        strategyTitle: data.strategyTitle || (highestCat.category.includes('Food') ? 'Meal-planning' : 'Expense Optimization')
+      });
     } catch (err: any) {
-      console.warn('AI insight fetch fallback applied:', err);
-      // Resilient default
+      // Resilient default matching new design mockup
       setInsight({
         category: highestCat.category,
         amount: highestCat.amount,
-        tip: 'Plan weekly meals around provincial flyer specials using the Flipp app at discount grocers. Buying pantry staples and seasonal vegetables in bulk noticeably reduces grocery totals.',
-        estimatedSavings: '$85 - $130 / month',
+        strategyTitle: 'Meal-planning',
+        tip: 'Plan weekly meals around provincial flyer specials using the Flipp app. Buying pantry staples and seasonal vegetables in bulk noticeably reduces grocery totals.',
+        estimatedSavings: '$85 - 130 /mo',
         impact: 'Trimming grocery bills keeps your monthly net income comfortably under the statutory OSB surplus threshold.'
       });
     } finally {
@@ -99,77 +99,89 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
     fetchInsight();
   }, [prevReport?.id]);
 
+  // Format savings for the pill badge (e.g. "Save: $85 - 130 /mo")
+  const formatSavingsPill = (savingsStr: string) => {
+    let clean = savingsStr.replace(/Potential Savings:\s*/i, '').replace(/\/ month/i, '/mo').replace(/\/month/i, '/mo').trim();
+    if (!clean.toLowerCase().startsWith('save:')) {
+      clean = `Save: ${clean}`;
+    }
+    return clean;
+  };
+
   return (
-    <div className="bg-[#1e1b29] border border-white/10 rounded-3xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+    <div className="bg-[#0f0c1b] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
       {/* Decorative subtle ambient glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#fbf050]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-72 h-72 bg-[#9da2ea]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 space-y-4">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#b4b1fc]/20 text-[#b4b1fc] flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4 text-[#b6b3ff]" />
+        {/* Header Section */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#28223d] border border-white/10 flex items-center justify-center text-white shrink-0 mt-0.5">
+              <Sparkles className="w-4.5 h-4.5 text-[#b4b1fc]" />
             </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide uppercase">
-                Monthly AI Financial Insight
+            <div className="space-y-1">
+              <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
+                FINANCIAL INSIGHTS
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Actionable money-saving tip based on {highestCat.month} highest spend
+              <p className="text-xs sm:text-sm text-[#9ca1df] font-normal leading-relaxed max-w-2xl">
+                Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge process.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span 
-              className="text-[10px] font-normal text-slate-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full whitespace-nowrap"
-              style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-            >
-              Top Category: <strong className="text-white font-normal">{highestCat.category}</strong> ({formatCurrency(highestCat.amount)})
-            </span>
-            <button
-              onClick={fetchInsight}
-              disabled={loading}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition"
-              title="Refresh tip with AI"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#b6b3ff]' : ''}`} />
-            </button>
-          </div>
+          <button
+            onClick={fetchInsight}
+            disabled={loading}
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer active:scale-95 shrink-0"
+            title="Refresh financial insights"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#9da2ea]' : ''}`} />
+          </button>
         </div>
 
-        {/* Content Body */}
+        {/* Hairline Divider */}
+        <div className="h-[1px] w-full bg-white/10 my-4" />
+
+        {/* Top Category Line */}
+        <div className="flex items-center gap-2.5 text-sm sm:text-base flex-wrap pt-0.5">
+          <Shapes className="w-4.5 h-4.5 text-[#fbf050] shrink-0" />
+          <span className="font-bold text-[#fbf050]">Top Category:</span>
+          <span className="text-white font-medium">{highestCat.category}</span>
+          <span className="text-[#a5a1d9] font-normal">({formatCurrency(highestCat.amount)})</span>
+        </div>
+
+        {/* Middle Card: Saving Strategy */}
         {insight && (
           <div className="space-y-3 pt-1">
-            <div className="bg-[#282438] border border-white/10 rounded-2xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#fbf050]/20 text-[#fbf050] flex items-center justify-center shrink-0 mt-0.5">
-                <Lightbulb className="w-4 h-4" />
-              </div>
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-white">
-                    Targeted Saving Strategy
+            <div className="bg-[#342f48] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Lightbulb className="w-5 h-5 text-[#fbf050] shrink-0" />
+                  <span className="text-sm sm:text-base font-bold text-[#fbf050] whitespace-nowrap">
+                    Saving strategy:
                   </span>
-                  <span className="text-[11px] font-normal text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                    Potential Savings: {insight.estimatedSavings}
+                  <span className="text-sm sm:text-base font-medium text-white truncate">
+                    {insight.strategyTitle || 'Meal-planning'}
                   </span>
                 </div>
-                <p 
-                  className="text-xs text-slate-200 leading-relaxed font-medium"
-                  style={{ fontSize: '12px' }}
-                >
-                  "{insight.tip}"
-                </p>
+
+                <span className="px-3.5 py-1 rounded-full bg-[#9da2ea] text-[#141024] font-bold text-xs tracking-tight whitespace-nowrap shadow-xs self-start sm:self-auto">
+                  {formatSavingsPill(insight.estimatedSavings)}
+                </span>
               </div>
+
+              <p className="text-xs sm:text-sm text-[#c4c1e0] leading-relaxed font-normal sm:pl-7">
+                "{insight.tip}"
+              </p>
             </div>
 
-            {/* Impact on Surplus Income */}
-            <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between gap-3 text-xs">
-              <span className="text-[11px] text-slate-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span><strong>Surplus Protection:</strong> {insight.impact}</span>
-              </span>
+            {/* Bottom Card: Surplus Protection Banner */}
+            <div className="bg-[#246b53] rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3.5 text-white shadow-xs">
+              <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
+              <p className="text-xs sm:text-sm text-white font-normal leading-relaxed">
+                {insight.impact}
+              </p>
             </div>
           </div>
         )}

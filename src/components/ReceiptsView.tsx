@@ -296,26 +296,26 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                           <span>{rec.fileName || 'Proof_Document.pdf'}</span>
                         </span>
                         {rec.linkedTransactionId && (
-                          <span className="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-medium text-[#242031] bg-[#b4b1fc]/30 border border-[#b4b1fc] px-1.5 py-0.2 rounded">
+                          <span className="inline-flex items-center gap-0.5 text-[6.5px] font-mono font-medium text-[#242031] bg-[#b4b1fc]/30 border border-[#b4b1fc] px-1 py-[1px] rounded">
                             Tx #{rec.linkedTransactionId}
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="py-3.5">
-                      <span className="bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-medium px-2.5 py-1 rounded-md">
+                      <span className="bg-slate-100 border border-slate-200 text-slate-700 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded">
                         {rec.category}
                       </span>
                     </td>
                     <td className="py-3.5">
                       {isMed ? (
-                        <span className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[10px] font-medium px-2 py-0.5 rounded-md">
-                          <ShieldCheck className="w-3 h-3 text-emerald-700" />
+                        <span className="inline-flex items-center gap-0.5 bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
+                          <ShieldCheck className="w-2 h-2 text-emerald-700 shrink-0" />
                           <span>Protected Health (PHI)</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded-md">
-                          <Lock className="w-2.5 h-2.5" />
+                        <span className="inline-flex items-center gap-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
+                          <Lock className="w-2 h-2 text-slate-500 shrink-0" />
                           <span>Standard Encrypted</span>
                         </span>
                       )}

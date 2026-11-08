@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="Sync connected bank accounts now via API"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#b6b3ff]' : 'text-slate-300'}`} />
-              <span className="hidden sm:inline font-normal">{isSyncing ? 'Syncing...' : 'Sync Bank API'}</span>
+              <span className="hidden sm:inline font-normal">{isSyncing ? 'Syncing...' : 'Sync bank'}</span>
             </button>
           )}
 

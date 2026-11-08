@@ -186,6 +186,9 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             >
               {arcData.map((arc) => {
                 const isHovered = activeSegmentId === arc.id;
+                // Item 3: Omit text on narrow slices (<=8% like $130) to prevent overflow
+                const showDirectLabel = arc.percentage > 8;
+
                 return (
                   <g
                     key={arc.id}
@@ -199,41 +202,66 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                       stroke="#ffffff"
                       strokeWidth={3}
                       className={`transition-all duration-200 ${
-                        isHovered ? 'filter brightness-110 drop-shadow-sm' : ''
+                        isHovered ? 'filter brightness-110 drop-shadow-md' : ''
                       }`}
                     />
-                    {/* Dollar amount directly inside the donut segment matching design */}
-                    <text
-                      x={arc.labelX}
-                      y={arc.labelY}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill={arc.textColor}
-                      style={{
-                        fontFamily: "'Google Sans Flex', sans-serif",
-                        fontWeight: 700,
-                        fontSize: '11px',
-                        pointerEvents: 'none'
-                      }}
-                    >
-                      {arc.sliceLabel}
-                    </text>
+                    {/* Dollar amount directly inside the donut segment only when wide enough */}
+                    {showDirectLabel && (
+                      <text
+                        x={arc.labelX}
+                        y={arc.labelY}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill={arc.textColor}
+                        style={{
+                          fontFamily: "'Google Sans Flex', sans-serif",
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        {arc.sliceLabel}
+                      </text>
+                    )}
                   </g>
                 );
               })}
             </svg>
 
-            {/* Center Hole of Donut: Monthly Income + $6,680.00 + On Track */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-              <span className="text-[11px] font-medium text-slate-500 tracking-wide mb-0.5">
-                Monthly Income
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                $6,680.00
-              </span>
-              <span className="inline-flex items-center text-[10px] font-semibold text-emerald-300 bg-[#254942] px-3 py-0.5 rounded-full mt-1.5 shadow-2xs">
-                On Track
-              </span>
+            {/* Center Hole of Donut: Dynamic inspection on hover, or default Monthly Income */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4 transition-all duration-150">
+              {activeSegmentId ? (() => {
+                const seg = slices.find(s => s.id === activeSegmentId);
+                if (!seg) return null;
+                return (
+                  <div className="animate-in fade-in zoom-in-95 duration-150">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5 truncate max-w-[130px]">
+                      {seg.shortName}
+                    </span>
+                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
+                      ${seg.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span 
+                      className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 shadow-2xs"
+                      style={{ backgroundColor: seg.color, color: seg.textColor }}
+                    >
+                      {seg.percentage}% Allocation
+                    </span>
+                  </div>
+                );
+              })() : (
+                <>
+                  <span className="text-[11px] font-medium text-slate-500 tracking-wide mb-0.5">
+                    Monthly Income
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
+                    $6,680.00
+                  </span>
+                  <span className="inline-flex items-center text-[10px] font-semibold text-emerald-300 bg-[#254942] px-3 py-0.5 rounded-full mt-1.5 shadow-2xs">
+                    On Track
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -265,12 +293,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                     </span>
                   </div>
 
-                  {/* Bottom Row: Amount + Percentage */}
-                  <div className="flex items-baseline justify-between text-xs pt-0.5">
-                    <span className="text-base sm:text-lg font-normal text-slate-900 tracking-tight">
+                  {/* Bottom Row: Amount + Percentage (Item 14: no colliding text, hide percentage when space is small) */}
+                  <div className="flex items-baseline justify-between text-xs pt-0.5 gap-2">
+                    <span className="text-sm sm:text-base font-normal text-slate-900 tracking-tight whitespace-nowrap">
                       ${slice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span className="text-xs font-medium text-slate-400">
+                    <span className="hidden xl:inline text-xs font-medium text-slate-400 whitespace-nowrap">
                       {slice.percentage}%
                     </span>
                   </div>
@@ -281,7 +309,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
 
           {/* Subtitle guidance below cards */}
           <p className="text-xs text-slate-400 text-center font-normal pt-1">
-            Hover or tap the slices to inspect budget allocations
+            Hover or tap any slice to inspect category allocation and details
           </p>
         </div>
       </div>
