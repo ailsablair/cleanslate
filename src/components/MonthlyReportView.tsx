@@ -21,6 +21,7 @@ import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 import { FloatingInput } from './FloatingInput';
+import { LitBotReportAssistant } from './LitBotReportAssistant';
 import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
 interface MonthlyReportViewProps {
@@ -204,81 +205,108 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
     'debtsStayLifted': 'Statutory obligations where the bankruptcy stay has been lifted by court order.'
   };
 
+  const handleAttachReceiptToCategory = (category: string, receiptId: string) => {
+    const currentAttachments = activeReport.nonDiscretionary.attachments || {};
+    const updatedAttachments = {
+      ...currentAttachments,
+      [category]: [receiptId]
+    };
+    const updated = {
+      ...activeReport,
+      nonDiscretionary: {
+        ...activeReport.nonDiscretionary,
+        attachments: updatedAttachments
+      }
+    };
+    onUpdateReport(updated);
+  };
+
   return (
     <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column: HISTORY Card (4 cols) */}
-        <div className="lg:col-span-4 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-5">
-            <Hourglass className="w-4 h-4 text-slate-700" />
-            <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
-              MONTHLY HISTORY
-            </h3>
-          </div>
+        {/* Left Column: HISTORY Card & LITbot AI Assistant (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <Hourglass className="w-4 h-4 text-slate-700" />
+              <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
+                MONTHLY HISTORY
+              </h3>
+            </div>
 
-          <div className="space-y-1 divide-y divide-slate-100">
-            {reports.map((rep) => {
-              const isCurrent = rep.id === activeReport.id;
-              const isOverdue = rep.status === 'Overdue';
-              const isSubmitted = rep.status === 'Submitted';
+            <div className="space-y-1 divide-y divide-slate-100">
+              {reports.map((rep) => {
+                const isCurrent = rep.id === activeReport.id;
+                const isOverdue = rep.status === 'Overdue';
+                const isSubmitted = rep.status === 'Submitted';
 
-              return (
-                <div
-                  key={rep.id}
-                  onClick={() => onSelectReport(rep.id)}
-                  className={`py-3.5 px-3 rounded-2xl transition cursor-pointer flex items-center justify-between relative ${
-                    isCurrent 
-                      ? 'bg-slate-100/90' 
-                      : 'hover:bg-slate-50'
-                  }`}
-                >
-                  {/* Active highlight bar on left */}
-                  {isCurrent && (
-                    <div className="absolute left-1 top-2.5 bottom-2.5 w-1.5 rounded-full bg-[#242031]" />
-                  )}
+                return (
+                  <div
+                    key={rep.id}
+                    onClick={() => onSelectReport(rep.id)}
+                    className={`py-3.5 px-3 rounded-2xl transition cursor-pointer flex items-center justify-between relative ${
+                      isCurrent 
+                        ? 'bg-slate-100/90' 
+                        : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    {/* Active highlight bar on left */}
+                    {isCurrent && (
+                      <div className="absolute left-1 top-2.5 bottom-2.5 w-1.5 rounded-full bg-[#242031]" />
+                    )}
 
-                  <div className="pl-3 min-w-0">
-                    <div className="text-sm font-bold text-slate-900">
-                      {rep.month}
+                    <div className="pl-3 min-w-0">
+                      <div className="text-sm font-bold text-slate-900">
+                        {rep.month}
+                      </div>
+                      <div className="text-xs text-slate-400 truncate">
+                        {isSubmitted 
+                          ? `Sent to ${rep.sentToLitName?.split(',')[0] || profile.litName?.split(',')[0] || 'LIT'} on ${new Date(rep.submittedAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                          : rep.lastEditDate
+                        }
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-400 truncate">
-                      {isSubmitted 
-                        ? `Sent to ${rep.sentToLitName?.split(',')[0] || profile.litName?.split(',')[0] || 'LIT'} on ${new Date(rep.submittedAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
-                        : rep.lastEditDate
-                      }
+
+                    <div className="text-right shrink-0">
+                      <span 
+                        className={`text-xs ${
+                          isCurrent 
+                            ? 'text-slate-500 font-medium' 
+                            : isOverdue 
+                            ? 'text-rose-500 font-semibold' 
+                            : isSubmitted 
+                            ? 'text-emerald-700 font-semibold' 
+                            : 'text-slate-400 font-normal'
+                        }`}
+                      >
+                        {rep.status}
+                      </span>
                     </div>
                   </div>
+                );
+              })}
+            </div>
 
-                  <div className="text-right shrink-0">
-                    <span 
-                      className={`text-xs ${
-                        isCurrent 
-                          ? 'text-slate-500 font-medium' 
-                          : isOverdue 
-                          ? 'text-rose-500 font-semibold' 
-                          : isSubmitted 
-                          ? 'text-emerald-700 font-semibold' 
-                          : 'text-slate-400 font-normal'
-                      }`}
-                    >
-                      {rep.status}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+            <div className="mt-6 pt-4 border-t border-slate-100">
+              <button
+                onClick={() => {}}
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>See All (12 Months)</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100">
-            <button
-              onClick={() => {}}
-              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <span>See All (12 Months)</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {/* LITbot AI Assistant & Bank Statement Auto-Categorization Widget */}
+          <LitBotReportAssistant
+            activeReport={activeReport}
+            profile={profile}
+            receipts={receipts}
+            onUpdateReport={onUpdateReport}
+            onAttachReceiptToCategory={handleAttachReceiptToCategory}
+          />
         </div>
 
         {/* Right Column: Multi-Step Form 65 Wizard (8 cols) */}
