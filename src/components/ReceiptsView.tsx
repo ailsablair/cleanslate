@@ -274,11 +274,11 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
-              <tr className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 pb-3">
-                <th className="pb-3">Document Title</th>
-                <th className="pb-3">Statutory Category</th>
-                <th className="pb-3">Privacy Level</th>
-                <th className="pb-3">Report Period</th>
+              <tr className="text-[10px] font-semibold text-slate-400 border-b border-slate-200 pb-3">
+                <th className="pb-3">Document title</th>
+                <th className="pb-3">Statutory category</th>
+                <th className="pb-3">Privacy level</th>
+                <th className="pb-3">Report period</th>
                 <th className="pb-3 text-right">Amount</th>
                 <th className="pb-3 text-right">Actions</th>
               </tr>
@@ -296,27 +296,27 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                           <span>{rec.fileName || 'Proof_Document.pdf'}</span>
                         </span>
                         {rec.linkedTransactionId && (
-                          <span className="inline-flex items-center gap-0.5 text-[6.5px] font-mono font-medium text-[#242031] bg-[#b4b1fc]/30 border border-[#b4b1fc] px-1 py-[1px] rounded">
+                          <span className="status-tag-compact text-[#242031] bg-[#b4b1fc]/30 border border-[#b4b1fc]">
                             Tx #{rec.linkedTransactionId}
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="py-3.5">
-                      <span className="bg-slate-100 border border-slate-200 text-slate-700 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded">
+                      <span className="status-tag-compact bg-slate-100 border border-slate-200 text-slate-700">
                         {rec.category}
                       </span>
                     </td>
                     <td className="py-3.5">
                       {isMed ? (
-                        <span className="inline-flex items-center gap-0.5 bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
+                        <span className="status-tag-compact bg-emerald-50 border border-emerald-200/80 text-emerald-800">
                           <ShieldCheck className="w-2 h-2 text-emerald-700 shrink-0" />
-                          <span>Protected Health (PHI)</span>
+                          <span>Protected health (PHI)</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
+                        <span className="status-tag-compact bg-slate-100 border border-slate-200 text-slate-600">
                           <Lock className="w-2 h-2 text-slate-500 shrink-0" />
-                          <span>Standard Encrypted</span>
+                          <span>Standard encrypted</span>
                         </span>
                       )}
                     </td>

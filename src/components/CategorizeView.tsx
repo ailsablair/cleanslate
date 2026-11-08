@@ -308,7 +308,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>{saveToast.message}</span>
             </div>
-            <span className="text-[10px] text-emerald-700 uppercase tracking-widest font-black">Confirmed</span>
+            <span className="status-tag-compact text-emerald-800 bg-white/70 border border-emerald-300">Confirmed</span>
           </div>
         )}
 
@@ -513,16 +513,16 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         {isProofRequiredForTransaction(tx) && (
                           <span 
                             title={getProofRequirementInfo(tx).explanation}
-                            className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300 px-1.5 py-[2px] rounded-full"
+                            className="status-tag-compact text-amber-900 bg-amber-100/90 border border-amber-300"
                           >
                             <AlertCircle className="w-2 h-2 text-amber-600 shrink-0" />
-                            <span>{getProofRequirementInfo(tx).type === 'prescription' ? 'Prescription Receipt Required' : 'Proof Receipt Required'}</span>
+                            <span>{getProofRequirementInfo(tx).type === 'prescription' ? 'Prescription needed' : 'Receipt needed'}</span>
                           </span>
                         )}
                         {tx.receiptFileName && (
-                          <span className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-1.5 py-[2px] rounded-full">
+                          <span className="status-tag-compact text-emerald-800 bg-emerald-100/80 border border-emerald-300">
                             <CheckCircle2 className="w-2 h-2 text-emerald-600 shrink-0" />
-                            <span>Receipt Attached</span>
+                            <span>Receipt attached</span>
                           </span>
                         )}
                       </div>
@@ -584,13 +584,13 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         </button>
                       </div>
                     ) : tx.isCategorized ? (
-                      <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full flex items-center gap-0.5">
+                      <span className="status-tag-compact bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                         <Check className="w-2 h-2 text-emerald-600" />
-                        Mapped
+                        <span>Mapped</span>
                       </span>
                     ) : (
-                      <span className="bg-amber-50 text-amber-800 border border-amber-200/80 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
-                        Unclassified
+                      <span className="status-tag-compact bg-amber-50 text-amber-800 border border-amber-200/80">
+                        <span>Unclassified</span>
                       </span>
                     )}
                   </div>

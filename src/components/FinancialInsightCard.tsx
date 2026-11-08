@@ -121,11 +121,16 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
               <Sparkles className="w-4.5 h-4.5 text-[#b4b1fc]" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
-                FINANCIAL INSIGHTS
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
+                  FINANCIAL INSIGHTS
+                </h3>
+                <span className="status-tag-compact bg-[#9da2ea]/20 text-[#b4b1fc] border border-[#9da2ea]/30">
+                  Helpful hints
+                </span>
+              </div>
               <p className="text-xs sm:text-sm text-[#9ca1df] font-normal leading-relaxed max-w-2xl">
-                Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge process.
+                Actionable tips to optimize statutory spending and protect your surplus income threshold.
               </p>
             </div>
           </div>

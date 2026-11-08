@@ -315,7 +315,7 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
                       <span className={`text-sm font-bold truncate ${isCompleted ? 'text-slate-900 line-through text-slate-500' : 'text-slate-900'}`}>
                         {milestone.title}
                       </span>
-                      <span className="text-[6.5px] font-mono text-slate-400 bg-slate-100 px-1.5 py-[2px] rounded shrink-0">
+                      <span className="status-tag-compact font-mono text-slate-500 bg-slate-100 border border-slate-200/80">
                         {milestone.statutoryRef}
                       </span>
                     </div>
@@ -335,15 +335,15 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                   <span
-                    className={`text-[6.5px] font-bold uppercase tracking-wider px-2 py-[2px] rounded-full ${
+                    className={`status-tag-compact ${
                       isCompleted
-                        ? 'bg-emerald-100 text-emerald-800'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200/80'
                         : milestone.status === 'in-progress'
-                        ? 'bg-amber-100 text-amber-900'
-                        : 'bg-slate-100 text-slate-600'
+                        ? 'bg-amber-100 text-amber-900 border border-amber-200/80'
+                        : 'bg-slate-100 text-slate-600 border border-slate-200/80'
                     }`}
                   >
-                    {isCompleted ? 'Fulfilled' : milestone.status === 'in-progress' ? 'In Progress' : 'Upcoming'}
+                    {isCompleted ? 'Fulfilled' : milestone.status === 'in-progress' ? 'In progress' : 'Upcoming'}
                   </span>
                 </div>
               </div>

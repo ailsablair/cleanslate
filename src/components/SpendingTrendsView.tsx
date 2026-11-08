@@ -825,8 +825,8 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#b6b3ff]/15 text-[#b6b3ff]">
-                      {goal.milestoneStage || `${goal.timeframeMonths}-Month`}
+                    <span className="status-tag-compact bg-[#b6b3ff]/15 text-[#b6b3ff] border border-[#b6b3ff]/20">
+                      {goal.milestoneStage || `${goal.timeframeMonths}-month`}
                     </span>
                     
                     <div className="flex items-center gap-1.5">

@@ -15,7 +15,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { BankAccount, Transaction, MonthlyReport, UserProfile, Receipt } from '../types';
-import { INITIAL_RECENT_ACTIVITY } from '../lib/mockData';
 import { BudgetSummary } from './BudgetSummary';
 import { FinancialInsightCard } from './FinancialInsightCard';
 import { formatCurrency } from '../lib/formatters';
@@ -35,17 +34,6 @@ interface DashboardViewProps {
   onNavigateToSpendingTrends?: () => void;
   onSyncBankAccounts: () => void;
   isSyncing: boolean;
-}
-
-function parseActivityTimestamp(timeStr: string) {
-  // e.g. "1 Sep 5: 40 am" -> { date: "1 Sep", time: "5:40 am" }
-  // "30 Aug 6: 45 pm" -> { date: "30 Aug", time: "6:45 pm" }
-  const match = timeStr.trim().match(/^(\d+\s+[A-Za-z]+)\s+(.+)$/);
-  if (match) {
-    const rawTime = match[2].replace(/\s*:\s*/g, ':').replace(/\s+/g, ' ');
-    return { date: match[1], time: rawTime };
-  }
-  return { date: timeStr, time: '' };
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -158,98 +146,102 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 2. 3 Metric Cards (Lavender `#b4b1fc`) with Balanced Height and Alignment */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        {/* Metric 1: Monthly Reports */}
-        <div 
-          onClick={onNavigateToReports}
-          className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
-        >
-          <div>
+      {/* 2. Top Main Section: Metrics + Budget on Left, Helpful Hints on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (7-8 cols): 3 Metric Cards + Budget Summary */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+          {/* 3 Metric Cards (Lavender `#b4b1fc`) with Balanced Height and Alignment */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Metric 1: Monthly Reports */}
             <div 
-              className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
-              style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+              onClick={onNavigateToReports}
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
             >
-              MONTHLY REPORTS
-            </div>
-            <div className="flex items-baseline justify-between mb-2">
-              <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount}/{monthlyReports.length || 12})</span>
+              <div>
+                <div 
+                  className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
+                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+                >
+                  MONTHLY REPORTS
+                </div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
+                    {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount}/{monthlyReports.length || 12})</span>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
+                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
               </div>
-              <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+              {/* Progress bar remains */}
+              <div>
+                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-[#242031] h-full rounded-full transition-all duration-500" 
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
+            <div 
+              onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
+              title="Click to view 6-month spending trends & peer benchmarks"
+            >
+              <div>
+                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+                  AVERAGE SPEND
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
+                    {formatCurrency(avgSpend)}
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
+                    <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Metric 3: Current Payment */}
+            <div 
+              onClick={onNavigateToReports}
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
+                  CURRENT PAYMENT
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
+                    {formatCurrency(currentPayment)}
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          {/* Progress bar remains, bottom text removed per Item 7 */}
-          <div>
-            <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
-              <div 
-                className="bg-[#242031] h-full rounded-full transition-all duration-500" 
-                style={{ width: `${completionPercent}%` }}
-              />
-            </div>
-          </div>
+
+          {/* Budget Summary Component with Recharts Doughnut Chart */}
+          <BudgetSummary
+            currentReport={monthlyReports.find(r => r.month === 'September' && r.year === 2022) || monthlyReports[0]}
+            profile={profile}
+            onNavigateToReports={onNavigateToReports}
+          />
         </div>
 
-        {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
-        <div 
-          onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
-          className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
-          title="Click to view 6-month spending trends & peer benchmarks"
-        >
-          <div>
-            <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-              AVERAGE SPEND
-            </div>
-            <div className="flex items-baseline justify-between">
-              {/* Item 16: Currency & amount strictly on one line */}
-              <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                {formatCurrency(avgSpend)}
-              </div>
-              <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
-              </div>
-            </div>
-          </div>
-          {/* Item 6 & 8: Status bar and bottom text removed */}
-        </div>
-
-        {/* Metric 3: Current Payment */}
-        <div 
-          onClick={onNavigateToReports}
-          className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
-        >
-          <div>
-            <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-              CURRENT PAYMENT
-            </div>
-            <div className="flex items-baseline justify-between">
-              {/* Item 16: Currency & amount strictly on one line */}
-              <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                {formatCurrency(currentPayment)}
-              </div>
-              <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-              </div>
-            </div>
-          </div>
-          {/* Item 5 & 9: Status bar and bottom text removed */}
+        {/* Right Column: Helpful Hints (Financial Insights Card) in Top Right of Screen */}
+        <div className="lg:col-span-5 xl:col-span-4">
+          <FinancialInsightCard
+            monthlyReports={monthlyReports}
+            profile={profile}
+          />
         </div>
       </div>
-
-      {/* 3. AI Financial Insight Section (Item 11: Full Screen Width) */}
-      <FinancialInsightCard
-        monthlyReports={monthlyReports}
-        profile={profile}
-      />
-
-      {/* 4. Budget Summary Component with Recharts Doughnut Chart (Items 3, 13, 14: Full Screen Width) */}
-      <BudgetSummary
-        currentReport={monthlyReports.find(r => r.month === 'September' && r.year === 2022) || monthlyReports[0]}
-        profile={profile}
-        onNavigateToReports={onNavigateToReports}
-      />
 
       {/* 5. LATEST TRANSACTIONS Card (Item 15: Full Screen Width, Generous Padding) */}
       <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
@@ -270,7 +262,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="text-[8px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-200/80 pb-3">
+              <tr className="text-[10px] font-semibold text-slate-400 border-b border-slate-200/80 pb-3">
                 <th className="pb-3 pr-4 whitespace-nowrap">
                   Transaction ID
                 </th>
@@ -315,18 +307,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       {isAttached ? (
-                        <span className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200/90 px-1.5 py-[2px] rounded-full">
+                        <span className="status-tag-compact text-emerald-800 bg-emerald-50 border border-emerald-200/90">
                           <CheckCircle2 className="w-2 h-2 text-emerald-600 shrink-0" />
-                          <span>Receipt Attached</span>
+                          <span>Receipt attached</span>
                         </span>
                       ) : txProofInfo.required ? (
-                        <span className="inline-flex items-center gap-0.5 text-[6.5px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50 border border-amber-300 px-1.5 py-[2px] rounded-full">
+                        <span className="status-tag-compact text-amber-900 bg-amber-50 border border-amber-300">
                           <AlertCircle className="w-2 h-2 text-amber-600 shrink-0" />
-                          <span>{txProofInfo.type === 'prescription' ? 'Prescription Needed' : 'Receipt Needed'}</span>
+                          <span>{txProofInfo.type === 'prescription' ? 'Prescription needed' : 'Receipt needed'}</span>
                         </span>
                       ) : (
-                        <span className="text-[7px] text-slate-400 font-medium uppercase tracking-wider">
-                          Optional
+                        <span className="status-tag-compact text-slate-500 bg-slate-100 border border-slate-200/80">
+                          <span>Optional</span>
                         </span>
                       )}
                     </td>
@@ -400,119 +392,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 7. RECENT ACTIVITY (Item 10: Moved to Bottom of Page, Full Width; Items 1 & 2: Alignment) */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
-        <div className="flex items-center justify-between mb-5 text-sm">
-          <h3 className="text-sm font-bold tracking-wider uppercase text-[#242031]">
-            RECENT ACTIVITY
-          </h3>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">
-            Live Feed
-          </span>
-        </div>
 
-        {/* 2-Column Responsive Feed with Perfect Left/Right Alignment */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 divide-y md:divide-y-0">
-          {/* Column 1 */}
-          <div className="divide-y divide-slate-100">
-            {INITIAL_RECENT_ACTIVITY.slice(0, Math.ceil(INITIAL_RECENT_ACTIVITY.length / 2)).map((act) => {
-              const { date, time } = parseActivityTimestamp(act.time);
-              return (
-                <div 
-                  key={act.id} 
-                  className="flex items-center justify-between py-3 px-0 hover:bg-slate-100/50 transition group cursor-pointer"
-                >
-                  {/* Item 2: Avatar/initials left-aligned with beginning of Recent Activity text */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center font-bold text-xs text-slate-800 shadow-2xs shrink-0">
-                      {act.company.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        {act.company}
-                      </div>
-                      <div className="text-xs font-mono text-slate-400 truncate">
-                        #{act.ref}
-                      </div>
-                    </div>
-                  </div>
-                  {/* Item 1: Date and time on different lines, tightly associated, aligned far right with Live Feed */}
-                  <div className="text-right shrink-0 ml-3 space-y-0.5 leading-tight">
-                    <div className="text-xs font-semibold text-slate-800 tracking-tight whitespace-nowrap">
-                      {date}
-                    </div>
-                    {time && (
-                      <div className="text-[11px] text-slate-400 font-normal whitespace-nowrap">
-                        {time}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Column 2 */}
-          <div className="divide-y divide-slate-100 pt-2 md:pt-0">
-            {INITIAL_RECENT_ACTIVITY.slice(Math.ceil(INITIAL_RECENT_ACTIVITY.length / 2)).map((act) => {
-              const { date, time } = parseActivityTimestamp(act.time);
-              return (
-                <div 
-                  key={act.id} 
-                  className="flex items-center justify-between py-3 px-0 hover:bg-slate-100/50 transition group cursor-pointer"
-                >
-                  {/* Item 2: Avatar/initials left-aligned */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center font-bold text-xs text-slate-800 shadow-2xs shrink-0">
-                      {act.company.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        {act.company}
-                      </div>
-                      <div className="text-xs font-mono text-slate-400 truncate">
-                        #{act.ref}
-                      </div>
-                    </div>
-                  </div>
-                  {/* Item 1: Date and time on different lines, tightly associated, aligned far right with Live Feed */}
-                  <div className="text-right shrink-0 ml-3 space-y-0.5 leading-tight">
-                    <div className="text-xs font-semibold text-slate-800 tracking-tight whitespace-nowrap">
-                      {date}
-                    </div>
-                    {time && (
-                      <div className="text-[11px] text-slate-400 font-normal whitespace-nowrap">
-                        {time}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* See All Activity button at bottom matching design */}
-        <div className="mt-6 pt-4 border-t border-slate-100">
-          <button
-            onClick={onNavigateToCategorize}
-            style={{ 
-              background: 'var(--colour-dark-highlight, #F9F45D)',
-              boxShadow: '4px 6px 0px black',
-              borderRadius: 8,
-              color: 'var(--colour-dark-accent, #3E4A4F)',
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '13.34px',
-              fontWeight: '700',
-              lineHeight: '20.96px'
-            }}
-            className="w-full py-2.5 px-4 flex items-center justify-center gap-2 transition-all hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black] cursor-pointer"
-          >
-            <span style={{ fontWeight: 'bold', color: '#3E4A4F' }}>See All Activity</span>
-            <ChevronRight className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
-          </button>
-        </div>
-      </div>
 
       {/* Quick transaction inspect modal */}
       {selectedTx && (() => {
@@ -580,8 +460,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         <ShieldCheck className="w-4 h-4 shrink-0" />
                         <span>Receipt Proof Attached & Verified</span>
                       </div>
-                      <span className="text-[6.5px] uppercase tracking-wider text-emerald-300 font-bold bg-emerald-500/20 px-1.5 py-[2px] rounded-full border border-emerald-500/30">
-                        BIA Form 65 Ready
+                      <span className="status-tag-compact text-emerald-300 bg-emerald-500/20 border border-emerald-500/30">
+                        BIA Form 65 ready
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-slate-300 bg-white/5 p-2 rounded-xl">
@@ -610,7 +490,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="bg-amber-950/50 border border-amber-500/70 p-3.5 rounded-2xl space-y-2">
                     <div className="flex items-center gap-2 text-amber-300 text-xs font-bold">
                       <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>STATUTORY REQUIREMENT: RECEIPT MUST BE UPLOADED</span>
+                      <span>Statutory requirement: Receipt must be uploaded</span>
                     </div>
                     <div className="text-[11px] text-amber-200/95 leading-relaxed">
                       <strong className="text-white block mb-0.5">{proofInfo.label}</strong>

@@ -379,8 +379,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-black text-slate-900">{selectedLitObj.name}</span>
-                    <span className="bg-emerald-100 text-emerald-800 text-[6.5px] font-bold uppercase tracking-wider px-1.5 py-[2px] rounded-full">
-                      Active Trustee
+                    <span className="status-tag-compact bg-emerald-100 text-emerald-800">
+                      Active trustee
                     </span>
                   </div>
                   <div className="text-xs font-normal text-slate-700 flex items-center gap-1.5">
