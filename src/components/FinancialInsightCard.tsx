@@ -148,12 +148,16 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
         {/* Hairline Divider */}
         <div className="h-[1px] w-full bg-white/10 my-4" />
 
-        {/* Top Category Line */}
-        <div className="flex items-center gap-2.5 text-sm sm:text-base flex-wrap pt-0.5">
-          <Shapes className="w-4.5 h-4.5 text-[#fbf050] shrink-0" />
-          <span className="font-bold text-[#fbf050]">Top Category:</span>
-          <span className="text-white font-medium">{highestCat.category}</span>
-          <span className="text-[#a5a1d9] font-normal">({formatCurrency(highestCat.amount)})</span>
+        {/* Top Category Line with Line Break */}
+        <div className="space-y-1 pt-0.5">
+          <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#fbf050]">
+            <Shapes className="w-4.5 h-4.5 shrink-0 text-[#fbf050]" />
+            <span>Top Category:</span>
+          </div>
+          <div className="pl-6.5 text-sm sm:text-base text-white font-medium flex items-baseline gap-2 flex-wrap">
+            <span>{highestCat.category}</span>
+            <span className="text-[#a5a1d9] font-normal text-xs sm:text-sm">({formatCurrency(highestCat.amount)})</span>
+          </div>
         </div>
 
         {/* Middle Card: Saving Strategy */}
@@ -171,7 +175,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
                   </span>
                 </div>
 
-                <span className="px-3.5 py-1 rounded-full bg-[#9da2ea] text-[#141024] font-bold text-xs tracking-tight whitespace-nowrap shadow-xs self-start sm:self-auto">
+                <span className="px-3.5 py-1 rounded-full bg-[#9da2ea] text-[#141024] font-bold text-xs tracking-tight whitespace-nowrap shadow-xs shrink-0 self-start sm:self-center">
                   {formatSavingsPill(insight.estimatedSavings)}
                 </span>
               </div>
@@ -181,9 +185,9 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
               </p>
             </div>
 
-            {/* Bottom Card: Surplus Protection Banner */}
-            <div className="bg-[#246b53] rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3.5 text-white shadow-xs">
-              <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
+            {/* Bottom Card: Surplus Protection Banner (Icon top-aligned) */}
+            <div className="bg-[#246b53] rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-white shadow-xs">
+              <CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm text-white font-normal leading-relaxed">
                 {insight.impact}
               </p>

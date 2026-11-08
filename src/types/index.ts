@@ -94,12 +94,16 @@ export interface Form65Discretionary {
   personal: {
     smoking: number;
     alcohol: number;
-    heatingGasOil: number;
-    rentOrMortgage: number;
-    cable: number;
-    hydro: number;
-    water: number;
-    furniture: number;
+    diningOut?: number;
+    clothing?: number;
+    grooming?: number;
+    hobbies?: number;
+    heatingGasOil?: number;
+    rentOrMortgage?: number;
+    cable?: number;
+    hydro?: number;
+    water?: number;
+    furniture?: number;
     other: number;
   };
   medical: {

@@ -318,8 +318,8 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="bg-[#2d293d] rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white space-y-4 shadow-sm">
         
         {/* Top Header of Dark Card */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-200 pt-0.5">
             DISCHARGE REPAYMENTS PROGRESS
           </div>
           <div className="text-left sm:text-right">

@@ -155,16 +155,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Metric 1: Monthly Reports */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
             >
-              <div>
-                <div 
-                  className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                >
-                  MONTHLY REPORTS
+              <div 
+                className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]"
+                style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+              >
+                MONTHLY REPORTS
+              </div>
+
+              {/* Bottom Container: Progress bar on top, percentage stat underneath (Swapped per user request) */}
+              <div className="space-y-2 mt-auto pt-3">
+                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-[#242031] h-full rounded-full transition-all duration-500" 
+                    style={{ width: `${completionPercent}%` }}
+                  />
                 </div>
-                <div className="flex items-baseline justify-between mb-2">
+                <div className="flex items-baseline justify-between pt-0.5">
                   <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
                     {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount}/{monthlyReports.length || 12})</span>
                   </div>
@@ -173,34 +181,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
               </div>
-              {/* Progress bar remains */}
-              <div>
-                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-[#242031] h-full rounded-full transition-all duration-500" 
-                    style={{ width: `${completionPercent}%` }}
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Metric 2: Average Spend -> Navigates to Bank Accounts */}
             <div 
               onClick={onNavigateToBankAccounts}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
               title="Click to view connected bank accounts & balances"
             >
-              <div>
-                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-                  AVERAGE SPEND
+              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]">
+                AVERAGE SPEND
+              </div>
+              <div className="flex items-baseline justify-between mt-auto pt-3">
+                <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
+                  {formatCurrency(avgSpend)}
                 </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                    {formatCurrency(avgSpend)}
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                    <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
-                  </div>
+                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
+                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
             </div>
@@ -208,19 +205,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Metric 3: Current Payment */}
             <div 
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
+              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
             >
-              <div>
-                <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">
-                  CURRENT PAYMENT
+              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]">
+                CURRENT PAYMENT
+              </div>
+              <div className="flex items-baseline justify-between mt-auto pt-3">
+                <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
+                  {formatCurrency(currentPayment)}
                 </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                    {formatCurrency(currentPayment)}
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                  </div>
+                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
+                  <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
             </div>

@@ -16,7 +16,10 @@ import {
   Download,
   FileText,
   Check,
-  Sparkles
+  Sparkles,
+  MoreVertical,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
@@ -57,6 +60,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   const [isExportingAuditPacket, setIsExportingAuditPacket] = useState<boolean>(false);
   const [pdfSuccessToast, setPdfSuccessToast] = useState<string | null>(null);
   const [isStatementModalOpen, setIsStatementModalOpen] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(true);
+  const [isMoreActionsOpen, setIsMoreActionsOpen] = useState<boolean>(false);
 
   const activeReport = reports.find(r => r.id === currentReportId) || reports[0];
 
@@ -189,22 +194,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   };
 
   const statutoryExplanations: Record<string, string> = {
-    'employmentIncome': 'Net wages or salary after statutory deductions (tax, CPP/EI). Include overtime and bonuses.',
-    'pensionAnnuities': 'Monthly pension payments, CPP retirement benefits, OAS, or annuity income.',
-    'childSupport': 'Court-ordered or agreed child support receipts.',
-    'spousalSupport': 'Court-ordered or agreed spousal support received.',
-    'employmentIncomeBenefits': 'EI regular benefits, parental leave, or sickness benefits.',
-    'socialAssistance': 'Provincial or municipal income assistance receipts.',
-    'selfEmploymentIncome': 'Net business income (gross revenues minus direct verified expenses).',
-    'childTaxBenefit': 'Canada Child Benefit (CCB) and provincial child supplements.',
-    'otherNetIncome': 'Rental income, tips, dividends, or monetary family gifts.',
+    'selfEmploymentIncome': 'Net business income (gross revenues minus direct verified expenses ledger).',
     'childSupportPayments': 'Legally mandated child support paid pursuant to a court order or written agreement.',
     'spousalSupportPayments': 'Mandatory spousal support paid to a former spouse.',
-    'childCare': 'Daycare, preschool, or babysitting expenses required for debtor employment.',
     'medicalConditionExpenses': 'Prescription medicines, physician-authorized medical cannabis, medical devices, dental therapy not covered by MSP/insurance.',
-    'finesPenaltiesCourt': 'Statutory fines or court restitution payments.',
-    'expensesConditionEmployment': 'Mandatory safety equipment, union dues, or tools required to maintain employment.',
-    'debtsStayLifted': 'Statutory obligations where the bankruptcy stay has been lifted by court order.'
+    'expensesConditionEmployment': 'Mandatory safety equipment, union dues, or tools required to maintain position.',
+    'debtsStayLifted': 'Statutory obligations where the bankruptcy stay has been lifted by court order.',
+    'propertyTaxesCondo': 'Requires copy of property tax assessment or condo fee statement for trustee verification.'
   };
 
   const handleAttachReceiptToCategory = (category: string, receiptId: string) => {
@@ -224,102 +220,128 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   };
 
   return (
-    <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
+    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column: HISTORY Card & LITbot AI Assistant (4 cols) */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <Hourglass className="w-4 h-4 text-slate-700" />
-              <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
-                MONTHLY HISTORY
-              </h3>
-            </div>
+        {/* Left Column: HISTORY Card & LITbot AI Assistant (4 cols when open) */}
+        {isHistoryOpen && (
+          <div className="lg:col-span-4 space-y-6 animate-in fade-in duration-200">
+            <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between gap-2 mb-5">
+                <div className="flex items-center gap-2">
+                  <Hourglass className="w-4 h-4 text-slate-700" />
+                  <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
+                    MONTHLY HISTORY
+                  </h3>
+                </div>
+                {/* Collapsible Close Button [ ◧ ] */}
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-200/80 text-slate-700 border border-slate-300 transition cursor-pointer"
+                  title="Collapse Monthly History to expand form area"
+                  aria-label="Collapse Monthly History"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              </div>
 
-            <div className="space-y-1 divide-y divide-slate-100">
-              {reports.map((rep) => {
-                const isCurrent = rep.id === activeReport.id;
-                const isOverdue = rep.status === 'Overdue';
-                const isSubmitted = rep.status === 'Submitted';
+              {/* Monthly History List with generous whitespace */}
+              <div className="space-y-2 divide-y divide-slate-100">
+                {reports.map((rep) => {
+                  const isCurrent = rep.id === activeReport.id;
+                  const isOverdue = rep.status === 'Overdue';
+                  const isSubmitted = rep.status === 'Submitted';
 
-                return (
-                  <div
-                    key={rep.id}
-                    onClick={() => onSelectReport(rep.id)}
-                    className={`py-3.5 px-3 rounded-2xl transition cursor-pointer flex items-center justify-between relative ${
-                      isCurrent 
-                        ? 'bg-slate-100/90' 
-                        : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    {/* Active highlight bar on left */}
-                    {isCurrent && (
-                      <div className="absolute left-1 top-2.5 bottom-2.5 w-1.5 rounded-full bg-[#242031]" />
-                    )}
+                  return (
+                    <div
+                      key={rep.id}
+                      onClick={() => onSelectReport(rep.id)}
+                      className={`py-4 px-3.5 my-1 rounded-2xl transition cursor-pointer flex items-center justify-between relative ${
+                        isCurrent 
+                          ? 'bg-slate-100/90' 
+                          : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      {/* Active highlight bar on left */}
+                      {isCurrent && (
+                        <div className="absolute left-1 top-3 bottom-3 w-1.5 rounded-full bg-[#242031]" />
+                      )}
 
-                    <div className="pl-3 min-w-0">
-                      <div className="text-sm font-bold text-slate-900">
-                        {rep.month}
+                      <div className="pl-3 min-w-0">
+                        <div className="text-sm font-bold text-slate-900">
+                          {rep.month}
+                        </div>
+                        <div className="text-xs text-slate-400 truncate mt-0.5">
+                          {isSubmitted 
+                            ? `Sent to ${rep.sentToLitName?.split(',')[0] || profile.litName?.split(',')[0] || 'LIT'} on ${new Date(rep.submittedAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                            : rep.lastEditDate
+                          }
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-400 truncate">
-                        {isSubmitted 
-                          ? `Sent to ${rep.sentToLitName?.split(',')[0] || profile.litName?.split(',')[0] || 'LIT'} on ${new Date(rep.submittedAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
-                          : rep.lastEditDate
-                        }
+
+                      <div className="text-right shrink-0 ml-2">
+                        <span 
+                          className={`text-xs ${
+                            isCurrent 
+                              ? 'text-slate-500 font-medium' 
+                              : isOverdue 
+                              ? 'text-rose-500 font-semibold' 
+                              : isSubmitted 
+                              ? 'text-emerald-700 font-semibold' 
+                              : 'text-slate-400 font-normal'
+                          }`}
+                        >
+                          {rep.status}
+                        </span>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
 
-                    <div className="text-right shrink-0">
-                      <span 
-                        className={`text-xs ${
-                          isCurrent 
-                            ? 'text-slate-500 font-medium' 
-                            : isOverdue 
-                            ? 'text-rose-500 font-semibold' 
-                            : isSubmitted 
-                            ? 'text-emerald-700 font-semibold' 
-                            : 'text-slate-400 font-normal'
-                        }`}
-                      >
-                        {rep.status}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="mt-6 pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => {}}
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>See All (12 Months)</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100">
-              <button
-                onClick={() => {}}
-                className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>See All (12 Months)</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            {/* LITbot AI Assistant & Bank Statement Auto-Categorization Widget */}
+            <LitBotReportAssistant
+              activeReport={activeReport}
+              profile={profile}
+              receipts={receipts}
+              onUpdateReport={onUpdateReport}
+              onAttachReceiptToCategory={handleAttachReceiptToCategory}
+              isStatementModalOpen={isStatementModalOpen}
+              setIsStatementModalOpen={setIsStatementModalOpen}
+            />
           </div>
+        )}
 
-          {/* LITbot AI Assistant & Bank Statement Auto-Categorization Widget */}
-          <LitBotReportAssistant
-            activeReport={activeReport}
-            profile={profile}
-            receipts={receipts}
-            onUpdateReport={onUpdateReport}
-            onAttachReceiptToCategory={handleAttachReceiptToCategory}
-            isStatementModalOpen={isStatementModalOpen}
-            setIsStatementModalOpen={setIsStatementModalOpen}
-          />
-        </div>
-
-        {/* Right Column: Multi-Step Form 65 Wizard (8 cols) */}
-        <div className="lg:col-span-8 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        {/* Right Column: Multi-Step Form 65 Wizard (8 cols when open, 12 cols when collapsed) */}
+        <div className={`${isHistoryOpen ? 'lg:col-span-8' : 'lg:col-span-12'} bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 transition-all duration-300`}>
           
-          {/* Top Bar: Calendar + Month/Year + Download Report + Update Profile Link */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#b4b1fc] flex items-center justify-center text-[#242031]">
+          {/* Top Bar: Calendar + Month/Year + Re-open History + More Actions Dropdown */}
+          <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-200/80">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {!isHistoryOpen && (
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs mr-1"
+                  title="Show Monthly History"
+                >
+                  <PanelLeftOpen className="w-3.5 h-3.5" />
+                  <span>Monthly History</span>
+                </button>
+              )}
+              <div className="w-8 h-8 rounded-lg bg-[#b4b1fc] flex items-center justify-center text-[#242031] shrink-0">
                 <Calendar className="w-4 h-4" />
               </div>
               <h2 
@@ -336,37 +358,52 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               )}
             </div>
 
-            <div className="flex items-center gap-2.5 flex-wrap">
+            {/* Sleek "More Actions" Dropdown Button */}
+            <div className="relative shrink-0">
               <button
                 type="button"
-                onClick={handleDownloadReport}
-                disabled={isGeneratingPdf}
-                className="px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2e293f] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 disabled:opacity-75"
-                title={`Download Form 65 PDF Summary for ${activeReport.month} ${activeReport.year}`}
+                onClick={() => setIsMoreActionsOpen(!isMoreActionsOpen)}
+                className="w-9 h-9 rounded-xl bg-[#2be4a7] hover:bg-[#25c490] text-[#1d1a27] flex items-center justify-center transition shadow-2xs cursor-pointer active:scale-95"
+                title="More actions"
+                aria-label="More actions"
               >
-                <Download className={`w-3.5 h-3.5 text-[#b6b3ff] ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
-                <span className="font-bold">{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
+                <MoreVertical className="w-5 h-5 stroke-[2.5]" />
               </button>
 
-              <button
-                type="button"
-                onClick={handleExportAuditPacket}
-                disabled={isExportingAuditPacket}
-                className="px-3.5 py-2 rounded-xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#1d1a27] text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 disabled:opacity-75"
-                title="Compile all 12 monthly reports, receipts & signed Form 65 declarations into a single OSB audit dossier PDF"
-              >
-                <FileCheck className={`w-3.5 h-3.5 text-slate-900 ${isExportingAuditPacket ? 'animate-bounce' : ''}`} />
-                <span className="font-bold">{isExportingAuditPacket ? 'Exporting Dossier...' : 'Export LIT Audit Packet'}</span>
-              </button>
+              {isMoreActionsOpen && (
+                <div 
+                  className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#1d1a27] text-white p-2 shadow-xl border border-white/10 z-50 animate-in fade-in space-y-1"
+                  onClick={() => setIsMoreActionsOpen(false)}
+                >
+                  <button
+                    onClick={handleDownloadReport}
+                    disabled={isGeneratingPdf}
+                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 text-[#b6b3ff]" />
+                    <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
+                  </button>
 
-              <button
-                onClick={onNavigateToProfile}
-                style={{ color: '#FF6BBC' }}
-                className="text-xs flex items-center gap-1 px-2.5 py-2 rounded-xl hover:bg-slate-100 transition"
-              >
-                <span className="font-normal text-right">Update Profile</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+                  <button
+                    onClick={handleExportAuditPacket}
+                    disabled={isExportingAuditPacket}
+                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer text-[#fbf050]"
+                  >
+                    <FileCheck className="w-4 h-4" />
+                    <span>{isExportingAuditPacket ? 'Exporting Dossier...' : 'Export LIT Audit Packet'}</span>
+                  </button>
+
+                  <div className="h-[1px] bg-white/10 my-1" />
+
+                  <button
+                    onClick={onNavigateToProfile}
+                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer text-[#ff6bbc]"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                    <span>Update Profile</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -377,13 +414,13 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             </div>
           )}
 
-          {/* Statement Auto-Categorization Hero Banner */}
-          <div className="bg-[#1d1a27] text-white rounded-2xl p-5 shadow-sm border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Statement Auto-Categorization Hero Banner (Text Expanded + Button Across Bottom) */}
+          <div className="bg-[#1d1a27] text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-white/10 space-y-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-[#fbf050] text-[#1d1a27] flex items-center justify-center font-extrabold shrink-0 mt-0.5 shadow-xs">
                 <Sparkles className="w-5 h-5 stroke-[2.5]" />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-sm sm:text-base font-bold text-white tracking-wide">
                     Auto-Fill Form 65 from Bank Statement
@@ -392,16 +429,17 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     Jan 1 – Jan 30
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
+                <p className="text-xs text-slate-300 leading-relaxed w-full">
                   Upload your monthly bank or credit card statement to automatically populate earnings and expenses directly into these inputs, then refine with LITbot.
                 </p>
               </div>
             </div>
 
+            {/* Button positioned across bottom underneath text */}
             <button
               type="button"
               onClick={() => setIsStatementModalOpen(true)}
-              className="shrink-0 bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs px-4.5 py-3 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 self-start sm:self-center"
+              className="w-full bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs py-3 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
               <Upload className="w-4 h-4 stroke-[2.5]" />
               <span>Upload Statement (Jan 1-30)</span>
@@ -474,7 +512,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         type="number"
                         prefix="$"
                         label={row.label}
-                        helpText={statutoryExplanations[row.key] || 'Statutory line item for monthly Form 65 determination.'}
+                        helpText={statutoryExplanations[row.key]}
                         value={activeReport.income.debtor[row.key as keyof typeof activeReport.income.debtor] || ''}
                         onChange={(e) => handleDebtorIncomeChange(row.key as any, parseFloat(e.target.value) || 0)}
                       />
@@ -553,7 +591,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                             type="number"
                             prefix="$"
                             label={row.label}
-                            helpText={statutoryExplanations[row.key] || 'Statutory deduction item.'}
+                            helpText={statutoryExplanations[row.key]}
                             value={
                               typeof activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] === 'number'
                                 ? (activeReport.nonDiscretionary[row.key as keyof typeof activeReport.nonDiscretionary] as number)
@@ -625,7 +663,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         type="number"
                         prefix="$"
                         label={row.label}
-                        helpText="Form 65 housing allowance guideline. Keep bills and rent receipts for audit."
+                        helpText={statutoryExplanations[row.key]}
                         value={activeReport.discretionary.housing[row.key as keyof typeof activeReport.discretionary.housing] || ''}
                         onChange={(e) => handleDiscretionaryChange('housing', row.key, parseFloat(e.target.value) || 0)}
                       />
@@ -636,28 +674,25 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   </div>
                 </div>
 
-                {/* Personal */}
+                {/* Personal (Cleaned up - unique personal categories, no duplicates from Housing!) */}
                 <div className="space-y-3">
                   <div className="font-bold text-xs sm:text-sm text-slate-900 mb-1">
                     Personal
                   </div>
                   {[
-                    { key: 'smoking', label: 'Smoking' },
-                    { key: 'alcohol', label: 'Alcohol' },
-                    { key: 'heatingGasOil', label: 'Heating / Gas / Oil' },
-                    { key: 'rentOrMortgage', label: 'Rent or Mortgage Payments' },
-                    { key: 'cable', label: 'Cable' },
-                    { key: 'hydro', label: 'Hydro' },
-                    { key: 'water', label: 'Water' },
-                    { key: 'furniture', label: 'Furniture' },
-                    { key: 'other', label: 'Other' }
+                    { key: 'smoking', label: 'Smoking & Tobacco' },
+                    { key: 'alcohol', label: 'Alcohol & Beverages' },
+                    { key: 'diningOut', label: 'Dining Out & Takeout' },
+                    { key: 'clothing', label: 'Clothing & Apparel' },
+                    { key: 'grooming', label: 'Grooming & Personal Care' },
+                    { key: 'hobbies', label: 'Hobbies & Recreation' },
+                    { key: 'other', label: 'Other Personal' }
                   ].map(row => (
                     <div key={row.key} className="relative">
                       <FloatingInput
                         type="number"
                         prefix="$"
                         label={row.label}
-                        helpText="Form 65 personal expenditure allowance item."
                         value={activeReport.discretionary.personal[row.key as keyof typeof activeReport.discretionary.personal] || ''}
                         onChange={(e) => handleDiscretionaryChange('personal', row.key, parseFloat(e.target.value) || 0)}
                       />
