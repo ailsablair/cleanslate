@@ -24,6 +24,8 @@ interface LitBotReportAssistantProps {
   receipts: Receipt[];
   onUpdateReport: (updatedReport: MonthlyReport) => void;
   onAttachReceiptToCategory?: (category: string, receiptId: string) => void;
+  isStatementModalOpen?: boolean;
+  setIsStatementModalOpen?: (open: boolean) => void;
 }
 
 interface ChatMessage {
@@ -47,9 +49,14 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   profile,
   receipts,
   onUpdateReport,
-  onAttachReceiptToCategory
+  onAttachReceiptToCategory,
+  isStatementModalOpen: externalModalOpen,
+  setIsStatementModalOpen: setExternalModalOpen
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [internalModalOpen, setInternalModalOpen] = useState<boolean>(false);
+  const isStatementModalOpen = externalModalOpen !== undefined ? externalModalOpen : internalModalOpen;
+  const setIsStatementModalOpen = setExternalModalOpen || setInternalModalOpen;
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'init-1',
@@ -61,7 +68,6 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   const [inputQuery, setInputQuery] = useState<string>('');
   const [isUploadingStatement, setIsUploadingStatement] = useState<boolean>(false);
   const [statementSuccessToast, setStatementSuccessToast] = useState<string | null>(null);
-  const [isStatementModalOpen, setIsStatementModalOpen] = useState<boolean>(false);
 
   // Statutory answers database for instant help
   const getBotResponse = (query: string): string => {
@@ -225,7 +231,7 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
 
   return (
     <div className="bg-[#1d1a27] text-white rounded-3xl p-6 shadow-xl border border-white/10 space-y-4">
-      {/* Header Bar */}
+      {/* Clean, Uncrowded Widget Header Bar */}
       <div className="flex items-center justify-between pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[#b6b3ff] text-[#1d1a27] flex items-center justify-center font-bold shadow-sm shrink-0">
@@ -240,21 +246,11 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
                 Live trustee guide
               </span>
             </div>
-            <p className="text-xs text-slate-300">
-              Form 65 guidance & statement auto-categorizer
+            <p className="text-xs text-slate-300 mt-0.5">
+              Form 65 statutory guidance & assistant
             </p>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setIsStatementModalOpen(true)}
-          className="px-3.5 py-2 rounded-xl bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
-          title="Upload statement for period Jan 1 to Jan 30 to auto-fill inputs"
-        >
-          <Upload className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Upload Statement (Jan 1-30)</span>
-        </button>
       </div>
 
       {/* Statement Success Toast */}
@@ -269,6 +265,14 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
         <button
           type="button"
+          onClick={() => setIsStatementModalOpen(true)}
+          className="px-3 py-1.5 rounded-full bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold transition shrink-0 cursor-pointer shadow-2xs flex items-center gap-1"
+        >
+          <Upload className="w-3 h-3 stroke-[2.5]" />
+          <span>Upload Statement (Jan 1-30)</span>
+        </button>
+        <button
+          type="button"
           onClick={() => handleSendMessage("You spent $50 at Instacart - was this for Dining or Groceries?")}
           className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition shrink-0 cursor-pointer"
         >
@@ -280,13 +284,6 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
           className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition shrink-0 cursor-pointer"
         >
           Rexall $20 Prescription Proof
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSendMessage("Where do daycare expenses go?")}
-          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition shrink-0 cursor-pointer"
-        >
-          Childcare Deduction
         </button>
       </div>
 
@@ -409,7 +406,10 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             </p>
 
             {/* Dropzone mockup */}
-            <div className="border-2 border-dashed border-white/20 hover:border-[#b6b3ff] rounded-2xl p-6 text-center space-y-2 bg-white/5 transition cursor-pointer">
+            <div 
+              onClick={() => handleProcessBankStatement('Jan_1_to_Jan_30_Bank_Statement.pdf')}
+              className="border-2 border-dashed border-white/20 hover:border-[#b6b3ff] rounded-2xl p-6 text-center space-y-2 bg-white/5 transition cursor-pointer"
+            >
               <Upload className="w-8 h-8 text-[#b6b3ff] mx-auto" />
               <div className="text-xs font-bold text-white">
                 Drop your statement file here (PDF / CSV / Image)

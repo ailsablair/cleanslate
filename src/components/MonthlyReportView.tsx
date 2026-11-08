@@ -15,7 +15,8 @@ import {
   ShieldAlert,
   Download,
   FileText,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
@@ -55,6 +56,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [isExportingAuditPacket, setIsExportingAuditPacket] = useState<boolean>(false);
   const [pdfSuccessToast, setPdfSuccessToast] = useState<string | null>(null);
+  const [isStatementModalOpen, setIsStatementModalOpen] = useState<boolean>(false);
 
   const activeReport = reports.find(r => r.id === currentReportId) || reports[0];
 
@@ -306,6 +308,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             receipts={receipts}
             onUpdateReport={onUpdateReport}
             onAttachReceiptToCategory={handleAttachReceiptToCategory}
+            isStatementModalOpen={isStatementModalOpen}
+            setIsStatementModalOpen={setIsStatementModalOpen}
           />
         </div>
 
@@ -372,6 +376,37 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <span>{pdfSuccessToast}</span>
             </div>
           )}
+
+          {/* Statement Auto-Categorization Hero Banner */}
+          <div className="bg-[#1d1a27] text-white rounded-2xl p-5 shadow-sm border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-[#fbf050] text-[#1d1a27] flex items-center justify-center font-extrabold shrink-0 mt-0.5 shadow-xs">
+                <Sparkles className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-sm sm:text-base font-bold text-white tracking-wide">
+                    Auto-Fill Form 65 from Bank Statement
+                  </h3>
+                  <span className="status-tag-compact bg-[#fbf050] text-[#1d1a27] font-bold border border-[#fbf050]">
+                    Jan 1 – Jan 30
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
+                  Upload your monthly bank or credit card statement to automatically populate earnings and expenses directly into these inputs, then refine with LITbot.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsStatementModalOpen(true)}
+              className="shrink-0 bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs px-4.5 py-3 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 self-start sm:self-center"
+            >
+              <Upload className="w-4 h-4 stroke-[2.5]" />
+              <span>Upload Statement (Jan 1-30)</span>
+            </button>
+          </div>
 
           {/* Debtor Overview Strip matching mockups */}
           <div className="bg-white border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-600 grid grid-cols-1 sm:grid-cols-2 gap-3">
