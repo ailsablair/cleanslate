@@ -16,6 +16,7 @@ app.get('/api/health', (req, res) => {
 });
 
 import { generateFinancialInsightWithAI } from './src/server/financialInsight';
+import { processLitBotChatRequest } from './src/server/litbotChat';
 
 // AI Receipt parsing endpoint
 app.post('/api/parse-receipt', async (req, res) => {
@@ -41,6 +42,22 @@ app.post('/api/financial-insight', async (req, res) => {
     return res.json(result);
   } catch (error: any) {
     console.error('Server error in /api/financial-insight:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// LITbot Chat endpoint (100% accurate Canadian BIA bankruptcy guidance + document analysis)
+app.post('/api/litbot/chat', async (req, res) => {
+  try {
+    const { prompt, messages = [], attachments = [], contextProfile } = req.body;
+    if (!prompt && (!attachments || attachments.length === 0)) {
+      return res.status(400).json({ error: 'prompt or attachments parameter is required' });
+    }
+
+    const result = await processLitBotChatRequest(prompt || 'Please analyze the attached document.', messages, attachments, contextProfile);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/litbot/chat:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });

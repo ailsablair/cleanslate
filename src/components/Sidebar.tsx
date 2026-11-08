@@ -8,7 +8,8 @@ import {
   UserCircle2, 
   Headphones,
   MailCheck,
-  Award
+  Award,
+  Bot
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -22,7 +23,8 @@ export type NavTab =
   | 'receipts' 
   | 'categorize' 
   | 'user-profile' 
-  | 'support';
+  | 'support'
+  | 'litbot';
 
 interface SidebarProps {
   currentTab: NavTab;
@@ -109,6 +111,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <Headphones className={`w-5 h-5 shrink-0 ${currentTab === 'support' ? 'text-[#242031]' : 'text-slate-400'}`} />
               <span>Support</span>
+            </button>
+
+            <button
+              onClick={() => onSelectTab('litbot')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-150 cursor-pointer ${
+                currentTab === 'litbot'
+                  ? 'bg-[#b6b3ff] text-[#242031] shadow-sm font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Bot className={`w-5 h-5 shrink-0 ${currentTab === 'litbot' ? 'text-[#242031]' : 'text-[#fbf050]'}`} />
+              <div className="flex items-center justify-between w-full">
+                <span>LITbot</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#fbf050] text-[#1d1a27]">
+                  AI
+                </span>
+              </div>
             </button>
           </nav>
         </div>

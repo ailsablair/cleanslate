@@ -12,6 +12,7 @@ import { BankAccountsView } from './components/BankAccountsView';
 import { ReceiptsView } from './components/ReceiptsView';
 import { CategorizeView } from './components/CategorizeView';
 import { SupportView } from './components/SupportView';
+import { LitBotView } from './components/LitBotView';
 import { EmailDispatchModal } from './components/EmailDispatchModal';
 import { SpendingTrendsView } from './components/SpendingTrendsView';
 import { DischargePathwayView } from './components/DischargePathwayView';
@@ -294,6 +295,7 @@ export default function App() {
       case 'categorize': return 'CATEGORIZE';
       case 'user-profile': return 'USER PROFILE';
       case 'support': return 'SUPPORT';
+      case 'litbot': return 'LITBOT AI TRUSTEE ASSISTANT';
       default: return 'DASHBOARD';
     }
   };
@@ -426,6 +428,15 @@ export default function App() {
           {currentTab === 'support' && (
             <SupportView
               profile={profile}
+            />
+          )}
+
+          {currentTab === 'litbot' && (
+            <LitBotView
+              profile={profile}
+              activeReport={monthlyReports.find(r => r.id === currentReportId) || monthlyReports[0]}
+              receipts={receipts}
+              onNavigateToReports={() => setCurrentTab('monthly-reports')}
             />
           )}
         </div>
