@@ -184,11 +184,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* Metric 2: Average Spend -> Navigates to Spending Trends */}
+            {/* Metric 2: Average Spend -> Navigates to Bank Accounts */}
             <div 
-              onClick={onNavigateToSpendingTrends || onNavigateToBankAccounts}
+              onClick={onNavigateToBankAccounts}
               className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[132px] flex flex-col justify-between"
-              title="Click to view 6-month spending trends & peer benchmarks"
+              title="Click to view connected bank accounts & balances"
             >
               <div>
                 <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54] mb-2">

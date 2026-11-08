@@ -7,14 +7,12 @@ import {
   X, 
   LayoutDashboard, 
   FileText, 
-  TrendingUp, 
   Building2, 
   Receipt as ReceiptIcon, 
   Shapes, 
   UserCircle2, 
   Headphones, 
   Award, 
-  Calculator,
   ChevronRight
 } from 'lucide-react';
 import { UserProfile } from '../types';
@@ -47,8 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: FileText },
     { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: Award },
-    { id: 'simulator' as NavTab, label: 'Surplus Simulator', icon: Calculator },
-    { id: 'spending-trends' as NavTab, label: 'Spending Trends', icon: TrendingUp },
     { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: Building2 },
     { id: 'receipts' as NavTab, label: 'Receipts', icon: ReceiptIcon },
     { id: 'categorize' as NavTab, label: 'Categorize', icon: Shapes },
