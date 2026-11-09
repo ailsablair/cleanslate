@@ -20,6 +20,7 @@ import {
 import { Receipt, UserProfile, MonthlyReport } from '../types';
 import { CameraReceiptModal } from './CameraReceiptModal';
 import { FloatingInput } from './FloatingInput';
+import { FloatingSelect } from './FloatingSelect';
 import { formatCurrency } from '../lib/formatters';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 
@@ -436,38 +437,30 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 required
               />
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Compliance & Privacy Classification
-                </label>
-                <select
-                  value={privacyClassification}
-                  onChange={e => setPrivacyClassification(e.target.value as any)}
-                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                >
-                  <option value="PHI">Protected Health Information (Medical / Prescriptions)</option>
-                  <option value="Statutory">Non-Discretionary (Childcare / Court Order)</option>
-                  <option value="General">General Discretionary Proof</option>
-                </select>
-              </div>
+              <FloatingSelect
+                label="Compliance & Privacy Classification"
+                value={privacyClassification}
+                onChange={e => setPrivacyClassification(e.target.value as any)}
+                options={[
+                  { value: 'PHI', label: 'Protected Health Information (Medical / Prescriptions)' },
+                  { value: 'Statutory', label: 'Non-Discretionary (Childcare / Court Order)' },
+                  { value: 'General', label: 'General Discretionary Proof' }
+                ]}
+              />
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Form 65 Statutory Category
-                </label>
-                <select
-                  value={category}
-                  onChange={e => setCategory(e.target.value)}
-                  className="w-full bg-[#1e1b29] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                >
-                  <option value="Medical Condition Expenses">Medical Condition Expenses (Non-Discretionary)</option>
-                  <option value="Child Care">Child Care (Non-Discretionary)</option>
-                  <option value="Spousal / Child Support">Court Support Payments (Non-Discretionary)</option>
-                  <option value="Expenses as Condition of Employment">Mandatory Employment Expenses</option>
-                  <option value="Food & Grocery">Food & Grocery (Discretionary)</option>
-                  <option value="Housing & Utilities">Housing & Utilities (Discretionary)</option>
-                </select>
-              </div>
+              <FloatingSelect
+                label="Form 65 Statutory Category"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                options={[
+                  { value: 'Medical Condition Expenses', label: 'Medical Condition Expenses (Non-Discretionary)' },
+                  { value: 'Child Care', label: 'Child Care (Non-Discretionary)' },
+                  { value: 'Spousal / Child Support', label: 'Court Support Payments (Non-Discretionary)' },
+                  { value: 'Expenses as Condition of Employment', label: 'Mandatory Employment Expenses' },
+                  { value: 'Food & Grocery', label: 'Food & Grocery (Discretionary)' },
+                  { value: 'Housing & Utilities', label: 'Housing & Utilities (Discretionary)' }
+                ]}
+              />
 
               <FloatingInput
                 type="number"

@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { BankAccount } from '../types';
 import { formatCurrency } from '../lib/formatters';
+import { FloatingInput } from './FloatingInput';
+import { FloatingSelect } from './FloatingSelect';
 
 interface BankAccountsViewProps {
   bankAccounts: BankAccount[];
@@ -263,74 +265,43 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                  Financial Institution
-                </label>
-                <select
-                  value={institution}
-                  onChange={e => {
-                    setInstitution(e.target.value);
-                    setName(`${e.target.value.split(' ')[0]} Everyday Chequing`);
-                  }}
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                >
-                  {SUPPORTED_INSTITUTIONS.map(inst => (
-                    <option key={inst} value={inst}>
-                      {inst}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <FloatingSelect
+                label="Financial Institution"
+                value={institution}
+                onChange={e => {
+                  setInstitution(e.target.value);
+                  setName(`${e.target.value.split(' ')[0]} Everyday Chequing`);
+                }}
+                options={SUPPORTED_INSTITUTIONS.map(inst => ({ value: inst, label: inst }))}
+              />
 
-              <div>
-                <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                  Account Nickname
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  required
-                  placeholder="e.g. RBC Everyday Chequing"
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                >
-                </input>
-              </div>
+              <FloatingInput
+                label="Account Nickname"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                    Account Type
-                  </label>
-                  <select
-                    value={accountType}
-                    onChange={e => setAccountType(e.target.value as any)}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3 py-3.5 min-h-[44px] text-xs font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  >
-                    <option value="Chequing">Chequing</option>
-                    <option value="Savings">Savings</option>
-                    <option value="Rent Savings">Rent Savings</option>
-                    <option value="Tax Buffer">Tax Buffer</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                    Current Balance ($ CAD)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={balance}
-                    onChange={e => setBalance(parseFloat(e.target.value) || 0)}
-                    required
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  />
-                </div>
+                <FloatingSelect
+                  label="Account Type"
+                  value={accountType}
+                  onChange={e => setAccountType(e.target.value as any)}
+                  options={[
+                    { value: 'Chequing', label: 'Chequing' },
+                    { value: 'Savings', label: 'Savings' },
+                    { value: 'Rent Savings', label: 'Rent Savings' },
+                    { value: 'Tax Buffer', label: 'Tax Buffer' }
+                  ]}
+                />
+                <FloatingInput
+                  type="number"
+                  step="0.01"
+                  label="Current Balance ($ CAD)"
+                  value={balance}
+                  onChange={e => setBalance(parseFloat(e.target.value) || 0)}
+                  required
+                />
               </div>
 
               <div className="pt-2 flex gap-3">
@@ -376,34 +347,21 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-4">
-              <div>
-                <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                  Account Nickname
-                </label>
-                <input
-                  type="text"
-                  value={editingAccount.name}
-                  onChange={e => setEditingAccount({ ...editingAccount, name: e.target.value })}
-                  required
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                />
-              </div>
+              <FloatingInput
+                label="Account Nickname"
+                value={editingAccount.name}
+                onChange={e => setEditingAccount({ ...editingAccount, name: e.target.value })}
+                required
+              />
 
-              <div>
-                <label className="text-xs text-slate-300 font-medium block mb-1.5">
-                  Balance ($ CAD)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editingAccount.balance}
-                  onChange={e => setEditingAccount({ ...editingAccount, balance: parseFloat(e.target.value) || 0 })}
-                  required
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                />
-              </div>
+              <FloatingInput
+                type="number"
+                step="0.01"
+                label="Balance ($ CAD)"
+                value={editingAccount.balance}
+                onChange={e => setEditingAccount({ ...editingAccount, balance: parseFloat(e.target.value) || 0 })}
+                required
+              />
 
               <div className="pt-2 flex gap-3">
                 <button

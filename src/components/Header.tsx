@@ -13,10 +13,13 @@ import {
   UserCircle2, 
   Headphones, 
   Award, 
-  ChevronRight
+  ChevronRight,
+  Download,
+  ChevronDown
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
+import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
 
 interface HeaderProps {
   title: string;
@@ -27,6 +30,8 @@ interface HeaderProps {
   isSyncing?: boolean;
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
+  onDownloadReport?: () => void;
+  onExportAuditPacket?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -37,9 +42,39 @@ export const Header: React.FC<HeaderProps> = ({
   onSyncBankAccounts,
   isSyncing = false,
   currentTab,
-  onSelectTab
+  onSelectTab,
+  onDownloadReport,
+  onExportAuditPacket
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const dropdownMenuItems: DropdownMenuItem[] = [
+    {
+      id: 'download-report',
+      label: 'Download Report',
+      icon: Download,
+      onClick: () => {
+        if (onDownloadReport) onDownloadReport();
+        else onSelectTab('monthly-reports');
+      }
+    },
+    {
+      id: 'export-audit',
+      label: 'Export Audit Packet',
+      icon: FileText,
+      onClick: () => {
+        if (onExportAuditPacket) onExportAuditPacket();
+        else onSelectTab('receipts');
+      }
+    },
+    {
+      id: 'update-profile',
+      label: 'Update Profile',
+      icon: UserCircle2,
+      hasDividerAbove: true,
+      onClick: () => onSelectTab('user-profile')
+    }
+  ];
 
   const navItems = [
     { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
@@ -134,6 +169,22 @@ export const Header: React.FC<HeaderProps> = ({
             <Bell className="w-4 h-4" />
             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#fbf050]" />
           </button>
+
+          {/* Quick Actions Dropdown Menu matching dropdown_29fce253.png */}
+          <DropdownMenu
+            trigger={
+              <button 
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white text-xs font-semibold border border-white/10 transition cursor-pointer active:scale-95 shadow-xs"
+                title="Quick Actions Menu"
+              >
+                <span>Actions</span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#b6b3ff]" />
+              </button>
+            }
+            items={dropdownMenuItems}
+            align="right"
+          />
         </div>
       </div>
 

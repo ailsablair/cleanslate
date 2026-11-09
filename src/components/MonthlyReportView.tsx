@@ -19,12 +19,14 @@ import {
   Sparkles,
   MoreVertical,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  UserCircle2
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 import { FloatingInput } from './FloatingInput';
+import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
 import { LitBotReportAssistant } from './LitBotReportAssistant';
 import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
@@ -358,53 +360,41 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               )}
             </div>
 
-            {/* Sleek "More Actions" Dropdown Button */}
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsMoreActionsOpen(!isMoreActionsOpen)}
-                className="w-9 h-9 rounded-xl bg-[#2be4a7] hover:bg-[#25c490] text-[#1d1a27] flex items-center justify-center transition shadow-2xs cursor-pointer active:scale-95"
-                title="More actions"
-                aria-label="More actions"
-              >
-                <MoreVertical className="w-5 h-5 stroke-[2.5]" />
-              </button>
-
-              {isMoreActionsOpen && (
-                <div 
-                  className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#1d1a27] text-white p-2 shadow-xl border border-white/10 z-50 animate-in fade-in space-y-1"
-                  onClick={() => setIsMoreActionsOpen(false)}
+            {/* Sleek "More Actions" Dropdown Button matching dropdown_29fce253.png */}
+            <DropdownMenu
+              trigger={
+                <button
+                  type="button"
+                  className="w-9 h-9 rounded-xl bg-[#2be4a7] hover:bg-[#25c490] text-[#1d1a27] flex items-center justify-center transition shadow-2xs cursor-pointer active:scale-95 shrink-0"
+                  title="More actions"
+                  aria-label="More actions"
                 >
-                  <button
-                    onClick={handleDownloadReport}
-                    disabled={isGeneratingPdf}
-                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                  >
-                    <Download className="w-4 h-4 text-[#b6b3ff]" />
-                    <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Report'}</span>
-                  </button>
-
-                  <button
-                    onClick={handleExportAuditPacket}
-                    disabled={isExportingAuditPacket}
-                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer text-[#fbf050]"
-                  >
-                    <FileCheck className="w-4 h-4" />
-                    <span>{isExportingAuditPacket ? 'Exporting Dossier...' : 'Export LIT Audit Packet'}</span>
-                  </button>
-
-                  <div className="h-[1px] bg-white/10 my-1" />
-
-                  <button
-                    onClick={onNavigateToProfile}
-                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/10 text-xs font-semibold flex items-center gap-2.5 transition cursor-pointer text-[#ff6bbc]"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                    <span>Update Profile</span>
-                  </button>
-                </div>
-              )}
-            </div>
+                  <MoreVertical className="w-5 h-5 stroke-[2.5]" />
+                </button>
+              }
+              items={[
+                {
+                  id: 'download-report',
+                  label: isGeneratingPdf ? 'Generating PDF...' : 'Download Report',
+                  icon: Download,
+                  onClick: handleDownloadReport
+                },
+                {
+                  id: 'export-audit',
+                  label: isExportingAuditPacket ? 'Exporting Dossier...' : 'Export Audit Packet',
+                  icon: FileText,
+                  onClick: handleExportAuditPacket
+                },
+                {
+                  id: 'update-profile',
+                  label: 'Update Profile',
+                  icon: UserCircle2,
+                  hasDividerAbove: true,
+                  onClick: onNavigateToProfile
+                }
+              ]}
+              align="right"
+            />
           </div>
 
           {pdfSuccessToast && (

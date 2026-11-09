@@ -149,7 +149,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   });
 
   return (
-    <div className="bg-white text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
+    <div className="bg-white text-[#242031] rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 space-y-6 overflow-hidden">
       
       {/* 1. Header Bar matching updated design */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -175,11 +175,11 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="h-[1px] w-full bg-slate-100" />
 
       {/* 2. Middle Row: Donut Chart (Left) + 6 Allocation Cards (Right) */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 items-center">
         
         {/* Left Column: Donut Chart with Embedded Slice Amounts & Center Metric */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center">
-          <div className="w-[280px] h-[280px] sm:w-[300px] sm:h-[300px] relative flex items-center justify-center select-none">
+        <div className="xl:col-span-5 flex flex-col items-center justify-center min-w-0">
+          <div className="w-full max-w-[240px] sm:max-w-[270px] aspect-square relative flex items-center justify-center select-none mx-auto">
             <svg
               viewBox={`0 0 ${size} ${size}`}
               className="w-full h-full transform transition-transform duration-300"
@@ -234,15 +234,15 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 const seg = slices.find(s => s.id === activeSegmentId);
                 if (!seg) return null;
                 return (
-                  <div className="animate-in fade-in zoom-in-95 duration-150">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5 truncate max-w-[130px]">
+                  <div className="animate-in fade-in zoom-in-95 duration-150 max-w-[120px]">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5 truncate">
                       {seg.shortName}
                     </span>
-                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
+                    <span className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
                       ${seg.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span 
-                      className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 shadow-2xs"
+                      className="inline-flex items-center text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 shadow-2xs"
                       style={{ backgroundColor: seg.color, color: seg.textColor }}
                     >
                       {seg.percentage}% Allocation
@@ -250,25 +250,25 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   </div>
                 );
               })() : (
-                <>
-                  <span className="text-[11px] font-medium text-slate-500 tracking-wide mb-0.5">
+                <div className="max-w-[130px]">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 tracking-wide mb-0.5 block">
                     Monthly Income
                   </span>
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
+                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
                     $6,680.00
                   </span>
-                  <span className="inline-flex items-center text-[10px] font-semibold text-emerald-300 bg-[#254942] px-3 py-0.5 rounded-full mt-1.5 shadow-2xs">
+                  <span className="inline-flex items-center text-[9px] sm:text-[10px] font-semibold text-emerald-300 bg-[#254942] px-2.5 py-0.5 rounded-full mt-1 shadow-2xs">
                     On Track
                   </span>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {/* Right Column: 6 Allocation Cards (2 Columns x 3 Rows) */}
-        <div className="md:col-span-7 flex flex-col justify-center space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="xl:col-span-7 flex flex-col justify-center space-y-3 w-full min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             {slices.map((slice) => {
               const isHovered = activeSegmentId === slice.id;
               return (
@@ -276,14 +276,14 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   key={slice.id}
                   onMouseEnter={() => setActiveSegmentId(slice.id)}
                   onMouseLeave={() => setActiveSegmentId(null)}
-                  className={`p-3.5 rounded-2xl border transition cursor-pointer select-none ${
+                  className={`p-3 sm:p-3.5 rounded-2xl border transition cursor-pointer select-none min-w-0 ${
                     isHovered
                       ? 'bg-white border-slate-400 shadow-xs ring-1 ring-slate-300'
                       : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-2xs'
                   }`}
                 >
                   {/* Top Row: Color Dot + Title */}
-                  <div className="flex items-center gap-2 mb-1.5 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 min-w-0">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: slice.color }}
@@ -293,12 +293,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                     </span>
                   </div>
 
-                  {/* Bottom Row: Amount + Percentage (Item 14: no colliding text, hide percentage when space is small) */}
-                  <div className="flex items-baseline justify-between text-xs pt-0.5 gap-2">
-                    <span className="text-sm sm:text-base font-normal text-slate-900 tracking-tight whitespace-nowrap">
+                  {/* Bottom Row: Amount + Percentage */}
+                  <div className="flex items-baseline justify-between text-xs pt-0.5 gap-1.5 min-w-0">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-900 tracking-tight whitespace-nowrap">
                       ${slice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span className="hidden xl:inline text-xs font-medium text-slate-400 whitespace-nowrap">
+                    <span className="text-[11px] font-medium text-slate-400 whitespace-nowrap">
                       {slice.percentage}%
                     </span>
                   </div>
@@ -308,7 +308,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
 
           {/* Subtitle guidance below cards */}
-          <p className="text-xs text-slate-400 text-center font-normal pt-1">
+          <p className="text-[11px] sm:text-xs text-slate-400 text-center font-normal pt-1 truncate">
             Hover or tap any slice to inspect category allocation and details
           </p>
         </div>

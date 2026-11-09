@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
+import { FloatingInput } from './FloatingInput';
 
 interface SurplusSimulatorViewProps {
   profile: UserProfile;
@@ -528,14 +529,12 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <input
-              type="text"
+            <FloatingInput
+              label="Ask a question about Canadian surplus income, allowable deductions, or discharge..."
               value={inputQuestion}
               onChange={e => setInputQuestion(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
-              placeholder="Ask a question about Canadian surplus income, allowable deductions, or discharge..."
-              className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-3 text-xs font-light text-[#101010] placeholder:text-[#767676] placeholder:italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-              style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+              wrapperClassName="flex-1"
             />
             <button
               type="button"

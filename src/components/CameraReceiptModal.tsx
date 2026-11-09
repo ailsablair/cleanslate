@@ -17,6 +17,8 @@ import {
   ScanLine
 } from 'lucide-react';
 import { Receipt } from '../types';
+import { FloatingInput } from './FloatingInput';
+import { FloatingSelect } from './FloatingSelect';
 
 interface CameraReceiptModalProps {
   isOpen: boolean;
@@ -411,68 +413,40 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
 
               {/* Form Fields for Verified Details */}
               <div className="space-y-3 text-xs">
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#b6b3ff]" />
-                    <span>Receipt Title</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={extractedTitle}
-                    onChange={e => setExtractedTitle(e.target.value)}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+                <FloatingInput
+                  label="Receipt Title"
+                  value={extractedTitle}
+                  onChange={e => setExtractedTitle(e.target.value)}
+                />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <FloatingInput
+                    type="number"
+                    step="0.01"
+                    label="Total Amount ($ CAD)"
+                    value={extractedAmount}
+                    onChange={e => setExtractedAmount(parseFloat(e.target.value) || 0)}
+                  />
+
+                  <FloatingInput
+                    label="Extracted Date"
+                    value={extractedDate}
+                    onChange={e => setExtractedDate(e.target.value)}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 font-bold block mb-1 flex items-center gap-1.5">
-                      <DollarSign className="w-3.5 h-3.5 text-[#fbf050]" />
-                      <span>Total Amount ($ CAD)</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={extractedAmount}
-                      onChange={e => setExtractedAmount(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                      style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-slate-300 font-bold block mb-1 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#b6b3ff]" />
-                      <span>Extracted Date</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={extractedDate}
-                      onChange={e => setExtractedDate(e.target.value)}
-                      className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] text-xs font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                      style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1 flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Form 65 Statutory Deduction Category</span>
-                  </label>
-                  <select
-                    value={extractedCategory}
-                    onChange={e => setExtractedCategory(e.target.value)}
-                    className="w-full bg-[#1d1a27] border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] font-medium"
-                  >
-                    <option value="Medical Condition Expenses">Medical Condition Expenses (Prescriptions)</option>
-                    <option value="Child Care">Child Care / Daycare</option>
-                    <option value="Expenses as a condition of employment">Condition of Employment (Tools/Boots)</option>
-                    <option value="Food & Grocery">Food & Grocery</option>
-                    <option value="Transportation">Transportation & Vehicle Gas</option>
-                  </select>
-                </div>
+                <FloatingSelect
+                  label="Form 65 Statutory Deduction Category"
+                  value={extractedCategory}
+                  onChange={e => setExtractedCategory(e.target.value)}
+                  options={[
+                    { value: 'Medical Condition Expenses', label: 'Medical Condition Expenses (Prescriptions)' },
+                    { value: 'Child Care', label: 'Child Care / Daycare' },
+                    { value: 'Expenses as a condition of employment', label: 'Condition of Employment (Tools/Boots)' },
+                    { value: 'Food & Grocery', label: 'Food & Grocery' },
+                    { value: 'Transportation', label: 'Transportation & Vehicle Gas' }
+                  ]}
+                />
               </div>
 
               {/* Action Buttons */}

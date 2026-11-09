@@ -121,16 +121,11 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
               <Sparkles className="w-4.5 h-4.5 text-[#b4b1fc]" />
             </div>
             <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
-                  FINANCIAL INSIGHTS
-                </h3>
-                <span className="status-tag-compact bg-[#9da2ea]/20 text-[#b4b1fc] border border-[#9da2ea]/30">
-                  Helpful hints
-                </span>
-              </div>
+              <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
+                FINANCIAL INSIGHTS
+              </h3>
               <p className="text-xs sm:text-sm text-[#9ca1df] font-normal leading-relaxed max-w-2xl">
-                Actionable tips to optimize statutory spending and protect your surplus income threshold.
+                Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge process.
               </p>
             </div>
           </div>
@@ -148,44 +143,47 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
         {/* Hairline Divider */}
         <div className="h-[1px] w-full bg-white/10 my-4" />
 
-        {/* Top Category Line with Line Break */}
+        {/* Top Category Section */}
         <div className="space-y-1 pt-0.5">
           <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#fbf050]">
             <Shapes className="w-4.5 h-4.5 shrink-0 text-[#fbf050]" />
             <span>Top Category:</span>
           </div>
-          <div className="pl-6.5 text-sm sm:text-base text-white font-medium flex items-baseline gap-2 flex-wrap">
+          <div className="text-sm sm:text-base text-white font-medium flex items-baseline gap-2 flex-wrap">
             <span>{highestCat.category}</span>
             <span className="text-[#a5a1d9] font-normal text-xs sm:text-sm">({formatCurrency(highestCat.amount)})</span>
           </div>
         </div>
 
-        {/* Middle Card: Saving Strategy */}
+        {/* Middle Card: Saving Strategy (Matching payment-tracker.png) */}
         {insight && (
           <div className="space-y-3 pt-1">
-            <div className="bg-[#342f48] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Lightbulb className="w-5 h-5 text-[#fbf050] shrink-0" />
-                  <span className="text-sm sm:text-base font-bold text-[#fbf050] whitespace-nowrap">
-                    Saving strategy:
-                  </span>
-                  <span className="text-sm sm:text-base font-medium text-white truncate">
-                    {insight.strategyTitle || 'Meal-planning'}
-                  </span>
-                </div>
-
-                <span className="px-3.5 py-1 rounded-full bg-[#9da2ea] text-[#141024] font-bold text-xs tracking-tight whitespace-nowrap shadow-xs shrink-0 self-start sm:self-center">
+            <div className="bg-[#312b43] border border-white/5 rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-3.5">
+              {/* Save Pill Badge positioned at top on its own line */}
+              <div>
+                <span className="inline-block px-4 py-1.5 rounded-full bg-[#a3a8f5] text-[#141024] font-extrabold text-xs tracking-tight shadow-xs">
                   {formatSavingsPill(insight.estimatedSavings)}
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#c4c1e0] leading-relaxed font-normal sm:pl-7">
-                "{insight.tip}"
+              {/* Saving Strategy Title Line */}
+              <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                <Lightbulb className="w-5 h-5 text-[#fbf050] shrink-0" />
+                <span className="text-sm sm:text-base font-bold text-[#fbf050]">
+                  Saving strategy:
+                </span>
+                <span className="text-sm sm:text-base font-medium text-white">
+                  {insight.strategyTitle || 'Meal-planning'}
+                </span>
+              </div>
+
+              {/* Tip Paragraph */}
+              <p className="text-xs sm:text-sm text-[#c4c1e0] leading-relaxed font-normal">
+                {insight.tip}
               </p>
             </div>
 
-            {/* Bottom Card: Surplus Protection Banner (Icon top-aligned) */}
+            {/* Bottom Card: Surplus Protection Banner */}
             <div className="bg-[#246b53] rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-white shadow-xs">
               <CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm text-white font-normal leading-relaxed">

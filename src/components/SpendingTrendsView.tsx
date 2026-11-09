@@ -38,6 +38,8 @@ import {
 } from '../lib/spendingTrendsData';
 import { DebtProgress } from './DebtProgress';
 import { formatCurrency } from '../lib/formatters';
+import { FloatingInput } from './FloatingInput';
+import { FloatingSelect } from './FloatingSelect';
 
 interface SpendingTrendsViewProps {
   reports: MonthlyReport[];
@@ -921,56 +923,38 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
             </div>
 
             <form onSubmit={handleCreateGoal} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">
-                  Goal Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Keep Day-to-Day Food Spend under $700.00/mo"
-                  value={newGoalTitle}
-                  onChange={(e) => setNewGoalTitle(e.target.value)}
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                />
-              </div>
+              <FloatingInput
+                label="Goal Title"
+                value={newGoalTitle}
+                onChange={(e) => setNewGoalTitle(e.target.value)}
+                required
+              />
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Timeframe Horizon *
-                  </label>
-                  <select
-                    value={newGoalTimeframe}
-                    onChange={(e) => setNewGoalTimeframe(parseInt(e.target.value, 10))}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  >
-                    <option value={3}>3 Months (Counselling & Discretionary)</option>
-                    <option value={6}>6 Months (Midway Review & Buffer)</option>
-                    <option value={9}>9 Months (Statutory Discharge Target)</option>
-                    <option value={12}>12 Months (Credit Rebuilding)</option>
-                  </select>
-                </div>
+                <FloatingSelect
+                  label="Timeframe Horizon"
+                  value={newGoalTimeframe.toString()}
+                  onChange={(e) => setNewGoalTimeframe(parseInt(e.target.value, 10))}
+                  options={[
+                    { value: '3', label: '3 Months (Counselling & Discretionary)' },
+                    { value: '6', label: '6 Months (Midway Review & Buffer)' },
+                    { value: '9', label: '9 Months (Statutory Discharge Target)' },
+                    { value: '12', label: '12 Months (Credit Rebuilding)' }
+                  ]}
+                />
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Category *
-                  </label>
-                  <select
-                    value={newGoalCategory}
-                    onChange={(e) => setNewGoalCategory(e.target.value as FinancialGoal['category'])}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  >
-                    <option value="Discretionary Spending">Discretionary Spending</option>
-                    <option value="Emergency Buffer">Emergency Buffer</option>
-                    <option value="Surplus Income">Surplus Income</option>
-                    <option value="Statutory Compliance">Statutory Compliance</option>
-                    <option value="Post-Discharge Credit">Post-Discharge Credit</option>
-                  </select>
-                </div>
+                <FloatingSelect
+                  label="Category"
+                  value={newGoalCategory}
+                  onChange={(e) => setNewGoalCategory(e.target.value as FinancialGoal['category'])}
+                  options={[
+                    { value: 'Discretionary Spending', label: 'Discretionary Spending' },
+                    { value: 'Emergency Buffer', label: 'Emergency Buffer' },
+                    { value: 'Surplus Income', label: 'Surplus Income' },
+                    { value: 'Statutory Compliance', label: 'Statutory Compliance' },
+                    { value: 'Post-Discharge Credit', label: 'Post-Discharge Credit' }
+                  ]}
+                />
               </div>
 
               <div>
@@ -988,64 +972,39 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Unit Type
-                  </label>
-                  <select
-                    value={newGoalUnit}
-                    onChange={(e) => setNewGoalUnit(e.target.value as '$' | '%' | 'tasks')}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  >
-                    <option value="$">Dollars ($)</option>
-                    <option value="%">Percent (%)</option>
-                    <option value="tasks">Tasks / Count</option>
-                  </select>
-                </div>
+                <FloatingSelect
+                  label="Unit Type"
+                  value={newGoalUnit}
+                  onChange={(e) => setNewGoalUnit(e.target.value as '$' | '%' | 'tasks')}
+                  options={[
+                    { value: '$', label: 'Dollars ($)' },
+                    { value: '%', label: 'Percent (%)' },
+                    { value: 'tasks', label: 'Tasks / Count' }
+                  ]}
+                />
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Target Goal
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newGoalTargetAmount}
-                    onChange={(e) => setNewGoalTargetAmount(e.target.value)}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  />
-                </div>
+                <FloatingInput
+                  type="number"
+                  step="0.01"
+                  label="Target Goal"
+                  value={newGoalTargetAmount}
+                  onChange={(e) => setNewGoalTargetAmount(e.target.value)}
+                />
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Current Progress
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newGoalCurrentAmount}
-                    onChange={(e) => setNewGoalCurrentAmount(e.target.value)}
-                    className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                    style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">
-                  Trustee Guidance / Advisory Note (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Recommended during counseling session #1 with Sarah Jenkins"
-                  value={newGoalNotes}
-                  onChange={(e) => setNewGoalNotes(e.target.value)}
-                  className="w-full bg-white text-[#101010] border border-slate-300 rounded-xl px-3.5 py-3.5 min-h-[44px] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
-                  style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
+                <FloatingInput
+                  type="number"
+                  step="0.01"
+                  label="Current Progress"
+                  value={newGoalCurrentAmount}
+                  onChange={(e) => setNewGoalCurrentAmount(e.target.value)}
                 />
               </div>
+
+              <FloatingInput
+                label="Trustee Guidance / Advisory Note"
+                value={newGoalNotes}
+                onChange={(e) => setNewGoalNotes(e.target.value)}
+              />
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                 <button

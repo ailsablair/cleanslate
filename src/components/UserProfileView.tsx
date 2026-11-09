@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, LIT } from '../types';
 import { FloatingInput } from './FloatingInput';
+import { FloatingSelect } from './FloatingSelect';
 import { getMailtoUrl, formatCurrency } from '../lib/formatters';
 
 interface UserProfileViewProps {
@@ -241,61 +242,51 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Current Title"
-                  value={formData.currentTitle}
-                  onChange={e => setFormData({ ...formData, currentTitle: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Company"
-                  value={formData.company}
-                  onChange={e => setFormData({ ...formData, company: e.target.value })}
-                  required
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
+              <FloatingInput
+                label="Current Title"
+                value={formData.currentTitle}
+                onChange={e => setFormData({ ...formData, currentTitle: e.target.value })}
+                required
+              />
+              <FloatingInput
+                label="Company"
+                value={formData.company}
+                onChange={e => setFormData({ ...formData, company: e.target.value })}
+                required
+              />
             </div>
 
             {/* Salary, Frequency & Contract Upload Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              <div className="sm:col-span-4 relative">
-                <span className="absolute left-4 top-3.5 text-xs text-[#767676] font-light select-none">$</span>
-                <input
+              <div className="sm:col-span-4">
+                <FloatingInput
                   type="number"
                   step="0.01"
-                  placeholder="Monthly Gross Salary"
+                  label="Monthly Gross Salary ($)"
                   value={formData.monthlySalary || ''}
                   onChange={e => setFormData({ ...formData, monthlySalary: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
                 />
               </div>
 
               <div className="sm:col-span-4">
-                <select
+                <FloatingSelect
+                  label="Pay Frequency"
                   value={formData.payFrequency}
                   onChange={e => setFormData({ ...formData, payFrequency: e.target.value as any })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] appearance-none"
-                >
-                  <option value="Select...">Select Pay Frequency...</option>
-                  <option value="Monthly">Monthly</option>
-                  <option value="Bi-Weekly">Bi-Weekly (Every 2 weeks)</option>
-                  <option value="Semi-Monthly">Semi-Monthly (Twice a month)</option>
-                  <option value="Weekly">Weekly</option>
-                </select>
+                  options={[
+                    { value: 'Monthly', label: 'Monthly' },
+                    { value: 'Bi-Weekly', label: 'Bi-Weekly (Every 2 weeks)' },
+                    { value: 'Semi-Monthly', label: 'Semi-Monthly (Twice a month)' },
+                    { value: 'Weekly', label: 'Weekly' }
+                  ]}
+                />
               </div>
 
               {/* Upload Contract Button matching mockup */}
               <div className="sm:col-span-4">
                 <label 
                   htmlFor="contract-upload"
-                  className="w-full py-3.5 min-h-[44px] px-4 rounded-xl border border-slate-800 bg-white hover:bg-slate-50 text-slate-900 text-xs font-normal transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full py-3.5 min-h-[52px] px-4 rounded-xl border border-[#2d2d2d] bg-white hover:bg-slate-50 text-slate-900 text-xs font-normal transition flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_0_rgba(0,0,0,0.22)]"
                 >
                   <Upload className="w-4 h-4 text-slate-800" />
                   <span className="truncate">
@@ -316,42 +307,26 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               Company Address
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Address Line 1"
-                  value={formData.companyAddressLine1}
-                  onChange={e => setFormData({ ...formData, companyAddressLine1: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Address Line 2 (Optional)"
-                  value={formData.companyAddressLine2 || ''}
-                  onChange={e => setFormData({ ...formData, companyAddressLine2: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Province / State"
-                  value={formData.companyProvince}
-                  onChange={e => setFormData({ ...formData, companyProvince: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Postal Code"
-                  value={formData.companyPostalCode}
-                  onChange={e => setFormData({ ...formData, companyPostalCode: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
-                />
-              </div>
+              <FloatingInput
+                label="Address Line 1"
+                value={formData.companyAddressLine1}
+                onChange={e => setFormData({ ...formData, companyAddressLine1: e.target.value })}
+              />
+              <FloatingInput
+                label="Address Line 2 (Optional)"
+                value={formData.companyAddressLine2 || ''}
+                onChange={e => setFormData({ ...formData, companyAddressLine2: e.target.value })}
+              />
+              <FloatingInput
+                label="Province / State"
+                value={formData.companyProvince}
+                onChange={e => setFormData({ ...formData, companyProvince: e.target.value })}
+              />
+              <FloatingInput
+                label="Postal Code"
+                value={formData.companyPostalCode}
+                onChange={e => setFormData({ ...formData, companyPostalCode: e.target.value })}
+              />
             </div>
           </div>
 

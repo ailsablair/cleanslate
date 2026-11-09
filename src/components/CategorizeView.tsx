@@ -14,6 +14,7 @@ import {
 import { Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { isProofRequiredForTransaction, getProofRequirementInfo } from '../lib/transactionUtils';
+import { FloatingSelect } from './FloatingSelect';
 
 interface CategorizeViewProps {
   transactions: Transaction[];
@@ -367,25 +368,21 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 sm:justify-end">
+            <div className="flex flex-wrap items-center gap-2.5 sm:justify-end min-w-[240px]">
               {/* Category Selector for Bulk Action */}
-              <div className="relative flex-1 sm:flex-initial">
-                <select
+              <div className="relative flex-1 sm:flex-initial min-w-[220px]">
+                <FloatingSelect
+                  label="Choose category for selected..."
                   value={bulkCategory}
                   onChange={e => setBulkCategory(e.target.value)}
-                  className="w-full sm:w-auto bg-[#2b263b] border border-white/20 rounded-xl px-3 min-h-[44px] py-2.5 text-xs font-light text-white focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] max-w-xs truncate"
-                >
-                  <option value="">Choose category for selected...</option>
-                  {FORM_65_SECTIONED_CATEGORIES.map(section => (
-                    <optgroup key={section.group} label={section.group} className="bg-[#1d1a27] text-white">
-                      {section.options.map(opt => (
-                        <option key={opt} value={opt} className="bg-[#2b263b] text-white">
-                          {opt}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
+                  options={FORM_65_SECTIONED_CATEGORIES.flatMap((section, sIdx) => 
+                    section.options.map((opt, oIdx) => ({
+                      value: opt,
+                      label: `${section.group} > ${opt}`,
+                      hasDividerAbove: oIdx === 0 && sIdx > 0
+                    }))
+                  )}
+                />
               </div>
 
               {/* Primary Apply Button */}
@@ -543,23 +540,19 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                     </div>
 
                     {/* Sectioned Form 65 Category Selector */}
-                    <div className="relative">
-                      <select
+                    <div className="relative min-w-[240px]">
+                      <FloatingSelect
+                        label="Select Form 65 Category..."
                         value={activeVal}
                         onChange={e => handleSelectPendingCategory(tx.id, e.target.value)}
-                        className="bg-slate-50 border border-slate-300 rounded-xl px-3 min-h-[44px] py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] max-w-[260px] truncate"
-                      >
-                        <option value="">Select Form 65 Category...</option>
-                        {FORM_65_SECTIONED_CATEGORIES.map(section => (
-                          <optgroup key={section.group} label={section.group}>
-                            {section.options.map(opt => (
-                              <option key={opt} value={opt}>
-                                {opt}
-                              </option>
-                            ))}
-                          </optgroup>
-                        ))}
-                      </select>
+                        options={FORM_65_SECTIONED_CATEGORIES.flatMap((section, sIdx) => 
+                          section.options.map((opt, oIdx) => ({
+                            value: opt,
+                            label: `${section.group} > ${opt}`,
+                            hasDividerAbove: oIdx === 0 && sIdx > 0
+                          }))
+                        )}
+                      />
                     </div>
 
                     {/* Explicit Save Action or Status Badge */}
