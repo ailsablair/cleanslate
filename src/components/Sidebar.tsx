@@ -45,8 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: Award },
     { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: Building2 },
     { id: 'receipts' as NavTab, label: 'Receipts', icon: ReceiptIcon },
-    { id: 'categorize' as NavTab, label: 'Categorize', icon: Shapes },
-    { id: 'user-profile' as NavTab, label: 'User Profile', icon: UserCircle2 },
+    { id: 'categorize' as NavTab, label: 'Categorize', icon: Shapes }
   ];
 
   return (

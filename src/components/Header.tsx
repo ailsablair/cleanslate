@@ -15,7 +15,8 @@ import {
   Award, 
   ChevronRight,
   Download,
-  ChevronDown
+  ChevronDown,
+  MessageSquare
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
@@ -50,8 +51,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   const dropdownMenuItems: DropdownMenuItem[] = [
     {
-      id: 'download-report',
-      label: 'Download Report',
+      id: 'message-trustee',
+      label: 'Message Trustee',
+      icon: MessageSquare,
+      onClick: () => {
+        onOpenEmailLog();
+      }
+    },
+    {
+      id: 'download-reports',
+      label: 'Download All Reports',
       icon: Download,
       onClick: () => {
         if (onDownloadReport) onDownloadReport();
@@ -68,8 +77,8 @@ export const Header: React.FC<HeaderProps> = ({
       }
     },
     {
-      id: 'update-profile',
-      label: 'Update Profile',
+      id: 'user-profile',
+      label: 'User Profile',
       icon: UserCircle2,
       hasDividerAbove: true,
       onClick: () => onSelectTab('user-profile')
