@@ -9,7 +9,9 @@ import {
   Headphones,
   MailCheck,
   Award,
-  Bot
+  Bot,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -31,13 +33,17 @@ interface SidebarProps {
   onSelectTab: (tab: NavTab) => void;
   profile: UserProfile;
   onOpenEmailLog: () => void;
+  onLogout?: () => void;
+  onOpenCompliance?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   currentTab, 
   onSelectTab, 
   profile,
-  onOpenEmailLog
+  onOpenEmailLog,
+  onLogout,
+  onOpenCompliance
 }) => {
   const navItems = [
     { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
@@ -132,8 +138,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Footer: Trustee Direct Link info card */}
-      <div className="pt-6 border-t border-white/10">
+      {/* Footer: Trustee Direct Link & Log Out */}
+      <div className="pt-4 border-t border-white/10 space-y-3">
         <button
           onClick={onOpenEmailLog}
           className="w-full text-left bg-[#1d1a28] hover:bg-[#1a1724] border border-white/5 rounded-xl p-3 transition-colors group"
@@ -158,6 +164,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
             View Trustee Email Log &rarr;
           </div>
         </button>
+
+        {/* Security & Log Out controls */}
+        <div className="flex items-center gap-1.5 pt-1">
+          {onOpenCompliance && (
+            <button
+              onClick={onOpenCompliance}
+              className="flex-1 py-2 px-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[11px] font-semibold text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
+              title="View Canadian PIPEDA & OSB Compliance Safeguards"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>PIPEDA</span>
+            </button>
+          )}
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl text-[11px] font-bold text-rose-300 hover:text-rose-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              title="Log out of CleanSlate"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span>Log Out</span>
+            </button>
+          )}
+        </div>
       </div>
     </aside>
   );

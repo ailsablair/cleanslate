@@ -16,7 +16,9 @@ import {
   ChevronRight,
   Download,
   ChevronDown,
-  MessageSquare
+  MessageSquare,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
@@ -33,6 +35,8 @@ interface HeaderProps {
   onSelectTab: (tab: NavTab) => void;
   onDownloadReport?: () => void;
   onExportAuditPacket?: () => void;
+  onLogout?: () => void;
+  onOpenCompliance?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -45,7 +49,9 @@ export const Header: React.FC<HeaderProps> = ({
   currentTab,
   onSelectTab,
   onDownloadReport,
-  onExportAuditPacket
+  onExportAuditPacket,
+  onLogout,
+  onOpenCompliance
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -77,11 +83,28 @@ export const Header: React.FC<HeaderProps> = ({
       }
     },
     {
+      id: 'compliance-safeguards',
+      label: 'Security & PIPEDA Privacy',
+      icon: ShieldCheck,
+      onClick: () => {
+        if (onOpenCompliance) onOpenCompliance();
+      }
+    },
+    {
       id: 'user-profile',
       label: 'User Profile',
       icon: UserCircle2,
       hasDividerAbove: true,
       onClick: () => onSelectTab('user-profile')
+    },
+    {
+      id: 'log-out',
+      label: 'Log Out of App',
+      icon: LogOut,
+      hasDividerAbove: true,
+      onClick: () => {
+        if (onLogout) onLogout();
+      }
     }
   ];
 

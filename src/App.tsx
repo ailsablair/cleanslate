@@ -17,6 +17,8 @@ import { EmailDispatchModal } from './components/EmailDispatchModal';
 import { SpendingTrendsView } from './components/SpendingTrendsView';
 import { DischargePathwayView } from './components/DischargePathwayView';
 import { SurplusSimulatorView } from './components/SurplusSimulatorView';
+import { ComplianceModal } from './components/ComplianceModal';
+import { AuthModal } from './components/AuthModal';
 
 import { 
   UserProfile, 
@@ -51,12 +53,18 @@ import {
   fetchRecentEmailDispatches 
 } from './lib/emailService';
 
+import { subscribeToAuthChanges, logoutUser } from './lib/authService';
 import { db } from './lib/firebase';
 import { doc, getDoc, setDoc, getDocFromServer } from 'firebase/firestore';
 import { MailCheck, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
+  
+  // Auth & Compliance Modals
+  const [isComplianceOpen, setIsComplianceOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   
   // Core application states
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -99,8 +107,16 @@ export default function App() {
   const [activeDispatchForModal, setActiveDispatchForModal] = useState<EmailDispatch | null>(null);
   const [latestDispatchToast, setLatestDispatchToast] = useState<EmailDispatch | null>(null);
 
-  // Initialize and load database on mount
+  // Initialize and load database on mount + Subscribe to Firebase Auth
   useEffect(() => {
+    // Auth state listener
+    const unsubscribeAuth = subscribeToAuthChanges((authState) => {
+      setIsAuthenticated(authState.isAuthenticated);
+      if (authState.profile) {
+        setProfile(authState.profile);
+      }
+    });
+
     async function loadData() {
       try {
         // Test connection to Firestore
@@ -136,7 +152,31 @@ export default function App() {
       }
     }
     loadData();
+
+    return () => unsubscribeAuth();
   }, []);
+
+  // Log Out Handler
+  const handleLogout = async () => {
+    try {
+      await logoutUser(false);
+      setIsAuthenticated(false);
+      setIsAuthModalOpen(true);
+    } catch (err) {
+      console.warn('Logout note:', err);
+    }
+  };
+
+  // Local Cache Purge Handler for PIPEDA
+  const handlePurgeLocalData = () => {
+    localStorage.clear();
+    setProfile(INITIAL_USER_PROFILE);
+    setBankAccounts(INITIAL_BANK_ACCOUNTS);
+    setTransactions(INITIAL_TRANSACTIONS);
+    setMonthlyReports(INITIAL_MONTHLY_REPORTS);
+    setReceipts(INITIAL_RECEIPTS);
+    setGoals(INITIAL_FINANCIAL_GOALS);
+  };
 
   // Save changes locally to guarantee instant persistence
   useEffect(() => {
@@ -308,6 +348,8 @@ export default function App() {
         onSelectTab={setCurrentTab}
         profile={profile}
         onOpenEmailLog={() => setIsEmailModalOpen(true)}
+        onLogout={handleLogout}
+        onOpenCompliance={() => setIsComplianceOpen(true)}
       />
 
       {/* Main App Content Area */}
@@ -321,6 +363,8 @@ export default function App() {
           isSyncing={isSyncingBanks}
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
+          onLogout={handleLogout}
+          onOpenCompliance={() => setIsComplianceOpen(true)}
         />
 
         {/* View Routing */}
@@ -481,6 +525,28 @@ export default function App() {
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         activeDispatch={activeDispatchForModal}
+      />
+
+      {/* Canadian PIPEDA & OSB Compliance Modal */}
+      <ComplianceModal
+        isOpen={isComplianceOpen}
+        onClose={() => setIsComplianceOpen(false)}
+        profile={profile}
+        reports={monthlyReports}
+        bankAccounts={bankAccounts}
+        transactions={transactions}
+        receipts={receipts}
+        onPurgeData={handlePurgeLocalData}
+      />
+
+      {/* Sign In / Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={() => {
+          setIsAuthenticated(true);
+          setIsAuthModalOpen(false);
+        }}
       />
     </div>
   );
