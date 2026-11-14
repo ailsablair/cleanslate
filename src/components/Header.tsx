@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Bell, 
   RefreshCw, 
   MailCheck, 
   Menu, 
@@ -205,16 +204,6 @@ export const Header: React.FC<HeaderProps> = ({
                 {unreadDispatchesCount}
               </span>
             )}
-          </button>
-
-          {/* Notification Button */}
-          <button 
-            onClick={onOpenEmailLog}
-            className="w-9 h-9 rounded-xl bg-[#2e293f] hover:bg-[#38324d] border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition relative cursor-pointer active:scale-95"
-            title="LIT Status & Alerts"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#fbf050]" />
           </button>
 
           {/* Quick Actions Dropdown Menu matching dropdown_29fce253.png */}
