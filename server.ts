@@ -6,7 +6,10 @@ import { parseReceiptImageWithAI } from './src/server/receiptParser';
 dotenv.config();
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
+const PORT =
+  process.env.NODE_ENV === 'production'
+    ? parseInt(process.env.PORT || '3000', 10)
+    : 3000;
 
 app.use(express.json({ limit: '25mb' }));
 
