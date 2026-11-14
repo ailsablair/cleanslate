@@ -38,6 +38,7 @@ interface HeaderProps {
   onLogout?: () => void;
   onOpenCompliance?: () => void;
   onNewTransaction?: () => void;
+  onUploadReceipt?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -53,7 +54,8 @@ export const Header: React.FC<HeaderProps> = ({
   onExportAuditPacket,
   onLogout,
   onOpenCompliance,
-  onNewTransaction
+  onNewTransaction,
+  onUploadReceipt
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -173,6 +175,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>New Transaction</span>
+            </button>
+          )}
+
+          {onUploadReceipt && (
+            <button
+              type="button"
+              onClick={onUploadReceipt}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#46e3a5] text-xs font-bold border border-[#46e3a5] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
+              title="Upload or scan a statutory receipt"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Upload Receipt</span>
             </button>
           )}
 

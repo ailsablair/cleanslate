@@ -21,6 +21,9 @@ interface FloatingSelectProps {
   required?: boolean;
   name?: string;
   id?: string;
+  helpText?: string;
+  showHelp?: boolean;
+  onHelpClick?: () => void;
 }
 
 export const FloatingSelect: React.FC<FloatingSelectProps> = ({
@@ -33,10 +36,15 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   disabled = false,
   required: _required = false,
   name,
-  id
+  id,
+  helpText,
+  showHelp = false,
+  onHelpClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasHelpIcon = Boolean(helpText || showHelp || onHelpClick);
 
   const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = value !== undefined && value !== null && value !== '';
@@ -180,6 +188,31 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
           </div>
         )}
       </div>
+
+      {hasHelpIcon && (
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={onHelpClick}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            onFocus={() => setShowTooltip(true)}
+            onBlur={() => setShowTooltip(false)}
+            className="w-6 h-6 rounded-full bg-[#9da2ea] hover:bg-[#8b91e5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs transition active:scale-95 cursor-help select-none"
+            aria-label={`Help information for ${label}`}
+            title={helpText || 'Help information'}
+          >
+            ?
+          </button>
+          {helpText && showTooltip && (
+            <div className="absolute right-0 bottom-full mb-2 z-50 w-64 p-2.5 rounded-xl bg-[#1d1a27] text-white text-xs shadow-xl border border-white/10 animate-in fade-in leading-relaxed pointer-events-none">
+              <div className="font-semibold text-[#b6b3ff] mb-0.5">{label}</div>
+              <div className="text-[11px] text-slate-300 leading-tight">{helpText}</div>
+              <div className="absolute right-2 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-[#1d1a27]" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

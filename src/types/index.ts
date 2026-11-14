@@ -194,9 +194,12 @@ export interface Receipt {
   id: string;
   userId: string;
   title: string;
+  vendorName?: string;
   category: string;
   amount: number;
   date: string;
+  uploadedAtLabel?: string;
+  notes?: string;
   fileUrl?: string;
   fileName?: string;
   linkedLineItem?: string;

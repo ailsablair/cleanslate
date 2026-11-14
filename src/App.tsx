@@ -66,6 +66,7 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isNewTxModalOpen, setIsNewTxModalOpen] = useState<boolean>(false);
+  const [isUploadReceiptModalOpen, setIsUploadReceiptModalOpen] = useState<boolean>(false);
   
   // Core application states
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -309,6 +310,10 @@ export default function App() {
     setReceipts(prev => [created, ...prev]);
   };
 
+  const handleUpdateReceipt = (updated: Receipt) => {
+    setReceipts(prev => prev.map(r => r.id === updated.id ? updated : r));
+  };
+
   const handleDeleteReceipt = (id: string) => {
     setReceipts(prev => prev.filter(r => r.id !== id));
   };
@@ -375,6 +380,7 @@ export default function App() {
           onLogout={handleLogout}
           onOpenCompliance={() => setIsComplianceOpen(true)}
           onNewTransaction={currentTab === 'categorize' ? () => setIsNewTxModalOpen(true) : undefined}
+          onUploadReceipt={currentTab === 'receipts' ? () => setIsUploadReceiptModalOpen(true) : undefined}
         />
 
         {/* View Routing */}
@@ -456,9 +462,13 @@ export default function App() {
             <ReceiptsView
               receipts={receipts}
               onAddReceipt={handleAddReceipt}
+              onUpdateReceipt={handleUpdateReceipt}
               onDeleteReceipt={handleDeleteReceipt}
               profile={profile}
               monthlyReports={monthlyReports}
+              isUploadModalOpen={isUploadReceiptModalOpen}
+              onCloseUploadModal={() => setIsUploadReceiptModalOpen(false)}
+              onOpenUploadModal={() => setIsUploadReceiptModalOpen(true)}
             />
           )}
 
