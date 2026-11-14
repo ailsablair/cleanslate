@@ -55,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="hidden lg:flex w-64 shrink-0 min-h-screen bg-[#242031] text-white flex-col justify-between p-6 select-none border-r border-[#2d283c]">
+    <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 h-screen overflow-y-auto bg-[#242031] text-white flex-col justify-between gap-6 p-6 select-none border-r border-[#2d283c]">
       <div>
         {/* Brand Logo matching the Figma / attachment */}
         <div className="mb-8 px-2 pt-1 flex items-center">
