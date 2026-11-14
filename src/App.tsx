@@ -65,6 +65,7 @@ export default function App() {
   const [isComplianceOpen, setIsComplianceOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [isNewTxModalOpen, setIsNewTxModalOpen] = useState<boolean>(false);
   
   // Core application states
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -312,7 +313,7 @@ export default function App() {
     setReceipts(prev => prev.filter(r => r.id !== id));
   };
 
-  // Transaction Category Update
+  // Transaction Category Update & Creation
   const handleUpdateTransaction = (updatedTx: Transaction) => {
     setTransactions(prev => prev.map(t => t.id === updatedTx.id ? updatedTx : t));
   };
@@ -320,6 +321,14 @@ export default function App() {
   const handleUpdateTransactions = (updatedTxs: Transaction[]) => {
     const updatedMap = new Map(updatedTxs.map(t => [t.id, t]));
     setTransactions(prev => prev.map(t => updatedMap.get(t.id) || t));
+  };
+
+  const handleAddTransaction = (newTx: Omit<Transaction, 'id'>) => {
+    const created: Transaction = {
+      ...newTx,
+      id: `${Math.floor(1000000000 + Math.random() * 9000000000)}`
+    };
+    setTransactions(prev => [created, ...prev]);
   };
 
   // Dynamic Page Title
@@ -365,6 +374,7 @@ export default function App() {
           onSelectTab={setCurrentTab}
           onLogout={handleLogout}
           onOpenCompliance={() => setIsComplianceOpen(true)}
+          onNewTransaction={currentTab === 'categorize' ? () => setIsNewTxModalOpen(true) : undefined}
         />
 
         {/* View Routing */}
@@ -457,6 +467,10 @@ export default function App() {
               transactions={transactions}
               onUpdateTransaction={handleUpdateTransaction}
               onUpdateTransactions={handleUpdateTransactions}
+              onAddTransaction={handleAddTransaction}
+              isNewTxModalOpen={isNewTxModalOpen}
+              onCloseNewTxModal={() => setIsNewTxModalOpen(false)}
+              onOpenNewTxModal={() => setIsNewTxModalOpen(true)}
             />
           )}
 

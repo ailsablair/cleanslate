@@ -18,7 +18,8 @@ import {
   ChevronDown,
   MessageSquare,
   LogOut,
-  ShieldCheck
+  ShieldCheck,
+  Plus
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
@@ -37,6 +38,7 @@ interface HeaderProps {
   onExportAuditPacket?: () => void;
   onLogout?: () => void;
   onOpenCompliance?: () => void;
+  onNewTransaction?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -51,7 +53,8 @@ export const Header: React.FC<HeaderProps> = ({
   onDownloadReport,
   onExportAuditPacket,
   onLogout,
-  onOpenCompliance
+  onOpenCompliance,
+  onNewTransaction
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -162,6 +165,18 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right: Action Controls & Notifications */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {onNewTransaction && (
+            <button
+              type="button"
+              onClick={onNewTransaction}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#46e3a5] text-xs font-bold border border-[#46e3a5] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
+              title="Add a manual ledger transaction"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>New Transaction</span>
+            </button>
+          )}
+
           {onSyncBankAccounts && (
             <button
               onClick={onSyncBankAccounts}

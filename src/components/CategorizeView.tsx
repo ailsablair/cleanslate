@@ -1,30 +1,36 @@
-import React, { useState } from 'react';
-import { 
-  Shapes, 
-  Sparkles, 
-  Check, 
-  CheckCircle2, 
-  Save, 
-  RotateCcw, 
-  AlertCircle,
+import React, { useState, useMemo } from 'react';
+import {
+  Route,
+  Sparkles,
+  Check,
+  CheckCircle2,
+  Save,
+  RotateCcw,
+  AlertTriangle,
   Layers,
   X,
-  ListFilter
+  Plus
 } from 'lucide-react';
 import { Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { isProofRequiredForTransaction, getProofRequirementInfo } from '../lib/transactionUtils';
-import { FloatingSelect } from './FloatingSelect';
+import { FloatingSelect, SelectOption } from './FloatingSelect';
+import { FloatingInput } from './FloatingInput';
 
 interface CategorizeViewProps {
   transactions: Transaction[];
   onUpdateTransaction: (updated: Transaction) => void;
   onUpdateTransactions?: (updated: Transaction[]) => void;
+  onAddTransaction?: (newTx: Omit<Transaction, 'id'>) => void;
+  isNewTxModalOpen?: boolean;
+  onCloseNewTxModal?: () => void;
+  onOpenNewTxModal?: () => void;
 }
 
 export const FORM_65_SECTIONED_CATEGORIES = [
   {
     group: 'Monthly Household Income',
+    shortGroup: 'Household Income',
     options: [
       'Employment Income',
       'Pension/Annuities',
@@ -39,6 +45,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Non-Discretionary Expenses',
+    shortGroup: 'Non-Discretionary',
     options: [
       'Child Support Payments',
       'Spousal Support Payments',
@@ -51,6 +58,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Housing & Properties',
+    shortGroup: 'Housing & Properties',
     options: [
       'Rent or Mortgage Payments',
       'Property Taxes',
@@ -64,6 +72,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Personal',
+    shortGroup: 'Personal',
     options: [
       'Smoking & Personal',
       'Alcohol',
@@ -76,6 +85,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Non-Recoverable Medical',
+    shortGroup: 'Non-Recoverable Medical',
     options: [
       'Non-Recoverable Prescriptions',
       'Dental & Optical Care',
@@ -84,6 +94,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Living & Domestic',
+    shortGroup: 'Living & Domestic',
     options: [
       'Food & Grocery',
       'Household Sundries & Supplies',
@@ -93,6 +104,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Transportation',
+    shortGroup: 'Transportation',
     options: [
       'Repair, Maintenance & Gas',
       'Vehicle Financing / Lease',
@@ -102,6 +114,7 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   },
   {
     group: 'Household Disc. > Insurance & Estate',
+    shortGroup: 'Insurance & Estate',
     options: [
       'Life & Health Insurance',
       'Legal & Professional Fees',
@@ -110,10 +123,22 @@ export const FORM_65_SECTIONED_CATEGORIES = [
   }
 ];
 
+function formatAmountDisplay(amount: number): string {
+  const num = Number.isFinite(amount) ? amount : 0;
+  return `$ ${num.toLocaleString('en-CA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
+}
+
 export const CategorizeView: React.FC<CategorizeViewProps> = ({
   transactions,
   onUpdateTransaction,
-  onUpdateTransactions
+  onUpdateTransactions,
+  onAddTransaction,
+  isNewTxModalOpen = false,
+  onCloseNewTxModal,
+  onOpenNewTxModal
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'needs-review' | 'categorized'>('needs-review');
   const [aiRunning, setAiRunning] = useState<boolean>(false);
@@ -127,6 +152,41 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkCategory, setBulkCategory] = useState<string>('');
 
+  // Manual New Transaction Modal State
+  const [internalModalOpen, setInternalModalOpen] = useState<boolean>(false);
+  const modalVisible = isNewTxModalOpen || internalModalOpen;
+  const [newTxCompany, setNewTxCompany] = useState<string>('');
+  const [newTxAmount, setNewTxAmount] = useState<string>('');
+  const [newTxDate, setNewTxDate] = useState<string>(() =>
+    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  );
+  const [newTxCategory, setNewTxCategory] = useState<string>('');
+
+  const closeModal = () => {
+    setInternalModalOpen(false);
+    if (onCloseNewTxModal) onCloseNewTxModal();
+  };
+
+  const openModal = () => {
+    if (onOpenNewTxModal) onOpenNewTxModal();
+    else setInternalModalOpen(true);
+  };
+
+  const categoryOptions: SelectOption[] = useMemo(() => {
+    return FORM_65_SECTIONED_CATEGORIES.flatMap((section, sIdx) =>
+      section.options.map((opt, oIdx) => ({
+        value: opt,
+        label: `${section.shortGroup} > ${opt}`,
+        displayGroup: section.shortGroup,
+        displayLabel: opt,
+        hasDividerAbove: oIdx === 0 && sIdx > 0
+      }))
+    );
+  }, []);
+
+  const needsReviewCount = transactions.filter(t => !t.isCategorized).length;
+  const categorizedCount = transactions.filter(t => t.isCategorized).length;
+
   const filtered = transactions.filter(t => {
     if (filterMode === 'needs-review') return !t.isCategorized;
     if (filterMode === 'categorized') return t.isCategorized;
@@ -137,18 +197,16 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
   const someFilteredSelected = filtered.some(t => selectedIds.includes(t.id));
 
   const handleToggleSelect = (txId: string) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(txId) ? prev.filter(id => id !== txId) : [...prev, txId]
     );
   };
 
   const handleToggleSelectAll = () => {
     if (allFilteredSelected) {
-      // Deselect all filtered items
       const filteredIdSet = new Set(filtered.map(f => f.id));
       setSelectedIds(prev => prev.filter(id => !filteredIdSet.has(id)));
     } else {
-      // Select all filtered items
       const filteredIds = filtered.map(t => t.id);
       setSelectedIds(prev => Array.from(new Set([...prev, ...filteredIds])));
     }
@@ -181,7 +239,6 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
       updatedTxs.forEach(t => onUpdateTransaction(t));
     }
 
-    // Clear any pending state for affected transactions
     setPendingCategories(prev => {
       const copy = { ...prev };
       selectedIds.forEach(id => delete copy[id]);
@@ -219,7 +276,6 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
       isCategorized: true
     });
 
-    // Clear pending state for this transaction
     setPendingCategories(prev => {
       const copy = { ...prev };
       delete copy[tx.id];
@@ -243,8 +299,9 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
 
   const handleRunAiClassifier = () => {
     setAiRunning(true);
-    setAiMessage('Analyzing vendor names and matching against Canadian OSB Form 65 tax rules...');
+    setAiMessage('Analyzing vendor names and matching against Canadian OSB Form 65 statutory rules...');
     setTimeout(() => {
+      const updates: Transaction[] = [];
       transactions.forEach(t => {
         if (!t.isCategorized) {
           let cat = 'Food & Grocery';
@@ -255,104 +312,158 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
           else if (name.includes('hydro') || name.includes('electric')) cat = 'Hydro';
           else if (name.includes('transit') || name.includes('bus') || name.includes('metro')) cat = 'Public Transit & Commuting';
           else if (name.includes('dining') || name.includes('restaurant') || name.includes('cafe')) cat = 'Dining Out / Takeout';
-          
-          onUpdateTransaction({
+          else if (name.includes('dropbox') || name.includes('rogers') || name.includes('telus') || name.includes('bell')) cat = 'Telephone & Digital Utilities';
+
+          updates.push({
             ...t,
             form65Category: cat,
             isCategorized: true
           });
         }
       });
+
+      if (updates.length > 0) {
+        if (onUpdateTransactions) {
+          onUpdateTransactions(updates);
+        } else {
+          updates.forEach(u => onUpdateTransaction(u));
+        }
+      }
+
       setAiRunning(false);
       setAiMessage('AI categorization complete! All ambiguous transactions mapped to Form 65 statutory lines.');
       setTimeout(() => setAiMessage(null), 4000);
-    }, 1200);
+    }, 900);
+  };
+
+  const handleCreateTransaction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTxCompany.trim() || !newTxAmount) return;
+
+    const amountVal = parseFloat(newTxAmount) || 0;
+    if (onAddTransaction) {
+      onAddTransaction({
+        userId: transactions[0]?.userId || 'demo-user-chad-001',
+        company: newTxCompany.trim(),
+        date: newTxDate.trim() || 'Aug 30, 2022',
+        amount: amountVal,
+        category: newTxCategory || 'General',
+        form65Category: newTxCategory || undefined,
+        isCategorized: Boolean(newTxCategory),
+        status: 'cleared'
+      });
+    }
+
+    setSaveToast({
+      id: `new-${Date.now()}`,
+      message: `Added "${newTxCompany.trim()}" (${formatAmountDisplay(amountVal)}) to your ledger!`
+    });
+    setTimeout(() => setSaveToast(null), 3500);
+
+    setNewTxCompany('');
+    setNewTxAmount('');
+    setNewTxCategory('');
+    closeModal();
   };
 
   return (
-    <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
-      {/* Overview Card */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <Shapes className="w-4 h-4 text-[#242031] shrink-0" />
-              <h2 className="text-sm sm:text-base font-bold tracking-wide uppercase text-slate-900 whitespace-nowrap">
-                AI Transaction Classifier & Form 65 Rules
+    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto animate-in fade-in duration-200">
+      {/* Top Overview Card */}
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border border-[#1a1822] shadow-[5px_6px_0px_#000000]">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5">
+              <Route className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <h2 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
+                TRANSACTIONS REVIEW
               </h2>
             </div>
-            <p className="text-xs text-slate-500 max-w-xl">
-              Match statement ledger items to Form 65 statutory lines. Select a category and click Save to confirm each mapping.
+            <p className="text-xs text-[#4b4856] max-w-md leading-relaxed">
+              Match transactions and items to Form 65 statutory lines. Select a category and click Save to confirm each mapping.
             </p>
           </div>
 
           <button
+            type="button"
             onClick={handleRunAiClassifier}
             disabled={aiRunning}
-            className="px-4 py-2.5 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs shrink-0 self-start sm:self-center"
+            className="px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-semibold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 shrink-0 self-start cursor-pointer whitespace-nowrap disabled:opacity-70"
           >
             <Sparkles className={`w-3.5 h-3.5 ${aiRunning ? 'animate-spin text-[#b4b1fc]' : 'text-[#fbf050]'}`} />
-            <span>{aiRunning ? 'Parsing Statement Items...' : 'Auto-Classify with AI'}</span>
+            <span>{aiRunning ? 'Parsing Statement Items...' : 'Auto-classify with AI'}</span>
           </button>
         </div>
 
+        {/* Hairline Divider */}
+        <div className="border-t border-[#8c93fc]/25 my-1" />
+
         {aiMessage && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <div className="mt-4 p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
             <span>{aiMessage}</span>
           </div>
         )}
 
         {saveToast && (
-          <div className="mt-3 p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-between gap-2 animate-in fade-in">
+          <div className="mt-4 p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-between gap-2 animate-in fade-in">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>{saveToast.message}</span>
             </div>
-            <span className="status-tag-compact text-emerald-800 bg-white/70 border border-emerald-300">Confirmed</span>
+            <span className="text-[11px] font-semibold text-emerald-800 bg-white/70 px-2.5 py-0.5 rounded-full border border-emerald-300">
+              Confirmed
+            </span>
           </div>
         )}
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 pt-5">
+        {/* Filter Pill Tabs */}
+        <div className="flex flex-wrap items-center gap-2.5 pt-4">
           <button
+            type="button"
             onClick={() => setFilterMode('needs-review')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
+            className={`px-4 py-1.5 rounded-full text-xs transition cursor-pointer whitespace-nowrap ${
               filterMode === 'needs-review'
-                ? 'bg-[#1d1a27] text-white font-bold'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
-            Needs Review ({transactions.filter(t => !t.isCategorized).length})
+            <span>Needs Review</span>{' '}
+            <span className="font-normal opacity-80 tabular-nums">({needsReviewCount})</span>
           </button>
+
           <button
+            type="button"
             onClick={() => setFilterMode('categorized')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
+            className={`px-4 py-1.5 rounded-full text-xs transition cursor-pointer whitespace-nowrap ${
               filterMode === 'categorized'
-                ? 'bg-[#1d1a27] text-white font-bold'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
-            Categorized ({transactions.filter(t => t.isCategorized).length})
+            <span>Categorized</span>{' '}
+            <span className="font-normal opacity-80 tabular-nums">({categorizedCount})</span>
           </button>
+
           <button
+            type="button"
             onClick={() => setFilterMode('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs transition ${
+            className={`px-4 py-1.5 rounded-full text-xs transition cursor-pointer whitespace-nowrap ${
               filterMode === 'all'
-                ? 'bg-[#1d1a27] text-white font-bold'
-                : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
-            All Ledger Items ({transactions.length})
+            <span>All Ledger Items</span>{' '}
+            <span className="font-normal opacity-80 tabular-nums">({transactions.length})</span>
           </button>
         </div>
       </div>
 
-      {/* Ledger Items List */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
+      {/* Bottom Ledger Items Card */}
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border border-[#1a1822] shadow-[5px_6px_0px_#000000]">
         {/* Bulk Actions Floating/Docked Toolbar */}
         {selectedIds.length > 0 && (
-          <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-[#1d1a27] text-white border border-white/10 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-[#1d1a27] text-white border border-[#101010] shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-[#b4b1fc]/20 text-[#b4b1fc] flex items-center justify-center shrink-0">
                 <Layers className="w-5 h-5" />
@@ -360,7 +471,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               <div className="space-y-0.5 min-w-0">
                 <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-2 flex-wrap">
                   <span>{selectedIds.length} of {filtered.length} Selected</span>
-                  <span className="text-[#fbf050] font-bold">({formatCurrency(selectedTotalAmount)})</span>
+                  <span className="text-[#fbf050] font-bold tabular-nums">({formatCurrency(selectedTotalAmount)})</span>
                 </div>
                 <div className="text-[11px] text-slate-300 font-light">
                   Assign one Form 65 statutory category to all selected statement items
@@ -369,53 +480,33 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 sm:justify-end min-w-[240px]">
-              {/* Category Selector for Bulk Action */}
-              <div className="relative flex-1 sm:flex-initial min-w-[220px]">
+              <div className="relative flex-1 sm:flex-initial min-w-[240px]">
                 <FloatingSelect
                   label="Choose category for selected..."
                   value={bulkCategory}
                   onChange={e => setBulkCategory(e.target.value)}
-                  options={FORM_65_SECTIONED_CATEGORIES.flatMap((section, sIdx) => 
-                    section.options.map((opt, oIdx) => ({
-                      value: opt,
-                      label: `${section.group} > ${opt}`,
-                      hasDividerAbove: oIdx === 0 && sIdx > 0
-                    }))
-                  )}
+                  options={categoryOptions}
                 />
               </div>
 
-              {/* Primary Apply Button */}
               <button
                 type="button"
                 onClick={handleApplyBulkCategory}
                 disabled={!bulkCategory}
-                style={{
-                  background: bulkCategory ? 'var(--colour-dark-highlight, #F9F45D)' : undefined,
-                  boxShadow: bulkCategory ? '4px 6px 0px black' : undefined,
-                  borderRadius: 8,
-                  color: bulkCategory ? 'var(--colour-dark-accent, #3E4A4F)' : undefined,
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '13.34px',
-                  fontWeight: '700',
-                  lineHeight: '20.96px'
-                }}
-                className={`px-4 min-h-[44px] py-2 transition-all flex items-center gap-1.5 shrink-0 ${
-                  bulkCategory 
-                    ? 'hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black] cursor-pointer' 
+                className={`px-4 min-h-[44px] py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                  bulkCategory
+                    ? 'bg-[#F9F45D] text-[#1d1a27] border border-black shadow-[3px_4px_0px_#000000] hover:brightness-105 active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] cursor-pointer'
                     : 'bg-white/10 text-slate-500 border border-white/10 cursor-not-allowed'
                 }`}
-                title={bulkCategory ? `Apply "${bulkCategory}" to ${selectedIds.length} items` : 'Select a category above first'}
               >
-                <Check className="w-4 h-4 stroke-[2.5]" style={{ color: bulkCategory ? '#3E4A4F' : undefined }} />
+                <Check className="w-4 h-4 stroke-[2.5]" />
                 <span>Apply to {selectedIds.length} Items</span>
               </button>
 
-              {/* Clear Selection */}
               <button
                 type="button"
                 onClick={handleDeselectAll}
-                className="px-3 min-h-[44px] py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center gap-1 shrink-0"
+                className="px-3 min-h-[44px] py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center gap-1 shrink-0 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Clear</span>
@@ -424,55 +515,66 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
           </div>
         )}
 
-        {/* List Header Toolbar: Select All Checkbox + Status */}
+        {/* Subtle Select All Row */}
         {filtered.length > 0 && (
-          <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-slate-200/90 text-xs text-slate-600">
+          <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-slate-200/80 text-xs text-[#6e6b7b]">
             <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={allFilteredSelected}
-                  ref={input => {
-                    if (input) input.indeterminate = someFilteredSelected && !allFilteredSelected;
-                  }}
-                  onChange={handleToggleSelectAll}
-                  aria-label="Select or deselect all visible transactions"
-                  className="w-4 h-4 rounded border-slate-300 text-[#242031] focus:ring-[#b4b1fc] cursor-pointer accent-[#242031]"
-                />
-                <span className="font-semibold text-slate-800 text-xs">
-                  {allFilteredSelected 
-                    ? `Deselect All (${filtered.length})` 
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className="flex items-center gap-2.5 cursor-pointer select-none group"
+              >
+                <span
+                  className={`w-5 h-5 rounded-md flex items-center justify-center transition ${
+                    allFilteredSelected
+                      ? 'bg-[#46e3a5] border-[1.5px] border-[#101010] text-[#101010]'
+                      : someFilteredSelected
+                      ? 'bg-[#b4b1fc] border-[1.5px] border-[#101010] text-[#101010]'
+                      : 'bg-white border-[1.5px] border-[#52525b] group-hover:border-[#101010] text-transparent'
+                  }`}
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </span>
+                <span className="font-semibold text-[#101010] text-xs">
+                  {allFilteredSelected
+                    ? `Deselect All (${filtered.length})`
                     : `Select All (${filtered.length})`}
                 </span>
-              </label>
-
-              {selectedIds.length > 0 && !allFilteredSelected && (
-                <span className="text-[11px] text-slate-500 font-medium bg-slate-200/70 px-2 py-0.5 rounded-md">
-                  {selectedIds.length} selected
-                </span>
-              )}
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {selectedIds.length > 0 && (
                 <button
                   type="button"
                   onClick={handleDeselectAll}
-                  className="text-[11px] text-slate-500 hover:text-slate-900 underline transition"
+                  className="text-[11px] text-[#5b56d6] hover:underline font-medium cursor-pointer"
                 >
-                  Clear selection
+                  Clear ({selectedIds.length})
                 </button>
               )}
-              <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
-                Showing {filtered.length} items
+              <span className="text-[11px] font-mono text-[#6e6b7b] tabular-nums">
+                Showing {filtered.length} {filtered.length === 1 ? 'item' : 'items'}
               </span>
             </div>
           </div>
         )}
 
         {filtered.length === 0 ? (
-          <div className="py-12 text-center text-xs font-bold text-slate-400">
-            No transactions match this filter. All imported items are categorized!
+          <div className="py-12 text-center space-y-3">
+            <div className="text-xs font-bold text-[#6e6b7b]">
+              No transactions match this filter. All imported items are categorized!
+            </div>
+            {onAddTransaction && (
+              <button
+                type="button"
+                onClick={openModal}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2d2a37] text-white text-xs font-semibold border border-black shadow-[2px_3px_0px_#000000] hover:bg-[#3a3646] transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#46e3a5]" />
+                <span>Add Manual Transaction</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -482,86 +584,87 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               const hasUnsavedChange = pendingVal !== undefined && pendingVal !== (tx.form65Category || '');
               const isSelected = selectedIds.includes(tx.id);
 
+              const txForCheck: Transaction = activeVal ? { ...tx, form65Category: activeVal } : tx;
+              const requiresProof = isProofRequiredForTransaction(txForCheck);
+              const proofInfo = getProofRequirementInfo(txForCheck);
+              const hasProofAttached = Boolean(tx.receiptFileName || tx.receiptId);
+
               return (
-                <div 
+                <div
                   key={tx.id}
-                  className={`border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition ${
+                  className={`bg-white rounded-2xl px-4 sm:px-5 py-4 border transition grid grid-cols-1 lg:grid-cols-12 items-center gap-4 ${
                     isSelected
-                      ? 'border-[#b4b1fc] bg-[#b4b1fc]/10 shadow-xs ring-1 ring-[#b4b1fc]/50'
-                      : hasUnsavedChange 
-                      ? 'bg-white border-[#b6b3ff] ring-2 ring-[#b6b3ff]/30' 
-                      : 'bg-white border-slate-200/80 hover:border-slate-300'
+                      ? 'border-[#101010] ring-2 ring-[#8c93fc]/30'
+                      : hasUnsavedChange
+                      ? 'border-[#8c93fc] ring-2 ring-[#8c93fc]/25'
+                      : 'border-[#d8d9f8] hover:border-[#8c93fc]'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    {/* Item Checkbox */}
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleToggleSelect(tx.id)}
+                  {/* Left Zone: Checkbox + Merchant + ID + Proof/Submitted Tag */}
+                  <div className="lg:col-span-5 flex items-center gap-4 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleSelect(tx.id)}
                       aria-label={`Select transaction ${tx.company}`}
-                      className="w-4 h-4 rounded border-slate-300 text-[#242031] focus:ring-[#b4b1fc] cursor-pointer accent-[#242031] shrink-0"
-                    />
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#46e3a5] border-[1.5px] border-[#101010] text-[#101010]'
+                          : 'bg-white border-[1.5px] border-[#52525b] hover:border-[#101010] text-transparent'
+                      }`}
+                    >
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </button>
 
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">{tx.company}</span>
-                        <span className="font-mono text-[11px] text-slate-400 shrink-0">#{tx.id}</span>
-                        {isProofRequiredForTransaction(tx) && (
-                          <span 
-                            title={getProofRequirementInfo(tx).explanation}
-                            className="status-tag-compact text-amber-900 bg-amber-100/90 border border-amber-300"
-                          >
-                            <AlertCircle className="w-2 h-2 text-amber-600 shrink-0" />
-                            <span>{getProofRequirementInfo(tx).type === 'prescription' ? 'Prescription needed' : 'Receipt needed'}</span>
-                          </span>
-                        )}
-                        {tx.receiptFileName && (
-                          <span className="status-tag-compact text-emerald-800 bg-emerald-100/80 border border-emerald-300">
-                            <CheckCircle2 className="w-2 h-2 text-emerald-600 shrink-0" />
-                            <span>Receipt attached</span>
-                          </span>
-                        )}
+                    <div className="space-y-1.5 min-w-0">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="font-bold text-[#101010] text-sm truncate">
+                          {tx.company}
+                        </span>
+                        <span className="font-mono text-xs text-[#6e6b7b] shrink-0">
+                          #{tx.id}
+                        </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 font-normal">
-                        {tx.date} · Bank Import Feed
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {requiresProof && !hasProofAttached ? (
+                          <span
+                            title={proofInfo.explanation}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fbf050] text-[#1d1a27] text-[11px] font-semibold"
+                          >
+                            <AlertTriangle className="w-3 h-3 shrink-0" />
+                            <span>{proofInfo.type === 'prescription' ? 'Prescription Needed' : 'Receipt Needed'}</span>
+                          </span>
+                        ) : hasProofAttached || tx.isCategorized ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
+                            <CheckCircle2 className="w-3 h-3 shrink-0" />
+                            <span>{hasProofAttached ? 'Submitted' : 'Categorized'}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#4b4856] text-[11px] font-semibold">
+                            <span>Needs Review</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 sm:justify-end pl-7 sm:pl-0">
-                    <div className="text-right mr-1">
-                      <span className="text-sm sm:text-base font-bold text-slate-900 block">
-                        {formatCurrency(tx.amount)}
-                      </span>
-                      <span className="text-[9px] uppercase font-normal text-slate-400">
-                        CAD
-                      </span>
-                    </div>
-
-                    {/* Sectioned Form 65 Category Selector */}
-                    <div className="relative min-w-[240px]">
+                  {/* Middle Zone: Category Selector + Save Action */}
+                  <div className="lg:col-span-4 flex items-center gap-2 min-w-0 pl-11 lg:pl-0">
+                    <div className="flex-1 min-w-[210px]">
                       <FloatingSelect
                         label="Select Form 65 Category..."
                         value={activeVal}
                         onChange={e => handleSelectPendingCategory(tx.id, e.target.value)}
-                        options={FORM_65_SECTIONED_CATEGORIES.flatMap((section, sIdx) => 
-                          section.options.map((opt, oIdx) => ({
-                            value: opt,
-                            label: `${section.group} > ${opt}`,
-                            hasDividerAbove: oIdx === 0 && sIdx > 0
-                          }))
-                        )}
+                        options={categoryOptions}
                       />
                     </div>
 
-                    {/* Explicit Save Action or Status Badge */}
-                    {hasUnsavedChange ? (
-                      <div className="flex items-center gap-1.5 animate-in fade-in">
+                    {hasUnsavedChange && (
+                      <div className="flex items-center gap-1.5 shrink-0 animate-in fade-in">
                         <button
                           type="button"
                           onClick={() => handleSaveCategory(tx)}
-                          className="px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#fbf050] text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                          className="px-3 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] border border-black shadow-[2px_3px_0px_#000000] text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                           title="Save this category assignment"
                         >
                           <Save className="w-3.5 h-3.5" />
@@ -570,22 +673,23 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                         <button
                           type="button"
                           onClick={() => handleCancelPending(tx.id)}
-                          className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition"
+                          className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-[#101010] transition cursor-pointer"
                           title="Cancel changes"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    ) : tx.isCategorized ? (
-                      <span className="status-tag-compact bg-emerald-50 text-emerald-800 border border-emerald-200/80">
-                        <Check className="w-2 h-2 text-emerald-600" />
-                        <span>Mapped</span>
-                      </span>
-                    ) : (
-                      <span className="status-tag-compact bg-amber-50 text-amber-800 border border-amber-200/80">
-                        <span>Unclassified</span>
-                      </span>
                     )}
+                  </div>
+
+                  {/* Right Zone: Amount + Date · Bank Import Feed */}
+                  <div className="lg:col-span-3 flex flex-row lg:flex-col items-center lg:items-end justify-between pl-11 lg:pl-0 text-right">
+                    <div className="text-base font-bold text-[#101010] tabular-nums">
+                      {formatAmountDisplay(tx.amount)}
+                    </div>
+                    <div className="text-[11px] text-[#6e6b7b] tabular-nums mt-0.5">
+                      {tx.date} <span aria-hidden="true">·</span> Bank Import Feed
+                    </div>
                   </div>
                 </div>
               );
@@ -593,6 +697,81 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Add New Transaction Modal */}
+      {modalVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-lg bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border border-[#1a1822] shadow-[6px_8px_0px_#000000] space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div>
+                <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
+                  Add Manual Transaction
+                </h3>
+                <p className="text-xs text-[#6e6b7b] mt-0.5">
+                  Log a cash or card expense directly into your Form 65 review queue.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="p-2 rounded-xl hover:bg-slate-200/70 text-[#6e6b7b] hover:text-[#101010] transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTransaction} className="space-y-4">
+              <FloatingInput
+                label="Vendor / Merchant Name"
+                value={newTxCompany}
+                onChange={e => setNewTxCompany(e.target.value)}
+                required
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FloatingInput
+                  type="number"
+                  step="0.01"
+                  label="Amount ($ CAD)"
+                  value={newTxAmount}
+                  onChange={e => setNewTxAmount(e.target.value)}
+                  required
+                />
+                <FloatingInput
+                  label="Transaction Date"
+                  value={newTxDate}
+                  onChange={e => setNewTxDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <FloatingSelect
+                label="Form 65 Category (Optional)"
+                value={newTxCategory}
+                onChange={e => setNewTxCategory(e.target.value)}
+                options={categoryOptions}
+              />
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2.5 rounded-xl border border-[#2d2d2d] bg-white hover:bg-slate-50 text-xs font-semibold text-[#101010] transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <span>Add Transaction</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -104,7 +104,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     amount: 800.34,
     category: 'Transportation',
     form65Category: 'Repair, Maintenance & Gas',
-    isCategorized: true,
+    isCategorized: false,
     status: 'cleared'
   },
   {
@@ -115,7 +115,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     amount: 70.16,
     category: 'Software & Subscriptions',
     form65Category: 'Telephone & Digital Utilities',
-    isCategorized: true,
+    isCategorized: false,
     status: 'cleared'
   },
   {

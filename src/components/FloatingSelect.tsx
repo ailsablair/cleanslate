@@ -4,6 +4,8 @@ import { ChevronDown, Check } from 'lucide-react';
 export interface SelectOption {
   value: string;
   label: string;
+  displayGroup?: string;
+  displayLabel?: string;
   hasDividerAbove?: boolean;
 }
 
@@ -28,7 +30,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   wrapperClassName = '',
   className = '',
   disabled = false,
-  required = false,
+  required: _required = false,
   name,
   id
 }) => {
@@ -38,6 +40,15 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = value !== undefined && value !== null && value !== '';
   const isFloating = isOpen || hasValue;
+
+  const activeTopLabel =
+    selectedOption && selectedOption.displayGroup && !isOpen
+      ? selectedOption.displayGroup
+      : label;
+
+  const activeBottomText = selectedOption
+    ? selectedOption.displayLabel || selectedOption.label
+    : '';
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -75,32 +86,32 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           style={{
             fontFamily: "'Google Sans Flex', sans-serif",
-            fontWeight: 300,
+            fontWeight: 400,
             color: '#101010'
           }}
-          className={`w-full text-left bg-white border border-[#2d2d2d] rounded-xl text-sm font-light text-[#101010] min-h-[52px] truncate transition-all shadow-[0_2px_0_rgba(0,0,0,0.22)] focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] cursor-pointer flex items-center justify-between pr-9 ${
+          className={`w-full text-left bg-white border border-[#2d2d2d] rounded-xl text-xs sm:text-sm font-normal text-[#101010] min-h-[52px] truncate transition-all shadow-[0_2px_0_rgba(0,0,0,0.22)] focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] cursor-pointer flex items-center justify-between pr-9 ${
             isFloating ? 'pt-5 pb-1.5 px-3.5' : 'py-3.5 px-3.5'
           } ${disabled ? 'opacity-60 cursor-not-allowed' : ''} ${className}`}
         >
           <span className="truncate text-[#101010]">
-            {selectedOption ? selectedOption.label : ''}
+            {activeBottomText}
           </span>
         </button>
 
         {/* Floating Label */}
         <label
-          title={label}
+          title={activeTopLabel}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={`absolute pointer-events-none transition-all duration-150 select-none truncate ${
             isFloating 
-              ? 'top-2 left-3.5 right-8 text-[10px] leading-tight font-semibold italic text-[#7a8288]' 
-              : 'top-4 left-3.5 right-8 text-sm text-[#767676] italic font-light'
+              ? 'top-2 left-3.5 right-8 text-[10px] leading-tight font-bold italic text-[#5e646b]' 
+              : 'top-4 left-3.5 right-8 text-xs sm:text-sm text-[#767676] italic font-light'
           }`}
           style={{
             fontFamily: "'Google Sans Flex', sans-serif"
           }}
         >
-          {label}
+          {activeTopLabel}
         </label>
 
         {/* Chevron Indicator */}
@@ -116,7 +127,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
         {/* Custom Popover Dropdown Card (matching dropdown_29fce253.png design) */}
         {isOpen && (
           <div
-            className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-slate-200/90 rounded-[22px] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.14)] max-h-64 overflow-y-auto animate-in fade-in zoom-in-95 duration-150 space-y-0.5"
+            className="absolute left-0 right-0 min-w-[260px] top-full mt-2 z-50 bg-white border border-[#2d2d2d]/20 rounded-[22px] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.18)] max-h-72 overflow-y-auto animate-in fade-in zoom-in-95 duration-150 space-y-0.5"
             style={{
               fontFamily: "'Google Sans Flex', sans-serif"
             }}
@@ -136,9 +147,16 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
                         : 'hover:bg-slate-50 text-[#101010] font-semibold'
                     }`}
                   >
-                    <span className="truncate text-sm font-semibold text-[#101010]">
-                      {opt.label}
-                    </span>
+                    <div className="min-w-0">
+                      {opt.displayGroup && (
+                        <div className="text-[10px] font-semibold text-[#6e6b7b] truncate">
+                          {opt.displayGroup}
+                        </div>
+                      )}
+                      <span className="truncate block text-xs sm:text-sm font-semibold text-[#101010]">
+                        {opt.displayLabel || opt.label}
+                      </span>
+                    </div>
                     {isSelected && (
                       <Check className="w-4 h-4 text-[#8c93fc] stroke-[2.5] shrink-0" />
                     )}
