@@ -25,8 +25,10 @@ export function isProofRequiredForTransaction(tx: Transaction): boolean {
     'court',
     'fine',
     'penalty',
+    'penalties',
     'condition of employment',
     'employment-related',
+    'employment expenses',
     'stay lifted'
   ];
 

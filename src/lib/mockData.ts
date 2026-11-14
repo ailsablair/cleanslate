@@ -81,7 +81,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     date: 'Sep 01, 2022',
     amount: 18.26,
     category: 'Food & Dining',
-    form65Category: 'Food & Grocery',
+    form65Category: 'Food/Grocery',
     isCategorized: true,
     status: 'cleared'
   },
@@ -92,7 +92,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     date: 'Aug 30, 2022',
     amount: 2800.01,
     category: 'Housing',
-    form65Category: 'Rent or Mortgage Payments',
+    form65Category: 'Rent/Mortgage',
     isCategorized: true,
     status: 'cleared'
   },
@@ -103,7 +103,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     date: 'Aug 29, 2022',
     amount: 800.34,
     category: 'Transportation',
-    form65Category: 'Repair, Maintenance & Gas',
+    form65Category: 'Repair/Maintenance/Gas',
     isCategorized: false,
     status: 'cleared'
   },
@@ -114,7 +114,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     date: 'Aug 29, 2022',
     amount: 70.16,
     category: 'Software & Subscriptions',
-    form65Category: 'Telephone & Digital Utilities',
+    form65Category: 'Telephone',
     isCategorized: false,
     status: 'cleared'
   },
@@ -147,7 +147,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     date: 'Aug 21, 2022',
     amount: 215.80,
     category: 'Groceries',
-    form65Category: 'Food & Grocery',
+    form65Category: 'Food/Grocery',
     isCategorized: true,
     status: 'cleared'
   }
