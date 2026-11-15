@@ -41,8 +41,8 @@ export async function parseReceiptImageWithAI(
       }
     });
 
-    // Primary attempt with gemini-3.8-flash, fallback to gemini-flash-latest or gemini-3.1-flash-lite
-    const modelsToTry = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+    // Primary attempt with gemini-4-hydrogen, fallback to gemini-3.1-flash-lite
+    const modelsToTry = ['gemini-4-hydrogen', 'gemini-3.1-flash-lite'];
     let lastError: any = null;
 
     for (const model of modelsToTry) {

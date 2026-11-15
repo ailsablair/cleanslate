@@ -69,30 +69,65 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   const [isUploadingStatement, setIsUploadingStatement] = useState<boolean>(false);
   const [statementSuccessToast, setStatementSuccessToast] = useState<string | null>(null);
 
-  // Statutory answers database for instant help
-  const getBotResponse = (query: string): string => {
+  const [isSendingQuery, setIsSendingQuery] = useState<boolean>(false);
+
+  // Resilient local fallback only if API is unreachable
+  const getOfflineFallbackResponse = (query: string): string => {
     const q = query.toLowerCase();
+    if (q.includes('medical condition') && q.includes('prescription')) {
+      return 'On Form 65, **Medical Condition Expenses** (under Non-Discretionary) are ongoing, documented medical costs that **lower your surplus payment** when you attach proof. **Prescriptions** (under Non-Recoverable Medical) are routine pharmacy costs logged for your overall budget. Never enter the same receipt in both!';
+    }
     if (q.includes('rx') || q.includes('pharmacy') || q.includes('rexall') || q.includes('medical') || q.includes('prescription')) {
-      return "Prescription medicines and physician-authorized medical devices belong under Non-Discretionary Deductions (or Medical Expenses). Remember: statutory rules require attaching a prescription receipt or clinic invoice for trustee deduction approval!";
+      return "Prescription medicines for an ongoing medical condition go under **Non-Discretionary: Medical Condition Expenses** (attach your receipt or prescription so it reduces your surplus base!). Routine drugstore items go under **Non-Recoverable Medical: Prescriptions**.";
+    }
+    if (q.includes('transfer') || q.includes('each account') || q.includes('multiple') || q.includes('secured credit')) {
+      return "Always **total each category across ALL accounts combined** (do not submit separate Form 65 breakdowns per bank account). Skip internal transfers between your own accounts and skip credit card bill payments so you don't double-count purchases!";
+    }
+    if (q.includes('social assistance') || q.includes('employment income') || q.includes('employment insurance')) {
+      return "**Employment Insurance (EI)** is federal insurance you paid into from your paycheques (Service Canada). **Social Assistance** is provincial needs-based aid (like Ontario Works, ODSP, or BC Income Assistance). Both go in Section 1 (Family Income), just pick the one matching your deposit.";
     }
     if (q.includes('instacart') || q.includes('grocery') || q.includes('dining') || q.includes('food')) {
-      return "Supermarket food and pantry groceries go under 'Day-to-Day: Food & Grocery'. Prepared meals or restaurant delivery belong under 'Personal: Alcohol / Dining Out'. Keeping them separate ensures your surplus income basis is calculated fairly.";
+      return "Supermarket food and pantry groceries go under **Living Expenses: Food/Grocery**. Prepared meals or restaurant delivery belong under **Personal: Dining/Lunches/Restaurants**.";
     }
-    if (q.includes('overtime') || q.includes('bonus') || q.includes('salary') || q.includes('pay')) {
-      return "All net wages after mandatory tax, CPP, and EI deductions must be reported under 'Debtor Employment Income'. Overtime shifts are included in net monthly earnings.";
-    }
-    if (q.includes('childcare') || q.includes('daycare')) {
-      return "Verified child care expenses required for you to maintain employment are eligible as Non-Discretionary Deductions. Be sure to upload daycare receipts to your CleanSlate Vault!";
-    }
-    if (q.includes('surplus') || q.includes('threshold') || q.includes('limit')) {
-      return `Under OSB standards for a household size of ${profile.householdSize}, your threshold is ${profile.householdSize === 1 ? '$2,400.00' : profile.householdSize === 2 ? '$2,980.00' : '$3,600.00'}. Half of any net income above this threshold is remitted to your bankruptcy estate.`;
-    }
-    return "I'm trained on Canadian Bankruptcy and Insolvency Act (BIA) Form 65 rules. You can enter any expense in the respective input, or upload your bank statement for auto-categorization!";
+    return `I'm here to walk you through your ${activeReport.month} ${activeReport.year} Form 65 step by step. Tell me which line or transaction feels confusing and we'll sort it out together!`;
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const renderAssistantText = (content: string) => {
+    return content.split('\n').map((line, idx) => {
+      const trimmed = line.trim();
+      if (!trimmed) return <div key={idx} className="h-1.5" />;
+
+      const formatBold = (txt: string) =>
+        txt.split(/(\*\*[^*]+\*\*)/g).map((part, pIdx) =>
+          part.startsWith('**') && part.endsWith('**') ? (
+            <strong key={pIdx} className="font-bold text-white">{part.slice(2, -2)}</strong>
+          ) : (
+            part
+          )
+        );
+
+      if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+        return (
+          <div key={idx} className="font-bold text-[#fbf050] mt-1.5 mb-0.5">
+            {trimmed.replace(/^#{2,3}\s+/, '')}
+          </div>
+        );
+      }
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        return (
+          <div key={idx} className="pl-3 flex items-start gap-1.5">
+            <span className="text-[#b6b3ff]">•</span>
+            <span>{formatBold(trimmed.slice(2))}</span>
+          </div>
+        );
+      }
+      return <p key={idx}>{formatBold(line)}</p>;
+    });
+  };
+
+  const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputQuery).trim();
-    if (!text) return;
+    if (!text || isSendingQuery) return;
 
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -101,16 +136,55 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    const botResponse = getBotResponse(text);
-    const botMsg: ChatMessage = {
-      id: `bot-${Date.now()}`,
-      sender: 'bot',
-      text: botResponse,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
+    const historyForApi = messages.map((m) => ({
+      role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
+      text: m.text
+    }));
 
-    setMessages(prev => [...prev, userMsg, botMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputQuery('');
+    setIsSendingQuery(true);
+
+    try {
+      const response = await fetch('/api/litbot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: text,
+          messages: historyForApi,
+          contextProfile: {
+            firstName: profile.firstName,
+            province: profile.province,
+            householdSize: profile.householdSize,
+            litName: profile.litName,
+            activeReportMonth: `${activeReport.month} ${activeReport.year}`
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const botMsg: ChatMessage = {
+        id: `bot-${Date.now()}`,
+        sender: 'bot',
+        text: data.text || getOfflineFallbackResponse(text),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch {
+      const botMsg: ChatMessage = {
+        id: `bot-${Date.now()}`,
+        sender: 'bot',
+        text: getOfflineFallbackResponse(text),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages((prev) => [...prev, botMsg]);
+    } finally {
+      setIsSendingQuery(false);
+    }
   };
 
   // Automated Bank Statement Processing & Interactive Reconciliation Flow
@@ -304,10 +378,14 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
               className={`p-3.5 rounded-2xl text-xs leading-relaxed max-w-xl ${
                 msg.sender === 'user'
                   ? 'bg-[#b6b3ff] text-[#1d1a27] font-semibold rounded-tr-xs'
-                  : 'bg-white/10 text-slate-100 border border-white/10 rounded-tl-xs space-y-2'
+                  : 'bg-white/10 text-slate-100 border border-white/10 rounded-tl-xs space-y-1.5'
               }`}
             >
-              <p>{msg.text}</p>
+              {msg.sender === 'user' ? (
+                <p>{msg.text}</p>
+              ) : (
+                renderAssistantText(msg.text)
+              )}
 
               {/* Interactive Clarification Card inside Chat */}
               {msg.clarificationData && (
@@ -354,6 +432,12 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             <span>Scanning bank statement (Jan 1 - Jan 30) and populating Form 65 inputs...</span>
           </div>
         )}
+        {isSendingQuery && (
+          <div className="flex items-center gap-2 text-xs text-[#b6b3ff] bg-white/5 p-3 rounded-xl border border-white/10 animate-pulse">
+            <Sparkles className="w-4 h-4 animate-spin" />
+            <span>LITbot is checking Form 65 rules to give you a clear answer...</span>
+          </div>
+        )}
       </div>
 
       {/* Input Bar */}
@@ -363,13 +447,15 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Ask LITbot: e.g. 'You spent $50 at Instacart - was this Dining or Groceries?'"
-          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b6b3ff]"
+          disabled={isSendingQuery}
+          placeholder="Ask anything in plain English (e.g. 'Why are categories repeated?' or 'Transfers?')"
+          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] disabled:opacity-60"
         />
         <button
           type="button"
           onClick={() => handleSendMessage()}
-          className="p-2.5 rounded-xl bg-[#b6b3ff] hover:bg-white text-[#1d1a27] transition font-bold cursor-pointer active:scale-95"
+          disabled={isSendingQuery || !inputQuery.trim()}
+          className="p-2.5 rounded-xl bg-[#b6b3ff] hover:bg-white text-[#1d1a27] transition font-bold cursor-pointer active:scale-95 disabled:opacity-50"
           title="Send query to LITbot"
         >
           <Send className="w-4 h-4" />

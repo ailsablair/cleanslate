@@ -56,13 +56,14 @@ export const LitBotView: React.FC<LitBotViewProps> = ({
       id: 'welcome-1',
       role: 'model',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: `Hello ${profile.firstName || 'there'}! I am **LITbot**, your official AI Trustee Guide for CleanSlate.
+      text: `Hello ${profile.firstName || 'there'}! I'm **LITbot**, your patient, step-by-step CleanSlate Trustee Guide.
 
-I am programmed with **100% accurate statutory rules** under the Canadian *Bankruptcy and Insolvency Act* (BIA), Office of the Superintendent of Bankruptcy (OSB) Directives (including **Directive 11R2 Surplus Income**), and BIA Form 65 audit standards.
+Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**you don't have to figure this out alone.** Ask me anything in plain English, even if it feels basic!
 
-**How can I help you today?**
-- Ask questions about surplus thresholds, discharge timelines, or non-discretionary receipt requirements.
-- Upload paystubs, bank statements, or receipt scans for instant Form 65 analysis.`
+**How I can help you right now:**
+- Explain confusing Form 65 categories (like *Medical Condition Expenses vs. Prescriptions*, or *EI vs. Social Assistance*).
+- Show you how to report multiple bank accounts, secured credit cards, and internal transfers without double-counting.
+- Tell you which categories actually affect your monthly payment—or analyze uploaded paystubs, statements, and receipts.`
     }
   ]);
   const [inputText, setInputText] = useState<string>('');
@@ -210,38 +211,47 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
         );
       }
 
-      // Format bold text **word**
-      const parts = line.split(/(\*\*[^*]+\*\*)/g);
-      const formattedLine = parts.map((part, pIdx) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={pIdx} className="font-bold text-[#101010]">{part.slice(2, -2)}</strong>;
-        }
-        return part;
-      });
+      // Helper to render inline **bold** and *italic* formatting
+      const formatInline = (raw: string) => {
+        const parts = raw.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+        return parts.map((part, pIdx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={pIdx} className="font-bold text-[#101010]">{part.slice(2, -2)}</strong>;
+          }
+          if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+            return <em key={pIdx} className="italic text-[#2d2a37]">{part.slice(1, -1)}</em>;
+          }
+          if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+            return <code key={pIdx} className="px-1.5 py-0.5 rounded bg-[#f1f0f7] text-[#101010] font-mono text-[11px]">{part.slice(1, -1)}</code>;
+          }
+          return part;
+        });
+      };
 
-      if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
         return (
           <li key={idx} className="ml-4 list-disc text-[#4b4856] text-xs sm:text-sm leading-relaxed my-0.5">
-            {formattedLine}
+            {formatInline(trimmed.slice(2))}
           </li>
         );
       }
 
-      if (/^\d+\.\s/.test(line.trim())) {
+      if (/^\d+\.\s/.test(trimmed)) {
         return (
           <div key={idx} className="ml-2 font-medium text-[#101010] text-xs sm:text-sm leading-relaxed my-1">
-            {formattedLine}
+            {formatInline(trimmed)}
           </div>
         );
       }
 
-      if (line.trim() === '') {
+      if (trimmed === '') {
         return <div key={idx} className="h-2" />;
       }
 
       return (
         <p key={idx} className="text-xs sm:text-sm text-[#4b4856] leading-relaxed my-1">
-          {formattedLine}
+          {formatInline(line)}
         </p>
       );
     });
@@ -304,10 +314,10 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
             Suggested:
           </span>
           {[
-            'How is surplus income calculated under OSB Directive 11R2?',
-            'What non-discretionary expenses require mandatory receipts?',
-            'Explain the 9-month vs 21-month automatic discharge rules.',
-            'What happens if my income fluctuates month-to-month?'
+            'What is the difference between Medical Condition Expenses and Prescriptions?',
+            'Which categories are not counted towards my bankruptcy payment calculation?',
+            'What is the difference between Employment Insurance Benefits and Social Assistance?',
+            'Do I include a breakdown for each bank account or total each category across all accounts?'
           ].map((promptText, i) => (
             <button
               key={i}

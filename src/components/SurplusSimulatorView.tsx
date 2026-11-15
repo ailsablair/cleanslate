@@ -60,6 +60,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
     }
   ]);
   const [inputQuestion, setInputQuestion] = useState<string>('');
+  const [isAskingBot, setIsAskingBot] = useState<boolean>(false);
 
   // OSB Canadian Statutory Household Thresholds (Directive 11R2-2024 standards)
   const getThreshold = (size: number) => {
@@ -97,9 +98,26 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
     setSimulatedReason(reason);
   };
 
-  const handleAskQuestion = (questionText?: string) => {
+  const getLocalSimulatorFallback = (q: string): string => {
+    const lower = q.toLowerCase();
+    if (lower.includes('overtime') || lower.includes('extra') || lower.includes('500') || lower.includes('raise')) {
+      return "If you earn $500 in overtime, your net surplus basis increases by $500. Under statutory BIA rules, 50% ($250.00) is paid to the trustee estate, and the remaining 50% ($250.00) stays in your pocket! You are NEVER penalized for earning more money—you always take home more cash.";
+    }
+    if (lower.includes('car') || lower.includes('vehicle') || lower.includes('transportation')) {
+      return "Reasonable transportation expenses required for employment (gas, maintenance, mandatory vehicle insurance, or transit passes) are allowable Form 65 expenses. Note that normal gas/insurance don't reduce your statutory surplus payment directly because they're already baked into the government's flat household living allowance.";
+    }
+    if (lower.includes('medical') || lower.includes('prescription') || lower.includes('cannabis')) {
+      return "Ongoing, documented **Medical Condition Expenses** (like regular prescriptions or doctor-authorized therapy not covered by insurance) go under **Non-Discretionary Deductions** and lower your surplus payment dollar-for-dollar when you attach proof. Routine one-off drugstore items go under **Non-Recoverable Medical: Prescriptions**.";
+    }
+    if (lower.includes('spouse') || lower.includes('partner') || lower.includes('wife') || lower.includes('husband')) {
+      return "Your spouse's income is used only to determine the household's proportional share of the OSB threshold under BIA Directive 11R2. Your spouse is never personally liable for your individual bankruptcy debt.";
+    }
+    return `With a household of ${householdSize}, your government living allowance (OSB threshold) is ${formatCurrency(activeThreshold)}/month. Only Family Income (Net) and Non-Discretionary Expenses directly change your surplus payment calculation—keep receipts in your Receipts vault for ${profile.litName || 'Sarah Jenkins, LIT'}.`;
+  };
+
+  const handleAskQuestion = async (questionText?: string) => {
     const q = (questionText || inputQuestion).trim();
-    if (!q) return;
+    if (!q || isAskingBot) return;
 
     const userMsg: Message = {
       id: 'u_' + Date.now(),
@@ -108,34 +126,56 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
+    const historyForApi = messages.map((m) => ({
+      role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
+      text: m.text
+    }));
+
     setMessages(prev => [...prev, userMsg]);
     if (!questionText) setInputQuestion('');
+    setIsAskingBot(true);
 
-    // Generate authoritative Canadian BIA guidance
-    setTimeout(() => {
-      let botResponse = "";
-      const lower = q.toLowerCase();
+    try {
+      const response = await fetch('/api/litbot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: q,
+          messages: historyForApi,
+          contextProfile: {
+            firstName: profile.firstName,
+            province: profile.province,
+            householdSize,
+            litName: profile.litName,
+            surplusPayment: Math.round(newCalculatedSurplus),
+            activeThreshold
+          }
+        })
+      });
 
-      if (lower.includes('overtime') || lower.includes('extra') || lower.includes('500') || lower.includes('raise')) {
-        botResponse = "If you earn $500 in overtime, your net surplus basis increases by $500. Under statutory BIA rules, 50% ($250.00) is paid to the trustee estate, and the remaining 50% ($250.00) stays in your pocket! You are NEVER penalized for earning more money during bankruptcy—you always take home more cash.";
-      } else if (lower.includes('car') || lower.includes('vehicle') || lower.includes('transportation')) {
-        botResponse = "Under OSB guidelines, reasonable transportation expenses required for employment (e.g. gas, maintenance, mandatory vehicle insurance, or transit passes) are allowable Form 65 expenses. If purchasing a modest vehicle is necessary to keep your job, the ongoing fuel/insurance reduces your discretionary income, keeping your surplus payments balanced.";
-      } else if (lower.includes('medical') || lower.includes('prescription') || lower.includes('cannabis')) {
-        botResponse = "Prescription medicines, physician-authorized treatments (including medical cannabis), and necessary dental/optical expenses not covered by provincial health insurance qualify as statutory Non-Discretionary Deductions. Every dollar spent on verified medical expenses directly reduces your surplus basis dollar-for-dollar.";
-      } else if (lower.includes('spouse') || lower.includes('partner') || lower.includes('wife') || lower.includes('husband')) {
-        botResponse = "Your spouse's income is used only to determine the household's proportional share of the OSB threshold under BIA Directive 11R2. A spouse is never personally liable for your individual bankruptcy debt, but household income pooling ensures fair surplus calculation.";
-      } else {
-        botResponse = `Under the Canadian Bankruptcy and Insolvency Act, every change in monthly net income or mandatory living costs is reported on your monthly Form 65. With a household of ${householdSize}, your statutory threshold is ${formatCurrency(activeThreshold)}. Keep all receipts in your CleanSlate Vault so your trustee (${profile.litName || 'Sarah Jenkins, LIT'}) can apply every allowable deduction.`;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
 
+      const data = await response.json();
       const botMsg: Message = {
         id: 'b_' + Date.now(),
         sender: 'litbot',
-        text: botResponse,
+        text: data.text || getLocalSimulatorFallback(q),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, botMsg]);
-    }, 600);
+    } catch {
+      const botMsg: Message = {
+        id: 'b_' + Date.now(),
+        sender: 'litbot',
+        text: getLocalSimulatorFallback(q),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, botMsg]);
+    } finally {
+      setIsAskingBot(false);
+    }
   };
 
   return (
@@ -506,10 +546,34 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
                   </span>
                   <span className={`text-[10px] tabular-nums ${msg.sender === 'user' ? 'text-slate-400' : 'text-[#6e6b7b]'}`}>{msg.time}</span>
                 </div>
-                <p className="whitespace-pre-line">{msg.text}</p>
+                <div className="space-y-1">
+                  {msg.text.split('\n').map((line, lIdx) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return <div key={lIdx} className="h-1" />;
+                    const formatted = line.replace(/^#{2,3}\s+/, '').split(/(\*\*[^*]+\*\*)/g).map((part, pIdx) =>
+                      part.startsWith('**') && part.endsWith('**') ? (
+                        <strong key={pIdx} className="font-bold">{part.slice(2, -2)}</strong>
+                      ) : (
+                        part
+                      )
+                    );
+                    if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+                      return <div key={lIdx} className="font-extrabold text-xs text-[#101010] pt-1">{formatted}</div>;
+                    }
+                    return <p key={lIdx}>{formatted}</p>;
+                  })}
+                </div>
               </div>
             </div>
           ))}
+          {isAskingBot && (
+            <div className="flex justify-start">
+              <div className="rounded-2xl p-3 bg-white border border-[#d8d9f8] text-xs text-[#4b4856] flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#8c93fc] animate-spin" />
+                <span>LITbot is preparing a clear step-by-step answer...</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat Input & Suggested Questions */}
@@ -520,15 +584,16 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             </span>
             {[
               "If I work 10 hours overtime this month, what happens?",
-              "Can I buy a vehicle to commute to a new job?",
-              "What if my prescription medicine costs increase?",
+              "Which categories are not counted towards my bankruptcy payment calculation?",
+              "What is the difference between Medical Condition Expenses and Prescriptions?",
               "Does my spouse's income count towards my payment?"
             ].map((s, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleAskQuestion(s)}
-                className="px-3 py-1 rounded-full bg-white hover:bg-slate-50 border border-[#d8d9f8] hover:border-[#8c93fc] text-[#101010] text-[11px] font-medium transition cursor-pointer"
+                disabled={isAskingBot}
+                className="px-3 py-1 rounded-full bg-white hover:bg-slate-50 border border-[#d8d9f8] hover:border-[#8c93fc] text-[#101010] text-[11px] font-medium transition cursor-pointer disabled:opacity-50"
               >
                 {s}
               </button>
@@ -537,7 +602,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
 
           <div className="flex items-center gap-2.5">
             <FloatingInput
-              label="Ask a question about Canadian surplus income, allowable deductions, or discharge..."
+              label="Ask anything in plain English about Form 65, surplus income, or bank transfers..."
               value={inputQuestion}
               onChange={e => setInputQuestion(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
@@ -546,7 +611,8 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             <button
               type="button"
               onClick={() => handleAskQuestion()}
-              className="px-5 py-3 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              disabled={isAskingBot || !inputQuestion.trim()}
+              className="px-5 py-3 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50"
             >
               <span>Ask LITbot</span>
               <Send className="w-3.5 h-3.5 text-[#b6b3ff]" />
