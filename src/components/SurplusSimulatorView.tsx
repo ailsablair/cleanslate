@@ -21,6 +21,7 @@ import { UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { FloatingInput } from './FloatingInput';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
+import { loadKnowledgeArticlesFromStorage } from '../lib/litbotKnowledge';
 
 interface SurplusSimulatorViewProps {
   profile: UserProfile;
@@ -100,14 +101,18 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
   };
 
   const getLocalSimulatorFallback = (q: string): string => {
-    return getFallbackLitBotResponse(q, {
-      firstName: profile.firstName,
-      province: profile.province,
-      householdSize,
-      litName: profile.litName,
-      surplusPayment: Math.round(newCalculatedSurplus),
-      activeThreshold
-    }).text;
+    return getFallbackLitBotResponse(
+      q,
+      {
+        firstName: profile.firstName,
+        province: profile.province,
+        householdSize,
+        litName: profile.litName,
+        surplusPayment: Math.round(newCalculatedSurplus),
+        activeThreshold
+      },
+      loadKnowledgeArticlesFromStorage()
+    ).text;
   };
 
   const handleAskQuestion = async (questionText?: string) => {
@@ -144,7 +149,8 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             litName: profile.litName,
             surplusPayment: Math.round(newCalculatedSurplus),
             activeThreshold
-          }
+          },
+          knowledgeArticles: loadKnowledgeArticlesFromStorage()
         })
       });
 

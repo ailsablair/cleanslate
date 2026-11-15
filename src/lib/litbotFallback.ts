@@ -1,3 +1,5 @@
+import { LitBotKnowledgeArticle, findRelevantKnowledge } from './litbotKnowledge';
+
 export interface LitBotContextSummary {
   firstName?: string;
   province?: string;
@@ -10,7 +12,8 @@ export interface LitBotContextSummary {
 
 export function getFallbackLitBotResponse(
   prompt: string,
-  contextProfile?: LitBotContextSummary
+  contextProfile?: LitBotContextSummary,
+  knowledgeArticles: LitBotKnowledgeArticle[] = []
 ): { text: string } {
   const p = (prompt || '').toLowerCase();
   const householdSize = contextProfile?.householdSize || 2;
@@ -25,6 +28,100 @@ export function getFallbackLitBotResponse(
       ? '$4,200'
       : '$4,800';
   const litName = contextProfile?.litName || 'Sarah Jenkins, LIT';
+
+  // 0. Check custom user-trained articles/studies FIRST so user training works even offline
+  const customArticles = (knowledgeArticles || []).filter((a) => a.isActive && !a.isBuiltIn);
+  if (customArticles.length > 0) {
+    const matched = findRelevantKnowledge(prompt, customArticles, 2);
+    const tokens = p
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length >= 4);
+    const best = matched[0];
+    if (
+      best &&
+      tokens.some(
+        (t) =>
+          best.title.toLowerCase().includes(t) ||
+          best.content.toLowerCase().includes(t)
+      )
+    ) {
+      return {
+        text: `### Based on Your Trained Knowledge Source: ${best.title}
+
+${best.content.trim()}
+
+${best.citation ? `*Reference: ${best.citation}*` : ''}`
+      };
+    }
+  }
+
+  // Cash gifts, birthday money, holiday gifts, e-transfers, windfalls
+  if (
+    p.includes('gift') ||
+    p.includes('birthday') ||
+    p.includes('holiday') ||
+    p.includes('christmas') ||
+    p.includes('present') ||
+    p.includes('windfall') ||
+    p.includes('inherit') ||
+    p.includes('lottery') ||
+    p.includes('e-transfer') ||
+    p.includes('etransfer')
+  ) {
+    return {
+      text: `### How to Handle Cash Gifts, Birthday & Holiday Money
+
+Great question—many people worry they'll get in trouble for receiving birthday or holiday cash from family! Here is the simple rule so you stay 100% protected:
+
+1. **Modest, Occasional Gifts** *(like $20–$100 in a birthday card or holiday gift)*:
+   - Small one-off personal gifts aren't meant to punish you. If you keep it as pocket cash for a treat, just jot down a quick note in case anyone asks. If you **deposit it into your bank account**, let your trustee know so an unexplained deposit doesn't trigger a question later.
+
+2. **Larger or Recurring Cash Gifts** *(like several hundred dollars, regular family help, or e-transfers to pay bills)*:
+   - On Form 65, money coming into your household to help cover living costs goes under **Section 1: Family Income (Net) → Other Net Income** for that month.
+
+3. **Big Windfalls** *(inheritances or lottery winnings)*:
+   - Always tell your Licensed Insolvency Trustee (**${litName}**) right away before spending any major windfall, as large lump sums received before discharge can fall under bankruptcy estate rules.
+
+*Bottom line:* Honest disclosure keeps your discharge smooth and stress-free!`
+    };
+  }
+
+  // Tax refund / GST / HST / Carbon rebate / Child Tax Benefit
+  if (
+    p.includes('tax refund') ||
+    p.includes('cra') ||
+    p.includes('gst') ||
+    p.includes('hst') ||
+    p.includes('rebate') ||
+    p.includes('child tax') ||
+    p.includes('ccb')
+  ) {
+    return {
+      text: `### Tax Refunds, GST/HST Credits & Government Rebates
+
+- **Income Tax Refunds:** During personal bankruptcy, tax refunds for the year of bankruptcy (pre- and post-bankruptcy returns) are normally sent directly to your bankruptcy estate by the CRA as part of standard BIA administration.
+- **GST/HST Credit & Carbon Rebates:** Keep your trustee (**${litName}**) updated—small quarterly credits are often handled by your trustee depending on your total estate contributions.
+- **Canada Child Benefit (CCB):** Report what you receive in **Section 1: Family Income (Net) → Child Tax Benefit** so your monthly Form 65 matches your bank deposits cleanly.`
+    };
+  }
+
+  // Selling personal items / Facebook Marketplace / Kijiji
+  if (
+    p.includes('sell') ||
+    p.includes('sold') ||
+    p.includes('marketplace') ||
+    p.includes('kijiji') ||
+    p.includes('furniture') ||
+    p.includes('poshmark')
+  ) {
+    return {
+      text: `### Selling Old Household Items (Facebook Marketplace / Kijiji)
+
+- **Selling small, exempt personal belongings** *(like an old couch, clothes, or kids' gear you already owned)*: Converting your exempt household goods into a bit of cash to buy groceries is normally fine—just save screenshots of the listing/sale so your trustee knows an e-transfer deposit wasn't hidden job wages!
+- **Wait before selling high-value items** *(vehicles, jewelry, investments, collectibles)*: Always check with **${litName}** first to confirm the item is protected under your province's exemptions.`
+    };
+  }
 
   // 1. "Medical Condition Expenses" vs "Prescriptions"
   if (
@@ -212,7 +309,7 @@ If you share rent, groceries, and utilities together, the trustee compares total
     };
   }
 
-  // Receipts / proof / childcare / instacart / food
+  // Receipts / proof / childcare
   if (
     p.includes('receipt') ||
     p.includes('non-discretionary') ||
@@ -277,18 +374,18 @@ Your trustee (**${litName}**) and CleanSlate will guide you through each step on
     };
   }
 
-  // Helpful general greeting/fallback
+  // General fallback
   return {
     text: `### I'm Here to Walk You Through This Step-by-Step
 
-Bankruptcy paperwork can feel overwhelming, and there is no such thing as a silly question here! Tell me what you're stuck on—for example, you can ask:
+Bankruptcy paperwork can feel overwhelming, and there is no such thing as a silly question here! You can ask me anything in plain English—or head to the **Train LITbot** tab above to paste articles, OSB directives, or studies so I learn your exact rules.
 
+For example, try asking:
+- **"How do I count cash gifts from family and friends for the holidays and my birthday?"**
 - **"What is the difference between Medical Condition Expenses and Prescriptions?"**
-- **"Why do categories look repeated in Family Income vs. Non-Discretionary Expenses?"**
 - **"Which categories are NOT counted toward my bankruptcy payment?"**
-- **"What's the difference between Employment Insurance Benefits and Social Assistance?"**
 - **"How do I report multiple bank accounts, secured credit cards, and internal transfers?"**
 
-Let me know what line item or bank transaction is confusing you and we'll sort it out together!`
+Tell me what you're stuck on and we'll sort it out together!`
   };
 }

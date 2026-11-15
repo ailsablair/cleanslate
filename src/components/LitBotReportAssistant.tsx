@@ -18,6 +18,7 @@ import {
 import { MonthlyReport, UserProfile, Receipt } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
+import { loadKnowledgeArticlesFromStorage } from '../lib/litbotKnowledge';
 
 interface LitBotReportAssistantProps {
   activeReport: MonthlyReport;
@@ -74,13 +75,17 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
 
   // Resilient local fallback only if API is unreachable
   const getOfflineFallbackResponse = (query: string): string => {
-    return getFallbackLitBotResponse(query, {
-      firstName: profile.firstName,
-      province: profile.province,
-      householdSize: profile.householdSize,
-      litName: profile.litName,
-      activeReportMonth: `${activeReport.month} ${activeReport.year}`
-    }).text;
+    return getFallbackLitBotResponse(
+      query,
+      {
+        firstName: profile.firstName,
+        province: profile.province,
+        householdSize: profile.householdSize,
+        litName: profile.litName,
+        activeReportMonth: `${activeReport.month} ${activeReport.year}`
+      },
+      loadKnowledgeArticlesFromStorage()
+    ).text;
   };
 
   const renderAssistantText = (content: string) => {
@@ -149,7 +154,8 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             householdSize: profile.householdSize,
             litName: profile.litName,
             activeReportMonth: `${activeReport.month} ${activeReport.year}`
-          }
+          },
+          knowledgeArticles: loadKnowledgeArticlesFromStorage()
         })
       });
 
