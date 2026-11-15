@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { MonthlyReport, UserProfile, Receipt } from '../types';
 import { formatCurrency } from '../lib/formatters';
+import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 
 interface LitBotReportAssistantProps {
   activeReport: MonthlyReport;
@@ -73,23 +74,13 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
 
   // Resilient local fallback only if API is unreachable
   const getOfflineFallbackResponse = (query: string): string => {
-    const q = query.toLowerCase();
-    if (q.includes('medical condition') && q.includes('prescription')) {
-      return 'On Form 65, **Medical Condition Expenses** (under Non-Discretionary) are ongoing, documented medical costs that **lower your surplus payment** when you attach proof. **Prescriptions** (under Non-Recoverable Medical) are routine pharmacy costs logged for your overall budget. Never enter the same receipt in both!';
-    }
-    if (q.includes('rx') || q.includes('pharmacy') || q.includes('rexall') || q.includes('medical') || q.includes('prescription')) {
-      return "Prescription medicines for an ongoing medical condition go under **Non-Discretionary: Medical Condition Expenses** (attach your receipt or prescription so it reduces your surplus base!). Routine drugstore items go under **Non-Recoverable Medical: Prescriptions**.";
-    }
-    if (q.includes('transfer') || q.includes('each account') || q.includes('multiple') || q.includes('secured credit')) {
-      return "Always **total each category across ALL accounts combined** (do not submit separate Form 65 breakdowns per bank account). Skip internal transfers between your own accounts and skip credit card bill payments so you don't double-count purchases!";
-    }
-    if (q.includes('social assistance') || q.includes('employment income') || q.includes('employment insurance')) {
-      return "**Employment Insurance (EI)** is federal insurance you paid into from your paycheques (Service Canada). **Social Assistance** is provincial needs-based aid (like Ontario Works, ODSP, or BC Income Assistance). Both go in Section 1 (Family Income), just pick the one matching your deposit.";
-    }
-    if (q.includes('instacart') || q.includes('grocery') || q.includes('dining') || q.includes('food')) {
-      return "Supermarket food and pantry groceries go under **Living Expenses: Food/Grocery**. Prepared meals or restaurant delivery belong under **Personal: Dining/Lunches/Restaurants**.";
-    }
-    return `I'm here to walk you through your ${activeReport.month} ${activeReport.year} Form 65 step by step. Tell me which line or transaction feels confusing and we'll sort it out together!`;
+    return getFallbackLitBotResponse(query, {
+      firstName: profile.firstName,
+      province: profile.province,
+      householdSize: profile.householdSize,
+      litName: profile.litName,
+      activeReportMonth: `${activeReport.month} ${activeReport.year}`
+    }).text;
   };
 
   const renderAssistantText = (content: string) => {

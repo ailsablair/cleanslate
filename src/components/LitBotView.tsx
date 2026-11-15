@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, MonthlyReport, Receipt } from '../types';
 import { formatCurrency } from '../lib/formatters';
+import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 
 interface LitBotViewProps {
   profile: UserProfile;
@@ -128,47 +129,76 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
     setAttachments([]);
     setIsSending(true);
 
+    const requestBody = JSON.stringify({
+      prompt: textToSubmit,
+      messages: messages.map(m => ({ role: m.role, text: m.text })),
+      attachments: currentAttachments.map(a => ({
+        fileName: a.fileName,
+        mimeType: a.mimeType,
+        base64: a.base64
+      })),
+      contextProfile: {
+        firstName: profile.firstName,
+        province: profile.province,
+        householdSize: profile.householdSize,
+        litName: profile.litName,
+        surplusPayment: 159
+      }
+    });
+
     try {
-      const response = await fetch('/api/litbot/chat', {
+      let response = await fetch('/api/litbot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: textToSubmit,
-          messages: messages.map(m => ({ role: m.role, text: m.text })),
-          attachments: currentAttachments.map(a => ({
-            fileName: a.fileName,
-            mimeType: a.mimeType,
-            base64: a.base64
-          })),
-          contextProfile: {
-            firstName: profile.firstName,
-            province: profile.province,
-            householdSize: profile.householdSize,
-            litName: profile.litName,
-            surplusPayment: 159
-          }
-        })
+        body: requestBody
       });
+
+      if (response.status >= 502 && response.status <= 504) {
+        await new Promise((r) => setTimeout(r, 800));
+        response = await fetch('/api/litbot/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: requestBody
+        });
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP Error ${response.status}`);
       }
 
       const data = await response.json();
+      const resolvedText =
+        data?.text && data.text.trim().length > 0
+          ? data.text
+          : getFallbackLitBotResponse(textToSubmit, {
+              firstName: profile.firstName,
+              province: profile.province,
+              householdSize: profile.householdSize,
+              litName: profile.litName,
+              surplusPayment: 159
+            }).text;
+
       const botMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'model',
-        text: data.text || 'I have analyzed your request under BIA rules.',
+        text: resolvedText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (err: any) {
       console.error('Error sending message to LITbot:', err);
+      const fallback = getFallbackLitBotResponse(textToSubmit, {
+        firstName: profile.firstName,
+        province: profile.province,
+        householdSize: profile.householdSize,
+        litName: profile.litName,
+        surplusPayment: 159
+      });
       const fallbackBotMessage: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'model',
-        text: `### Canadian Bankruptcy Statutory Guidance (BIA & OSB Directive 11R2)\n\nUnder **Office of the Superintendent of Bankruptcy (OSB)** standards:\n\n1. **Surplus Income Base**: Calculated as Net Household Income minus Non-Discretionary Deductions (child support paid, verified medical, child care for work) minus OSB Threshold ($${profile.householdSize === 1 ? '2,400' : profile.householdSize === 2 ? '2,980' : '3,600'}/mo).\n2. **Payment Amount**: 50% of the surplus exceeding threshold is payable to your trustee estate.\n3. **Automatic Discharge**: Granted at 9 or 21 months for first-time bankrupts upon fulfilling all duties.\n\n*Note*: Formal legal submissions are always filed through your assigned Licensed Insolvency Trustee (**${profile.litName}**).`,
+        text: fallback.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, fallbackBotMessage]);

@@ -20,6 +20,7 @@ import {
 import { UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { FloatingInput } from './FloatingInput';
+import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 
 interface SurplusSimulatorViewProps {
   profile: UserProfile;
@@ -99,20 +100,14 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
   };
 
   const getLocalSimulatorFallback = (q: string): string => {
-    const lower = q.toLowerCase();
-    if (lower.includes('overtime') || lower.includes('extra') || lower.includes('500') || lower.includes('raise')) {
-      return "If you earn $500 in overtime, your net surplus basis increases by $500. Under statutory BIA rules, 50% ($250.00) is paid to the trustee estate, and the remaining 50% ($250.00) stays in your pocket! You are NEVER penalized for earning more money—you always take home more cash.";
-    }
-    if (lower.includes('car') || lower.includes('vehicle') || lower.includes('transportation')) {
-      return "Reasonable transportation expenses required for employment (gas, maintenance, mandatory vehicle insurance, or transit passes) are allowable Form 65 expenses. Note that normal gas/insurance don't reduce your statutory surplus payment directly because they're already baked into the government's flat household living allowance.";
-    }
-    if (lower.includes('medical') || lower.includes('prescription') || lower.includes('cannabis')) {
-      return "Ongoing, documented **Medical Condition Expenses** (like regular prescriptions or doctor-authorized therapy not covered by insurance) go under **Non-Discretionary Deductions** and lower your surplus payment dollar-for-dollar when you attach proof. Routine one-off drugstore items go under **Non-Recoverable Medical: Prescriptions**.";
-    }
-    if (lower.includes('spouse') || lower.includes('partner') || lower.includes('wife') || lower.includes('husband')) {
-      return "Your spouse's income is used only to determine the household's proportional share of the OSB threshold under BIA Directive 11R2. Your spouse is never personally liable for your individual bankruptcy debt.";
-    }
-    return `With a household of ${householdSize}, your government living allowance (OSB threshold) is ${formatCurrency(activeThreshold)}/month. Only Family Income (Net) and Non-Discretionary Expenses directly change your surplus payment calculation—keep receipts in your Receipts vault for ${profile.litName || 'Sarah Jenkins, LIT'}.`;
+    return getFallbackLitBotResponse(q, {
+      firstName: profile.firstName,
+      province: profile.province,
+      householdSize,
+      litName: profile.litName,
+      surplusPayment: Math.round(newCalculatedSurplus),
+      activeThreshold
+    }).text;
   };
 
   const handleAskQuestion = async (questionText?: string) => {
