@@ -109,7 +109,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
   };
 
   return (
-    <div className="bg-[#0f0c1b] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
+    <div className="bg-[#0f0c1b] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 shadow-[5px_6px_0px_#000000] relative overflow-hidden">
       {/* Decorative subtle ambient glow */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-[#9da2ea]/5 rounded-full blur-3xl pointer-events-none" />
 

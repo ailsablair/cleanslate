@@ -119,51 +119,54 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const selectedLitObj = lits.find(l => l.id === formData.litId);
 
   return (
-    <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
+    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
       <form onSubmit={handleSubmit}>
-        {/* Main Profile Card (Off-white / cream `#fbf9f5`) matching screenshot */}
-        <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-10 shadow-sm space-y-8">
+        {/* Main Profile Card */}
+        <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-8">
           
           {/* Header & Avatar Area */}
           <div>
-            <h2 className="text-base font-extrabold tracking-wider uppercase text-slate-900 mb-6">
-              USER PROFILE
-            </h2>
+            <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-[#8c93fc]/25">
+              <UserCircle2 className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <h2 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
+                USER PROFILE
+              </h2>
+            </div>
 
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-300 bg-slate-200 flex items-center justify-center shadow-xs">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-[1.5px] border-[#101010] bg-white flex items-center justify-center shadow-[2px_3px_0px_#a5a7fb]">
                   {formData.avatarUrl ? (
-                    <img 
-                      src={formData.avatarUrl} 
-                      alt="User avatar" 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={formData.avatarUrl}
+                      alt="User avatar"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UserCircle2 className="w-16 h-16 text-slate-400" />
+                    <UserCircle2 className="w-16 h-16 text-[#6e6b7b]" />
                   )}
                 </div>
-                <label 
+                <label
                   htmlFor="avatar-upload"
-                  className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full border border-slate-300 flex items-center justify-center cursor-pointer hover:bg-slate-100 transition shadow-xs text-slate-700"
+                  className="absolute bottom-0 right-0 w-7 h-7 bg-[#F9F45D] rounded-full border border-[#101010] flex items-center justify-center cursor-pointer hover:brightness-105 transition shadow-xs text-[#101010]"
                   title="Change Avatar"
                 >
                   <Pencil className="w-3.5 h-3.5" />
-                  <input 
-                    id="avatar-upload" 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
                     onChange={handleAvatarChange}
                   />
                 </label>
               </div>
 
               <div>
-                <div className="text-lg font-bold text-slate-900">
+                <div className="text-lg font-extrabold text-[#101010]">
                   {formData.firstName} {formData.lastName}
                 </div>
-                <div className="text-xs text-slate-500 font-normal">
+                <div className="text-xs text-[#6e6b7b] font-medium tabular-nums">
                   Estate File Ref: CS-2022-BC-9104 · Canadian Personal Bankruptcy
                 </div>
               </div>
@@ -171,8 +174,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           {/* SECTION 1: CONTACT INFORMATION */}
-          <div className="space-y-4">
-            <div className="text-xs font-extrabold tracking-wider uppercase text-slate-900">
+          <div className="space-y-4 pt-2 border-t border-[#8c93fc]/25">
+            <div className="text-xs font-extrabold tracking-wide uppercase text-[#101010]">
               CONTACT INFORMATION
             </div>
 
@@ -236,8 +239,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           {/* SECTION 2: EMPLOYMENT INFORMATION */}
-          <div className="space-y-4">
-            <div className="text-xs font-extrabold tracking-wider uppercase text-slate-900">
+          <div className="space-y-4 pt-4 border-t border-[#8c93fc]/25">
+            <div className="text-xs font-extrabold tracking-wide uppercase text-[#101010]">
               EMPLOYMENT INFORMATION
             </div>
 
@@ -331,68 +334,65 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           {/* SECTION 3: LICENSED INSOLVENCY TRUSTEE (LIT) DATABASE INTEGRATION */}
-          {/* Specifically required by user prompt */}
-          <div className="space-y-4 pt-4 border-t border-slate-200/80">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4 pt-4 border-t border-[#8c93fc]/25">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <div className="text-xs font-extrabold tracking-wider uppercase text-slate-900 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <div className="text-xs font-extrabold tracking-wide uppercase text-[#101010] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#8c93fc]" />
                   LICENSED INSOLVENCY TRUSTEE (LIT) ASSIGNMENT
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[#4b4856] mt-0.5">
                   Search and select the Licensed Insolvency Trustee overseeing your statutory bankruptcy estate.
                 </p>
               </div>
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest hidden sm:inline">
-                Connected to LIT Registry Database
+              <span className="text-[11px] font-bold text-[#6e6b7b] uppercase tracking-widest hidden sm:inline">
+                Connected to LIT Registry
               </span>
             </div>
 
             {/* Currently Selected LIT Card */}
             {selectedLitObj && (
-              <div className="bg-white border-2 border-[#b4b1fc] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-white border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-black text-slate-900">{selectedLitObj.name}</span>
-                    <span className="status-tag-compact bg-emerald-100 text-emerald-800">
-                      Active trustee
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-extrabold text-[#101010]">{selectedLitObj.name}</span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[10px] font-bold border border-[#101010]/15">
+                      Active Trustee
                     </span>
                   </div>
-                  <div className="text-xs font-normal text-slate-700 flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-normal">{selectedLitObj.firm}</span>
+                  <div className="text-xs font-medium text-[#4b4856] flex items-center gap-1.5">
+                    <Building className="w-3.5 h-3.5 text-[#8c93fc]" />
+                    <span>{selectedLitObj.firm}</span>
                     <span className="text-slate-300">·</span>
-                    <span className="font-mono text-slate-500 text-[11px]">{selectedLitObj.licenseNumber}</span>
+                    <span className="font-mono text-[#6e6b7b] text-[11px]">{selectedLitObj.licenseNumber}</span>
                   </div>
-                  <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
+                  <div className="text-xs text-[#6e6b7b] flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                     <span className="flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
-                      <a 
-                        href={getMailtoUrl(selectedLitObj.email)} 
-                        className="font-normal underline hover:opacity-80 transition" 
-                        style={{ color: '#FF6BBC' }}
+                      <Mail className="w-3.5 h-3.5 text-[#8c93fc]" />
+                      <a
+                        href={getMailtoUrl(selectedLitObj.email)}
+                        className="font-semibold text-[#101010] underline hover:text-[#6366f1] transition"
                         title="Send email to LIT"
                       >
                         {selectedLitObj.email}
                       </a>
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="flex items-center gap-1 tabular-nums">
+                      <Phone className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>{selectedLitObj.phone}</span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                      <MapPin className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>{selectedLitObj.city}, {selectedLitObj.province}</span>
                     </span>
                   </div>
                 </div>
 
-                <div className="shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-3 text-center sm:text-right text-[11px] text-slate-600">
-                  <span className="block text-slate-400 text-[10px] uppercase font-bold">Auto-Dispatch Target</span>
-                  <a 
-                    href={getMailtoUrl(selectedLitObj.email)} 
-                    className="font-normal underline hover:opacity-80 transition" 
-                    style={{ color: '#FF6BBC' }}
+                <div className="shrink-0 bg-[#fbf9f5] border border-[#d8d9f8] rounded-xl p-3 text-center sm:text-right text-[11px] text-[#4b4856]">
+                  <span className="block text-[#6e6b7b] text-[10px] uppercase font-bold">Auto-Dispatch Target</span>
+                  <a
+                    href={getMailtoUrl(selectedLitObj.email)}
+                    className="font-semibold text-[#101010] underline hover:text-[#6366f1] transition"
                     title="Send email to Auto-Dispatch Target"
                   >
                     {selectedLitObj.email}
@@ -403,37 +403,37 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
             {/* Searchable Predefined Dropdown connected to database */}
             <div className="relative" ref={dropdownRef}>
-              <div 
-                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 min-h-[44px] text-xs flex items-center justify-between cursor-pointer hover:border-slate-400 transition"
+              <div
+                className="w-full bg-white border border-[#767676] rounded-xl px-4 py-3.5 min-h-[44px] text-xs flex items-center justify-between cursor-pointer hover:border-[#101010] shadow-[2px_3px_0px_#a5a7fb] transition"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <div className="flex items-center gap-2.5 text-slate-700 truncate">
-                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="font-normal italic truncate" style={{ color: '#9a9797' }}>
+                <div className="flex items-center gap-2.5 text-[#101010] truncate">
+                  <Search className="w-4 h-4 text-[#8c93fc] shrink-0" />
+                  <span className="font-medium truncate text-[#4b4856]">
                     {formData.litName ? `Change LIT: ${formData.litName} (${formData.litFirm})` : 'Search & select Licensed Insolvency Trustee from database...'}
                   </span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-[#4b4856] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
 
               {isDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 p-3 space-y-2.5 animate-in fade-in duration-150">
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white border-[1.5px] border-[#101010] rounded-2xl shadow-[5px_6px_0px_#000000] z-30 p-3 space-y-2.5 animate-in fade-in duration-150">
                   <div className="relative">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+                    <Search className="w-4 h-4 text-[#6e6b7b] absolute left-3 top-3.5" />
                     <input
                       type="text"
                       placeholder="Type trustee name, firm (e.g. BDO, MNP, Sands), city, or license #..."
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       onClick={e => e.stopPropagation()}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 min-h-[44px] text-xs text-[#101010] font-light placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
+                      className="w-full bg-[#fbf9f5] border border-[#d8d9f8] rounded-xl pl-9 pr-4 py-3 min-h-[44px] text-xs text-[#101010] placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#a5a7fb]"
                       autoFocus
                     />
                   </div>
 
                   {/* Province Quick Filter Pills */}
-                  <div className="flex flex-wrap items-center gap-1 text-[11px] font-semibold text-slate-600 pb-1 border-b border-slate-100">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase mr-1">Province:</span>
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-[#4b4856] pb-2 border-b border-[#d8d9f8]/70">
+                    <span className="text-[10px] text-[#6e6b7b] font-bold uppercase mr-1">Province:</span>
                     {['All', 'British Columbia', 'Alberta', 'Ontario', 'Quebec', 'Manitoba', 'Saskatchewan', 'Nova Scotia'].map((prov) => (
                       <button
                         key={prov}
@@ -442,10 +442,10 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                           e.stopPropagation();
                           setProvinceFilter(prov);
                         }}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] transition ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] transition cursor-pointer ${
                           provinceFilter === prov
-                            ? 'bg-[#1d1a27] text-white font-bold'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            ? 'bg-[#2d2a37] text-white font-bold border border-[#101010]'
+                            : 'bg-[#e9e8ec] hover:bg-[#dfdde4] text-[#101010]'
                         }`}
                       >
                         {prov === 'British Columbia' ? 'BC' : prov === 'Alberta' ? 'AB' : prov === 'Ontario' ? 'ON' : prov === 'Quebec' ? 'QC' : prov === 'Manitoba' ? 'MB' : prov === 'Saskatchewan' ? 'SK' : prov === 'Nova Scotia' ? 'NS' : 'All Canada'}
@@ -463,36 +463,33 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                             onClick={() => handleSelectLIT(lit)}
                             className={`p-3 rounded-xl transition cursor-pointer text-xs flex items-start justify-between gap-3 ${
                               isSelected
-                                ? 'bg-[#b4b1fc]/20 border border-[#b4b1fc]'
-                                : 'hover:bg-slate-50 border border-transparent'
+                                ? 'bg-[#f7f4eb] border border-[#101010]'
+                                : 'hover:bg-[#fbf9f5] border border-transparent'
                             }`}
                           >
                             <div className="space-y-0.5 min-w-0">
-                              <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
+                              <div className="font-extrabold text-[#101010] flex items-center gap-1.5">
                                 <span>{lit.name}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-700" />}
                               </div>
-                              <div className="text-slate-600 font-semibold">{lit.firm}</div>
-                              <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                              <div className="text-[#4b4856] font-semibold">{lit.firm}</div>
+                              <div className="text-[11px] text-[#6e6b7b] flex items-center gap-2 flex-wrap">
                                 <span>{lit.city}, {lit.province}</span>
                                 <span>·</span>
                                 <span className="font-mono">{lit.licenseNumber}</span>
                                 <span>·</span>
-                                <span className="text-slate-600">{lit.email}</span>
+                                <span className="text-[#4b4856]">{lit.email}</span>
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              className="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800"
-                            >
-                              Select
-                            </button>
+                            <span className="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white border border-[#101010] text-[#101010]">
+                              {isSelected ? 'Active' : 'Select'}
+                            </span>
                           </div>
                         );
                       })
                     ) : (
-                      <div className="p-4 text-center text-xs text-slate-400">
-                        No Licensed Insolvency Trustees found matching "{searchQuery}" in {provinceFilter}.
+                      <div className="p-4 text-center text-xs text-[#6e6b7b]">
+                        No Licensed Insolvency Trustees found matching &ldquo;{searchQuery}&rdquo; in {provinceFilter}.
                       </div>
                     )}
                   </div>
@@ -502,48 +499,52 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           {/* Explicit Opt-In Toggle for LIT Historical Data Transmission */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-700 space-y-2.5">
+          <div className="bg-white border border-[#d8d9f8] rounded-2xl p-4 text-xs text-[#4b4856] space-y-2.5">
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="sendHistoryCheckbox"
                 checked={sendHistoryToLIT}
                 onChange={e => setSendHistoryToLIT(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-[#1d1a27] focus:ring-[#b4b1fc] cursor-pointer"
+                className="w-4 h-4 mt-0.5 rounded border-[#767676] text-[#101010] focus:ring-[#a5a7fb] cursor-pointer accent-[#46e3a5]"
               />
               <label htmlFor="sendHistoryCheckbox" className="cursor-pointer space-y-1 select-none">
-                <div className="font-bold text-slate-900 text-xs">
+                <div className="font-bold text-[#101010] text-xs">
                   Transmit past bankruptcy filing reports and document history to newly assigned LIT upon saving
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Defaulting to sending all history may result in spamming trustees during exploration. Keep this unchecked unless you are officially transferring your active bankruptcy estate to <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition" style={{ color: '#FF6BBC' }} title="Send email to trustee">{formData.litEmail || 'the selected trustee'}</a>.
+                <p className="text-[11px] text-[#6e6b7b] leading-relaxed">
+                  Defaulting to sending all history may result in spamming trustees during exploration. Keep this unchecked unless you are officially transferring your active bankruptcy estate to{' '}
+                  <a href={getMailtoUrl(formData.litEmail)} className="underline font-semibold text-[#101010] hover:text-[#6366f1] transition" title="Send email to trustee">
+                    {formData.litEmail || 'the selected trustee'}
+                  </a>.
                 </p>
               </label>
             </div>
 
             {sendHistoryToLIT && (
-              <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 font-medium flex items-center gap-2">
-                <Mail className="w-4 h-4 text-amber-700 shrink-0" />
+              <div className="p-2.5 bg-[#fbf050]/30 border border-[#101010]/20 rounded-xl text-[11px] text-[#101010] font-medium flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#101010] shrink-0" />
                 <span>
-                  <strong>Transmission target:</strong> <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition">{formData.litEmail}</a> will receive full estate history upon clicking Save.
+                  <strong>Transmission target:</strong>{' '}
+                  <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition">{formData.litEmail}</a> will receive full estate history upon clicking Save.
                 </span>
               </div>
             )}
 
             {saveSuccess && (
-              <span className="inline-flex bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-xl text-xs items-center gap-1.5 animate-in fade-in">
+              <span className="inline-flex bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 font-bold px-3 py-1 rounded-xl text-xs items-center gap-1.5 animate-in fade-in">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Profile saved {sendHistoryToLIT ? `and data dispatched to ${formData.litEmail}` : 'without sending historical reports to LIT.'}
               </span>
             )}
           </div>
 
-          {/* Action Buttons matching screenshot: Cancel (border) and Save (yellow) */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          {/* Action Buttons: Cancel (white outline shadow) and Save (yellow hard shadow) */}
+          <div className="flex items-center justify-between pt-4 border-t border-[#8c93fc]/25">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 rounded-2xl border border-slate-800 hover:bg-slate-100 text-slate-900 text-xs font-black transition flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -552,19 +553,10 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              style={{
-                background: 'var(--colour-dark-highlight, #F9F45D)',
-                boxShadow: '4px 6px 0px black',
-                borderRadius: 8,
-                color: 'var(--colour-dark-accent, #3E4A4F)',
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '13.34px',
-                fontWeight: '700',
-              }}
-              className="px-8 py-2.5 transition-all flex items-center gap-2 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
+              className="px-8 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-70 whitespace-nowrap"
             >
-              <Save className={`w-4 h-4 stroke-[2.5] ${isSaving ? 'animate-spin' : ''}`} style={{ color: '#3E4A4F' }} />
-              <span style={{ fontWeight: '700' }}>{isSaving ? 'Dispatching to LIT...' : 'Save'}</span>
+              <Save className={`w-4 h-4 stroke-[2.5] ${isSaving ? 'animate-spin' : ''}`} />
+              <span>{isSaving ? 'Dispatching to LIT...' : 'Save'}</span>
             </button>
           </div>
         </div>

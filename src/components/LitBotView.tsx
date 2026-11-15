@@ -197,14 +197,14 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
     return lines.map((line, idx) => {
       if (line.startsWith('### ')) {
         return (
-          <h4 key={idx} className="text-base font-bold text-white mt-3 mb-1 tracking-wide">
+          <h4 key={idx} className="text-sm sm:text-base font-extrabold text-[#101010] mt-3 mb-1 tracking-wide">
             {line.replace('### ', '')}
           </h4>
         );
       }
       if (line.startsWith('## ')) {
         return (
-          <h3 key={idx} className="text-lg font-extrabold text-[#fbf050] mt-4 mb-2 tracking-wide">
+          <h3 key={idx} className="text-base sm:text-lg font-extrabold text-[#101010] mt-4 mb-2 tracking-wide">
             {line.replace('## ', '')}
           </h3>
         );
@@ -214,14 +214,14 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
       const parts = line.split(/(\*\*[^*]+\*\*)/g);
       const formattedLine = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={pIdx} className="font-bold text-[#b6b3ff]">{part.slice(2, -2)}</strong>;
+          return <strong key={pIdx} className="font-bold text-[#101010]">{part.slice(2, -2)}</strong>;
         }
         return part;
       });
 
       if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
         return (
-          <li key={idx} className="ml-4 list-disc text-slate-200 text-xs sm:text-sm leading-relaxed my-0.5">
+          <li key={idx} className="ml-4 list-disc text-[#4b4856] text-xs sm:text-sm leading-relaxed my-0.5">
             {formattedLine}
           </li>
         );
@@ -229,7 +229,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
 
       if (/^\d+\.\s/.test(line.trim())) {
         return (
-          <div key={idx} className="ml-2 font-medium text-slate-200 text-xs sm:text-sm leading-relaxed my-1">
+          <div key={idx} className="ml-2 font-medium text-[#101010] text-xs sm:text-sm leading-relaxed my-1">
             {formattedLine}
           </div>
         );
@@ -240,7 +240,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
       }
 
       return (
-        <p key={idx} className="text-xs sm:text-sm text-slate-200 leading-relaxed my-1">
+        <p key={idx} className="text-xs sm:text-sm text-[#4b4856] leading-relaxed my-1">
           {formattedLine}
         </p>
       );
@@ -248,24 +248,24 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
   };
 
   return (
-    <div className="px-4 sm:px-8 py-4 max-w-[1440px] mx-auto min-h-[calc(100vh-2rem)] flex flex-col space-y-4">
+    <div className="px-4 sm:px-8 py-4 max-w-[1440px] mx-auto min-h-[calc(100vh-2rem)] flex flex-col space-y-6">
       {/* 1. Header Banner */}
-      <div className="bg-[#1d1a27] text-white rounded-3xl p-6 shadow-sm border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#b6b3ff] text-[#1d1a27] flex items-center justify-center font-bold shrink-0 shadow-sm">
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-[#b6b3ff] border border-[#101010] text-[#101010] flex items-center justify-center font-bold shrink-0">
             <Bot className="w-6 h-6 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
+              <h1 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
                 LITbot AI Trustee Assistant
               </h1>
-              <span className="status-tag-compact bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="status-tag-compact bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#102a1f] animate-pulse" />
                 100% BIA Statutory Engine
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+            <p className="text-xs text-[#4b4856] mt-1 leading-relaxed">
               Ask questions about Canadian bankruptcy law, OSB Directive 11R2 surplus calculations, or upload documents for instant analysis.
             </p>
           </div>
@@ -276,7 +276,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
           <button
             type="button"
             onClick={handleClearHistory}
-            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-white/10"
+            className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             title="Clear current chat log"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -286,7 +286,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
           <button
             type="button"
             onClick={onNavigateToReports}
-            className="px-4 py-2 rounded-xl bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
             <FileCheck className="w-3.5 h-3.5" />
             <span>Form 65 Wizard</span>
@@ -295,12 +295,12 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
       </div>
 
       {/* 2. Main Chat Area Container */}
-      <div className="flex-1 bg-[#242031] text-white rounded-3xl border border-white/10 p-4 sm:p-6 flex flex-col justify-between shadow-sm min-h-[560px]">
+      <div className="flex-1 bg-[#fbf9f5] text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] p-5 sm:p-6 flex flex-col justify-between min-h-[560px]">
         
         {/* Quick Statutory Prompt Chips */}
-        <div className="pb-4 border-b border-white/10 flex items-center gap-2 overflow-x-auto select-none">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#b6b3ff] shrink-0 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#fbf050]" />
+        <div className="pb-4 border-b border-[#8c93fc]/25 flex items-center gap-2 overflow-x-auto select-none">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6e6b7b] shrink-0 flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-[#8c93fc]" />
             Suggested:
           </span>
           {[
@@ -314,7 +314,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
               type="button"
               onClick={() => handleQuickPrompt(promptText)}
               disabled={isSending}
-              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-200 hover:text-white text-xs whitespace-nowrap transition border border-white/10 cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
+              className="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-[#101010] text-xs font-medium whitespace-nowrap transition border border-[#d8d9f8] hover:border-[#101010] cursor-pointer shrink-0 disabled:opacity-50"
             >
               {promptText}
             </button>
@@ -333,12 +333,12 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
               >
                 {/* Avatar Icon */}
                 <div
-                  className={`w-9 h-9 rounded-2xl flex items-center justify-center font-bold shrink-0 shadow-xs ${
-                    isUser ? 'bg-[#b6b3ff] text-[#1d1a27]' : 'bg-[#fbf050] text-[#1d1a27]'
+                  className={`w-9 h-9 rounded-2xl border border-[#101010] flex items-center justify-center font-bold shrink-0 shadow-[2px_2px_0px_#000000] ${
+                    isUser ? 'bg-[#b6b3ff] text-[#101010]' : 'bg-[#F9F45D] text-[#101010]'
                   }`}
                 >
                   {isUser ? (
-                    <span className="text-xs font-black">{profile.firstName ? profile.firstName[0] : 'U'}</span>
+                    <span className="text-xs font-extrabold">{profile.firstName ? profile.firstName[0] : 'U'}</span>
                   ) : (
                     <Bot className="w-5 h-5 stroke-[2.3]" />
                   )}
@@ -346,16 +346,18 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
 
                 {/* Message Bubble Container */}
                 <div
-                  className={`rounded-3xl p-5 shadow-sm space-y-3 ${
+                  className={`rounded-3xl p-5 space-y-3 ${
                     isUser
-                      ? 'bg-[#b6b3ff] text-[#1d1a27] rounded-tr-xs'
-                      : 'bg-[#1b1726] text-white border border-white/10 rounded-tl-xs'
+                      ? 'bg-[#2d2a37] text-white border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] rounded-tr-xs'
+                      : 'bg-white text-[#101010] border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-tl-xs'
                   }`}
                 >
                   {/* Sender Header */}
-                  <div className="flex items-center justify-between gap-4 text-[10px] font-bold tracking-wider uppercase opacity-75 border-b border-current/10 pb-1.5">
+                  <div className={`flex items-center justify-between gap-4 text-[10px] font-bold tracking-wider uppercase pb-1.5 border-b ${
+                    isUser ? 'border-white/15 text-slate-300' : 'border-[#d8d9f8]/70 text-[#6e6b7b]'
+                  }`}>
                     <span>{isUser ? `${profile.firstName || 'You'} (Debtor)` : 'LITbot Statutory Engine'}</span>
-                    <span>{msg.timestamp}</span>
+                    <span className="tabular-nums">{msg.timestamp}</span>
                   </div>
 
                   {/* Attachment Previews in User Bubble */}
@@ -364,12 +366,12 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
                       {msg.attachments.map((att) => (
                         <div
                           key={att.id}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-black/10 border border-current/15 text-xs font-semibold"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-white/10 border border-white/20 text-xs font-semibold text-white"
                         >
                           {att.fileType === 'image' ? (
-                            <ImageIcon className="w-4 h-4 shrink-0 text-[#1d1a27]" />
+                            <ImageIcon className="w-4 h-4 shrink-0 text-[#F9F45D]" />
                           ) : (
-                            <FileText className="w-4 h-4 shrink-0 text-[#1d1a27]" />
+                            <FileText className="w-4 h-4 shrink-0 text-[#b6b3ff]" />
                           )}
                           <span className="truncate max-w-[150px]">{att.fileName}</span>
                         </div>
@@ -380,7 +382,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
                   {/* Text Content */}
                   <div className="space-y-1">
                     {isUser ? (
-                      <p className="text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-wrap">
+                      <p className="text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-wrap text-white">
                         {msg.text}
                       </p>
                     ) : (
@@ -390,9 +392,9 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
 
                   {/* Statutory Trust Disclaimer for Bot Messages */}
                   {!isUser && (
-                    <div className="pt-2 border-t border-white/5 flex items-center gap-2 text-[10.5px] text-slate-400">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Transmitted under Canadian BIA & OSB Trustee Audit Standards</span>
+                    <div className="pt-2 border-t border-[#d8d9f8]/70 flex items-center gap-2 text-[10.5px] text-[#6e6b7b]">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span>Transmitted under Canadian BIA &amp; OSB Trustee Audit Standards</span>
                     </div>
                   )}
                 </div>
@@ -403,12 +405,12 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
           {/* Typing Indicator when streaming / loading */}
           {isSending && (
             <div className="flex gap-3 max-w-xl mr-auto animate-in fade-in">
-              <div className="w-9 h-9 rounded-2xl bg-[#fbf050] text-[#1d1a27] flex items-center justify-center font-bold shrink-0">
+              <div className="w-9 h-9 rounded-2xl bg-[#F9F45D] border border-[#101010] text-[#101010] flex items-center justify-center font-bold shrink-0">
                 <Bot className="w-5 h-5 animate-spin" />
               </div>
-              <div className="bg-[#1b1726] text-white border border-white/10 rounded-3xl rounded-tl-xs p-4 shadow-sm flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-[#fbf050] animate-pulse" />
-                <span className="text-xs font-medium text-slate-300">
+              <div className="bg-white text-[#101010] border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-3xl rounded-tl-xs p-4 flex items-center gap-3">
+                <Sparkles className="w-4 h-4 text-[#8c93fc] animate-pulse" />
+                <span className="text-xs font-semibold text-[#4b4856]">
                   LITbot is evaluating BIA statutory directives and analyzing documents...
                 </span>
               </div>
@@ -421,22 +423,22 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
         {/* Upload File Attachment Bar */}
         {attachments.length > 0 && (
           <div className="pt-3 px-2 flex items-center gap-2 overflow-x-auto">
-            <span className="text-xs font-bold text-[#b6b3ff] shrink-0">Attached:</span>
+            <span className="text-xs font-bold text-[#101010] shrink-0">Attached:</span>
             {attachments.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 text-white text-xs border border-white/15 shrink-0"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white text-[#101010] text-xs border border-[#101010] shrink-0"
               >
                 {att.fileType === 'image' ? (
-                  <ImageIcon className="w-3.5 h-3.5 text-[#fbf050]" />
+                  <ImageIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                 ) : (
-                  <FileText className="w-3.5 h-3.5 text-[#b6b3ff]" />
+                  <FileText className="w-3.5 h-3.5 text-[#8c93fc]" />
                 )}
                 <span className="truncate max-w-[140px] font-mono text-[11px]">{att.fileName}</span>
                 <button
                   type="button"
                   onClick={() => removeAttachment(att.id)}
-                  className="hover:text-rose-400 p-0.5 cursor-pointer"
+                  className="hover:text-rose-600 p-0.5 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -446,7 +448,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
         )}
 
         {/* Input & Send Form Bar */}
-        <div className="pt-4 border-t border-white/10">
+        <div className="pt-4 border-t border-[#8c93fc]/25">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -468,10 +470,10 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-2xl bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition border border-white/10 shrink-0 cursor-pointer active:scale-95"
+              className="p-3 rounded-xl bg-white hover:bg-slate-50 text-[#101010] transition-all border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] shrink-0 cursor-pointer"
               title="Attach document, receipt, paystub, or image for LITbot analysis"
             >
-              <Paperclip className="w-5 h-5 text-[#b6b3ff]" />
+              <Paperclip className="w-5 h-5 text-[#101010]" />
             </button>
 
             {/* Text Input Box */}
@@ -482,11 +484,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Ask LITbot a question about Canadian bankruptcy, Form 65, or upload paystubs/statements..."
                 disabled={isSending}
-                style={{
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontWeight: 300
-                }}
-                className="w-full bg-[#171322] border border-white/15 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#b6b3ff] focus:border-transparent transition"
+                className="w-full bg-white border-[1.5px] border-[#101010] rounded-xl px-4 py-3 text-sm text-[#101010] placeholder:text-[#767676] placeholder:italic focus:placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-[#a5a7fb] transition"
               />
             </div>
 
@@ -494,7 +492,7 @@ I am programmed with **100% accurate statutory rules** under the Canadian *Bankr
             <button
               type="submit"
               disabled={isSending || (!inputText.trim() && attachments.length === 0)}
-              className="px-5 py-3.5 rounded-2xl bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed shrink-0 active:scale-95"
+              className="px-5 py-3 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 whitespace-nowrap"
             >
               <Send className="w-4 h-4 stroke-[2.5]" />
               <span className="hidden sm:inline font-bold">Ask LITbot</span>

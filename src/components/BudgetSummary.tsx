@@ -149,34 +149,37 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   });
 
   return (
-    <div className="bg-white text-[#242031] rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 space-y-6 overflow-hidden">
-      
-      {/* 1. Header Bar matching updated design */}
+    <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-5 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-6 overflow-hidden">
+
+      {/* 1. Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-base sm:text-lg font-bold tracking-wider text-slate-900 uppercase">
-            BANKRUPTCY STATUS
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal leading-relaxed max-w-xl">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-[#8c93fc] shrink-0" />
+            <h2 className="text-sm sm:text-base font-extrabold tracking-wide text-[#101010] uppercase">
+              BANKRUPTCY STATUS
+            </h2>
+          </div>
+          <p className="text-xs text-[#4b4856] font-normal leading-relaxed max-w-xl">
             Real-time visual breakdown of statutory income allocation, monthly surplus contributions, and discharge process.
           </p>
         </div>
 
         {/* Top Right Mint Badge */}
         <div className="shrink-0 self-start sm:self-auto">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#38efb0] text-[#1d1a27] text-xs font-bold shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#1d1a27]" />
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#46e3a5] text-[#102a1f] border border-[#101010] text-xs font-bold">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#102a1f]" />
             <span>BIA Form 65</span>
           </span>
         </div>
       </div>
 
       {/* Hairline Divider Line */}
-      <div className="h-[1px] w-full bg-slate-100" />
+      <div className="h-[1px] w-full bg-[#8c93fc]/25" />
 
       {/* 2. Middle Row: Donut Chart (Left) + 6 Allocation Cards (Right) */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 items-center">
-        
+
         {/* Left Column: Donut Chart with Embedded Slice Amounts & Center Metric */}
         <div className="xl:col-span-5 flex flex-col items-center justify-center min-w-0">
           <div className="w-full max-w-[240px] sm:max-w-[270px] aspect-square relative flex items-center justify-center select-none mx-auto">
@@ -186,7 +189,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             >
               {arcData.map((arc) => {
                 const isHovered = activeSegmentId === arc.id;
-                // Item 3: Omit text on narrow slices (<=8% like $130) to prevent overflow
                 const showDirectLabel = arc.percentage > 8;
 
                 return (
@@ -205,7 +207,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                         isHovered ? 'filter brightness-110 drop-shadow-md' : ''
                       }`}
                     />
-                    {/* Dollar amount directly inside the donut segment only when wide enough */}
                     {showDirectLabel && (
                       <text
                         x={arc.labelX}
@@ -235,14 +236,14 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 if (!seg) return null;
                 return (
                   <div className="animate-in fade-in zoom-in-95 duration-150 max-w-[120px]">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-0.5 truncate">
+                    <span className="text-[10px] font-bold text-[#6e6b7b] uppercase tracking-wider block mb-0.5 truncate">
                       {seg.shortName}
                     </span>
-                    <span className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
+                    <span className="text-base sm:text-xl font-extrabold text-[#101010] tracking-tight tabular-nums whitespace-nowrap block">
                       ${seg.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span 
-                      className="inline-flex items-center text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 shadow-2xs"
+                    <span
+                      className="inline-flex items-center text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full mt-1"
                       style={{ backgroundColor: seg.color, color: seg.textColor }}
                     >
                       {seg.percentage}% Allocation
@@ -251,13 +252,13 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 );
               })() : (
                 <div className="max-w-[130px]">
-                  <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 tracking-wide mb-0.5 block">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-[#6e6b7b] tracking-wide mb-0.5 block">
                     Monthly Income
                   </span>
-                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap block">
+                  <span className="text-xl sm:text-2xl font-extrabold text-[#101010] tracking-tight tabular-nums whitespace-nowrap block">
                     $6,680.00
                   </span>
-                  <span className="inline-flex items-center text-[9px] sm:text-[10px] font-semibold text-emerald-300 bg-[#254942] px-2.5 py-0.5 rounded-full mt-1 shadow-2xs">
+                  <span className="inline-flex items-center text-[9px] sm:text-[10px] font-bold text-[#102a1f] bg-[#46e3a5] px-2.5 py-0.5 rounded-full mt-1">
                     On Track
                   </span>
                 </div>
@@ -278,27 +279,27 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   onMouseLeave={() => setActiveSegmentId(null)}
                   className={`p-3 sm:p-3.5 rounded-2xl border transition cursor-pointer select-none min-w-0 ${
                     isHovered
-                      ? 'bg-white border-slate-400 shadow-xs ring-1 ring-slate-300'
-                      : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-2xs'
+                      ? 'bg-white border-[#101010] shadow-[2px_3px_0px_#a5a7fb]'
+                      : 'bg-white border-[#d8d9f8] hover:border-[#8c93fc]'
                   }`}
                 >
                   {/* Top Row: Color Dot + Title */}
                   <div className="flex items-center gap-2 mb-1 min-w-0">
                     <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      className="w-2.5 h-2.5 rounded-full shrink-0 border border-[#101010]/20"
                       style={{ backgroundColor: slice.color }}
                     />
-                    <span className="text-xs font-bold text-slate-900 truncate" title={slice.name}>
+                    <span className="text-xs font-bold text-[#101010] truncate" title={slice.name}>
                       {slice.shortName}
                     </span>
                   </div>
 
                   {/* Bottom Row: Amount + Percentage */}
                   <div className="flex items-baseline justify-between text-xs pt-0.5 gap-1.5 min-w-0">
-                    <span className="text-xs sm:text-sm font-semibold text-slate-900 tracking-tight whitespace-nowrap">
+                    <span className="text-xs sm:text-sm font-bold text-[#101010] tracking-tight tabular-nums whitespace-nowrap">
                       ${slice.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span className="text-[11px] font-medium text-slate-400 whitespace-nowrap">
+                    <span className="text-[11px] font-mono text-[#6e6b7b] tabular-nums whitespace-nowrap">
                       {slice.percentage}%
                     </span>
                   </div>
@@ -307,23 +308,22 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             })}
           </div>
 
-          {/* Subtitle guidance below cards */}
-          <p className="text-[11px] sm:text-xs text-slate-400 text-center font-normal pt-1 truncate">
+          <p className="text-[11px] sm:text-xs text-[#6e6b7b] text-center font-normal pt-1 truncate">
             Hover or tap any slice to inspect category allocation and details
           </p>
         </div>
       </div>
 
       {/* 3. Bottom Row: FULL-WIDTH DARK DISCHARGE REPAYMENTS PROGRESS CARD */}
-      <div className="bg-[#2d293d] rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white space-y-4 shadow-sm">
-        
+      <div className="bg-[#1d1a27] rounded-2xl p-6 sm:p-7 text-white border-[1.5px] border-[#101010] space-y-4">
+
         {/* Top Header of Dark Card */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-200 pt-0.5">
+          <div className="text-xs font-bold uppercase tracking-wider text-[#b6b3ff] pt-0.5">
             DISCHARGE REPAYMENTS PROGRESS
           </div>
           <div className="text-left sm:text-right">
-            <span className="text-sm font-bold text-[#fbf050] tracking-wide block">
+            <span className="text-sm font-bold text-[#F9F45D] tracking-wide block tabular-nums">
               43% COMPLETE
             </span>
             <span className="text-xs text-slate-400 font-normal">
@@ -333,7 +333,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
         </div>
 
         {/* Big Metric Display: $1,431.00 of $3,339.00 */}
-        <div className="flex items-baseline gap-2 flex-wrap">
+        <div className="flex items-baseline gap-2 flex-wrap tabular-nums">
           <span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
             $1,431.00
           </span>
@@ -345,7 +345,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
         {/* Multi-Color Gradient Progress Bar */}
         <div className="w-full bg-white/15 h-2 rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#ff5ea7] via-[#fbf050] to-[#2be4a7] transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-[#ff5ea7] via-[#F9F45D] to-[#46e3a5] transition-all duration-500"
             style={{ width: '43%' }}
           />
         </div>
@@ -356,7 +356,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
               CURRENT PAYMENT
             </span>
-            <span className="text-2xl sm:text-3xl font-light text-white tracking-tight">
+            <span className="text-2xl sm:text-3xl font-light text-white tracking-tight tabular-nums">
               $159.68
             </span>
           </div>

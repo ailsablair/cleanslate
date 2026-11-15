@@ -139,39 +139,41 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
   };
 
   return (
-    <div className="px-8 py-4 space-y-6 max-w-[1440px] mx-auto animate-in fade-in duration-200">
+    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto animate-in fade-in duration-200">
       
       {/* Top Banner / Header Card */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-slate-800" />
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-wide uppercase">
-                Virtual LIT & Surplus Income Projection Simulator
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#8c93fc]/25">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5">
+              <Calculator className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
+                Virtual LIT &amp; Surplus Income Projection Simulator
               </h2>
             </div>
-            <p className="text-xs text-slate-600 max-w-2xl font-light leading-relaxed">
+            <p className="text-xs text-[#4b4856] max-w-2xl leading-relaxed">
               Test how variable earnings (overtime, commissions, holiday pay) or new mandatory costs (work car, daycare, prescription therapy) impact your monthly Form 65 payment and discharge eligibility.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <button
+              type="button"
               onClick={() => {
                 setExtraIncome(500);
                 setExtraDeductions(0);
                 setHouseholdSize(profile.householdSize || 2);
               }}
-              className="px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#4b4856]" />
               <span>Reset Values</span>
             </button>
 
             <button
+              type="button"
               onClick={onNavigateToPathway}
-              className="px-4 py-2.5 rounded-xl bg-[#1d1a27] hover:bg-[#2e293f] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-semibold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <ShieldCheck className="w-4 h-4 text-[#b6b3ff]" />
               <span>View Pathway to Discharge</span>
@@ -180,16 +182,17 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
         </div>
 
         {/* Quick Scenario Preset Pills */}
-        <div className="pt-4 flex items-center gap-2 overflow-x-auto text-xs pb-1 select-none">
-          <span className="text-[11px] font-semibold uppercase text-slate-400 shrink-0">
+        <div className="pt-4 flex items-center gap-2.5 overflow-x-auto text-xs pb-1.5 select-none">
+          <span className="text-[11px] font-bold uppercase text-[#6e6b7b] shrink-0">
             Test Preset Scenarios:
           </span>
           <button
+            type="button"
             onClick={() => applyPreset('Overtime Shift (10-15 hrs)', 500, 0, '10-15 hrs of monthly overtime pay')}
-            className={`px-3 py-1.5 rounded-xl border transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               extraIncome === 500 && extraDeductions === 0
-                ? 'bg-[#1d1a27] text-white border-[#1d1a27] font-semibold'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
             <Briefcase className="w-3.5 h-3.5" />
@@ -197,23 +200,25 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => applyPreset('Work Commuter Vehicle', 0, 380, 'Monthly fuel, maintenance & insurance for job commuting')}
-            className={`px-3 py-1.5 rounded-xl border transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               extraIncome === 0 && extraDeductions === 380
-                ? 'bg-[#1d1a27] text-white border-[#1d1a27] font-semibold'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
             <Car className="w-3.5 h-3.5" />
-            <span>New Work Vehicle Expenses (-$380/mo)</span>
+            <span>New Work Vehicle (-$380/mo)</span>
           </button>
 
           <button
+            type="button"
             onClick={() => applyPreset('Medical Prescription Hike', 0, 180, 'Prescriptions and medical therapy condition expenses')}
-            className={`px-3 py-1.5 rounded-xl border transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               extraIncome === 0 && extraDeductions === 180
-                ? 'bg-[#1d1a27] text-white border-[#1d1a27] font-semibold'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
             <HeartPulse className="w-3.5 h-3.5" />
@@ -221,11 +226,12 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => applyPreset('Annual Performance Bonus', 1500, 0, 'One-time or recurring performance incentive')}
-            className={`px-3 py-1.5 rounded-xl border transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               extraIncome === 1500 && extraDeductions === 0
-                ? 'bg-[#1d1a27] text-white border-[#1d1a27] font-semibold'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-normal'
+                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -238,34 +244,34 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Left Column: Interactive Sliders & Inputs */}
-        <div className="lg:col-span-6 bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200/80 space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
+        <div className="lg:col-span-6 bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-[#8c93fc]/25">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-[#101010]">
               Simulation Inputs
             </span>
-            <span className="text-xs text-slate-500 font-light">
+            <span className="text-xs text-[#6e6b7b] font-medium">
               Live BIA S.68 Formula
             </span>
           </div>
 
           {/* Household Size Selector */}
           <div>
-            <label className="text-xs font-bold text-slate-900 block mb-1.5 flex items-center justify-between">
+            <label className="text-xs font-bold text-[#101010] mb-2 flex items-center justify-between">
               <span>Household Size</span>
-              <span className="text-xs font-medium text-slate-500">
+              <span className="text-xs font-semibold text-[#6e6b7b] tabular-nums">
                 OSB Threshold: {formatCurrency(activeThreshold)}
               </span>
             </label>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {[1, 2, 3, 4, 5, 6].map(num => (
                 <button
                   key={num}
                   type="button"
                   onClick={() => setHouseholdSize(num)}
-                  className={`py-2 rounded-xl text-xs font-semibold transition border cursor-pointer ${
+                  className={`py-2 px-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                     householdSize === num
-                      ? 'bg-[#1d1a27] text-white border-[#1d1a27]'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                      ? 'bg-[#2d2a37] text-white border-[#101010] shadow-[2px_3px_0px_#000000]'
+                      : 'bg-white text-[#101010] border-[#d8d9f8] hover:border-[#8c93fc]'
                   }`}
                 >
                   {num} {num === 1 ? 'Person' : 'People'}
@@ -275,17 +281,17 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           {/* Additional Monthly Income Slider */}
-          <div className="space-y-2 bg-white p-4 rounded-2xl border border-slate-200/90">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2 bg-white p-4 rounded-2xl border border-[#d8d9f8]">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-bold text-slate-900 block">
+                <span className="text-xs font-bold text-[#101010] block">
                   Additional Net Monthly Income (Overtime / Bonus)
                 </span>
-                <span className="text-[11px] text-slate-500 font-light">
+                <span className="text-[11px] text-[#6e6b7b]">
                   Wages, commissions, or side earnings above base
                 </span>
               </div>
-              <span className="text-base font-bold text-emerald-700">
+              <span className="text-base font-extrabold text-emerald-700 tabular-nums shrink-0">
                 +{formatCurrency(extraIncome)}
               </span>
             </div>
@@ -297,10 +303,10 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
               step="50"
               value={extraIncome}
               onChange={e => setExtraIncome(parseFloat(e.target.value) || 0)}
-              className="w-full accent-[#1d1a27] cursor-pointer"
+              className="w-full accent-[#2d2a37] cursor-pointer"
             />
 
-            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+            <div className="flex justify-between text-[10px] text-[#6e6b7b] font-mono tabular-nums">
               <span>$0.00</span>
               <span>$500.00</span>
               <span>$1,000.00</span>
@@ -310,17 +316,17 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           {/* New Allowable Non-Discretionary Expenses */}
-          <div className="space-y-2 bg-white p-4 rounded-2xl border border-slate-200/90">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2 bg-white p-4 rounded-2xl border border-[#d8d9f8]">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-bold text-slate-900 block">
+                <span className="text-xs font-bold text-[#101010] block">
                   New Allowable Deductions (Medical, Transit, Childcare)
                 </span>
-                <span className="text-[11px] text-slate-500 font-light">
+                <span className="text-[11px] text-[#6e6b7b]">
                   Statutory proof-backed deductions under BIA
                 </span>
               </div>
-              <span className="text-base font-bold text-indigo-700">
+              <span className="text-base font-extrabold text-[#6366f1] tabular-nums shrink-0">
                 +{formatCurrency(extraDeductions)}
               </span>
             </div>
@@ -332,10 +338,10 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
               step="25"
               value={extraDeductions}
               onChange={e => setExtraDeductions(parseFloat(e.target.value) || 0)}
-              className="w-full accent-[#1d1a27] cursor-pointer"
+              className="w-full accent-[#2d2a37] cursor-pointer"
             />
 
-            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+            <div className="flex justify-between text-[10px] text-[#6e6b7b] font-mono tabular-nums">
               <span>$0.00</span>
               <span>$300.00</span>
               <span>$600.00</span>
@@ -345,22 +351,22 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           {/* Calculation Parameters Summary */}
-          <div className="grid grid-cols-2 gap-3 text-xs bg-slate-100/70 p-3.5 rounded-2xl">
+          <div className="grid grid-cols-2 gap-3 text-xs bg-white p-4 rounded-2xl border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb]">
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase">Base Monthly Income</span>
-              <span className="font-bold text-slate-900">{formatCurrency(baseIncome)}</span>
+              <span className="text-[#6e6b7b] block text-[10px] uppercase font-semibold">Base Monthly Income</span>
+              <span className="font-extrabold text-[#101010] tabular-nums">{formatCurrency(baseIncome)}</span>
             </div>
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase">Base Deductions</span>
-              <span className="font-bold text-slate-900">{formatCurrency(baseDeductions)}</span>
+              <span className="text-[#6e6b7b] block text-[10px] uppercase font-semibold">Base Deductions</span>
+              <span className="font-extrabold text-[#101010] tabular-nums">{formatCurrency(baseDeductions)}</span>
             </div>
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase">New Net Household</span>
-              <span className="font-bold text-slate-900">{formatCurrency(newTotalIncome - newTotalDeductions)}</span>
+              <span className="text-[#6e6b7b] block text-[10px] uppercase font-semibold">New Net Household</span>
+              <span className="font-extrabold text-[#101010] tabular-nums">{formatCurrency(newTotalIncome - newTotalDeductions)}</span>
             </div>
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase">Active OSB Threshold</span>
-              <span className="font-bold text-slate-900">{formatCurrency(activeThreshold)}</span>
+              <span className="text-[#6e6b7b] block text-[10px] uppercase font-semibold">Active OSB Threshold</span>
+              <span className="font-extrabold text-[#101010] tabular-nums">{formatCurrency(activeThreshold)}</span>
             </div>
           </div>
 
@@ -370,12 +376,12 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
         <div className="lg:col-span-6 space-y-6">
           
           {/* Reassurance Banner: You Keep 50% */}
-          <div className="bg-[#2d293d] text-white rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+          <div className="bg-[#1d1a27] text-white rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#b6b3ff]">
+              <span className="text-xs font-extrabold uppercase tracking-wide text-[#b6b3ff]">
                 STATUTORY 50/50 OUTCOME ANALYSIS
               </span>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] bg-[#46e3a5] text-[#102a1f] font-bold px-2.5 py-0.5 rounded-full">
                 Always More Take-Home
               </span>
             </div>
@@ -386,10 +392,10 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
                 <span className="text-[10px] font-semibold text-slate-400 block mb-1 uppercase tracking-wider">
                   What You Keep in Pocket
                 </span>
-                <div className="text-2xl sm:text-3xl font-extrabold text-[#2be4a7]">
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#46e3a5] tabular-nums">
                   +{formatCurrency(netTakeHomeGain)}
                 </div>
-                <span className="text-[11px] text-slate-300 font-light mt-1 block">
+                <span className="text-[11px] text-slate-300 mt-1 block">
                   Kept by you for household living
                 </span>
               </div>
@@ -398,10 +404,10 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
                 <span className="text-[10px] font-semibold text-slate-400 block mb-1 uppercase tracking-wider">
                   Remitted to LIT Estate
                 </span>
-                <div className="text-2xl sm:text-3xl font-extrabold text-[#fbf050]">
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#F9F45D] tabular-nums">
                   {surplusDelta >= 0 ? `+${formatCurrency(surplusDelta)}` : formatCurrency(surplusDelta)}
                 </div>
-                <span className="text-[11px] text-slate-300 font-light mt-1 block">
+                <span className="text-[11px] text-slate-300 mt-1 block">
                   50% statutory surplus portion
                 </span>
               </div>
@@ -411,17 +417,17 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             <div className="bg-white/10 p-4 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-300">New Monthly Trustee Payment:</span>
-                <span className="text-lg font-bold text-white">
+                <span className="text-lg font-extrabold text-white tabular-nums">
                   {formatCurrency(newCalculatedSurplus)} <span className="text-xs font-normal text-slate-400">/ month</span>
                 </span>
               </div>
               <div className="w-full bg-white/15 h-2 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#ff5ea7] via-[#fbf050] to-[#2be4a7] transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#ff5ea7] via-[#F9F45D] to-[#46e3a5] transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(10, (newCalculatedSurplus / 800) * 100))}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-slate-400">
+              <div className="flex justify-between text-[10px] text-slate-400 tabular-nums">
                 <span>Baseline Payment: {formatCurrency(baselineSurplus)}</span>
                 <span>Change: {surplusDelta >= 0 ? `+${formatCurrency(surplusDelta)}` : formatCurrency(surplusDelta)}</span>
               </div>
@@ -434,7 +440,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
                 <span className="text-xs font-bold text-white block mb-0.5">
                   Discharge Track: {isSurplusOver200 ? '21-Month Track (Surplus > $200.00/mo)' : '9-Month Track (Standard)'}
                 </span>
-                <p className="text-[11px] text-slate-300 leading-relaxed font-light">
+                <p className="text-[11px] text-slate-300 leading-relaxed">
                   {isSurplusOver200
                     ? `Because monthly surplus exceeds $200.00, BIA S.68 mandates a 21-month statutory period for first-time bankruptcies to repay dividends to creditors.`
                     : `Your monthly surplus is under $200.00. First-time bankruptcies are eligible for automatic absolute discharge at 9 months upon completing counseling sessions.`
@@ -447,8 +453,9 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
 
           {/* Action button to sync simulated scenario */}
           <button
+            type="button"
             onClick={onNavigateToReports}
-            className="w-full py-3.5 px-5 rounded-2xl bg-[#fbf050] hover:bg-[#f3e73b] text-[#1d1a27] font-bold text-xs transition shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="w-full py-3.5 px-5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Proceed to Form 65 Monthly Report</span>
             <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -458,23 +465,23 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
       </div>
 
       {/* Bottom Section: LITbot Virtual Licensed Insolvency Trustee */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200/80 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[#8c93fc]/25 gap-3 flex-wrap">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#2e293f] flex items-center justify-center text-[#b6b3ff]">
+            <div className="w-8 h-8 rounded-xl bg-[#2d2a37] border border-[#101010] flex items-center justify-center text-[#b6b3ff] shrink-0">
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              <h3 className="text-sm font-extrabold text-[#101010] uppercase tracking-wide">
                 Ask LITbot: Your Virtual Licensed Insolvency Trustee
               </h3>
-              <p className="text-[11px] text-slate-500 font-light">
-                Grounded in Canadian Bankruptcy & Insolvency Act (BIA) & OSB Directives
+              <p className="text-[11px] text-[#6e6b7b]">
+                Grounded in Canadian Bankruptcy &amp; Insolvency Act (BIA) &amp; OSB Directives
               </p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 text-[10px] font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#102a1f] animate-pulse" />
             LITbot AI Active
           </span>
         </div>
@@ -489,26 +496,26 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
               <div
                 className={`max-w-2xl rounded-2xl p-4 text-xs leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-[#1d1a27] text-white'
-                    : 'bg-white border border-slate-200 text-slate-800 shadow-2xs'
+                    ? 'bg-[#2d2a37] text-white border border-[#101010]'
+                    : 'bg-white border border-[#d8d9f8] text-[#101010]'
                 }`}
               >
                 <div className="flex items-center justify-between gap-4 mb-1">
-                  <span className="font-bold text-[11px] text-slate-400">
+                  <span className={`font-bold text-[11px] ${msg.sender === 'user' ? 'text-[#b6b3ff]' : 'text-[#6e6b7b]'}`}>
                     {msg.sender === 'user' ? 'You (Chad Johnson)' : 'Virtual LIT (LITbot)'}
                   </span>
-                  <span className="text-[10px] text-slate-400">{msg.time}</span>
+                  <span className={`text-[10px] tabular-nums ${msg.sender === 'user' ? 'text-slate-400' : 'text-[#6e6b7b]'}`}>{msg.time}</span>
                 </div>
-                <p className="whitespace-pre-line font-light">{msg.text}</p>
+                <p className="whitespace-pre-line">{msg.text}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Chat Input & Suggested Questions */}
-        <div className="space-y-3 pt-2 border-t border-slate-200">
+        <div className="space-y-3 pt-3 border-t border-[#8c93fc]/25">
           <div className="flex flex-wrap gap-2 text-xs">
-            <span className="text-[10px] font-semibold text-slate-400 self-center">
+            <span className="text-[10px] font-bold uppercase text-[#6e6b7b] self-center">
               Suggested:
             </span>
             {[
@@ -521,14 +528,14 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
                 key={idx}
                 type="button"
                 onClick={() => handleAskQuestion(s)}
-                className="px-2.5 py-1 rounded-lg bg-slate-200/70 hover:bg-slate-200 text-slate-700 text-[11px] transition cursor-pointer"
+                className="px-3 py-1 rounded-full bg-white hover:bg-slate-50 border border-[#d8d9f8] hover:border-[#8c93fc] text-[#101010] text-[11px] font-medium transition cursor-pointer"
               >
                 {s}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <FloatingInput
               label="Ask a question about Canadian surplus income, allowable deductions, or discharge..."
               value={inputQuestion}
@@ -539,7 +546,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             <button
               type="button"
               onClick={() => handleAskQuestion()}
-              className="px-5 py-3 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+              className="px-5 py-3 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <span>Ask LITbot</span>
               <Send className="w-3.5 h-3.5 text-[#b6b3ff]" />

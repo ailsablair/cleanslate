@@ -106,23 +106,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto">
+    <div className="px-4 sm:px-8 py-4 space-y-6 max-w-[1440px] mx-auto animate-in fade-in duration-200">
       {/* 1. Top Outstanding Alert Banner */}
-      <div className="bg-[#fbf050] text-[#1d1a27] rounded-3xl p-6 shadow-sm transition-all">
+      <div className="bg-[#fbf050] text-[#101010] rounded-3xl p-6 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] transition-all">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-950">
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-[#101010]">
               You have {outstandingCount} outstanding monthly reports to submit
             </h2>
-            <p className="text-sm font-normal text-[#2d283c] leading-relaxed max-w-xl">
-              You're on track! Reports are due on the <span className="font-semibold underline decoration-slate-900/30">15th of every month</span>. Completing them on time is important for early discharge.
+            <p className="text-xs sm:text-sm font-normal text-[#2d283c] leading-relaxed max-w-xl">
+              You're on track! Reports are due on the <span className="font-bold underline decoration-[#101010]/35">15th of every month</span>. Completing them on time is important for early discharge.
             </p>
           </div>
           <button
+            type="button"
             onClick={onNavigateToReports}
-            className="shrink-0 bg-[#1d1a27] hover:bg-[#2d283c] text-white text-xs px-5 py-3 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 self-start sm:self-center cursor-pointer active:scale-95"
+            className="shrink-0 bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold px-5 py-2.5 rounded-xl border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-1.5 self-start sm:self-center cursor-pointer whitespace-nowrap"
           >
-            <span className="font-normal">Complete</span>
+            <span>Complete</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -132,72 +133,87 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (7-8 cols): 3 Metric Cards + Budget Summary */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-          {/* 3 Metric Cards (Lavender `#b4b1fc`) with Balanced Height and Alignment */}
+          {/* 3 Metric Cards matching Pathway to Discharge KPI card language */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Metric 1: Monthly Reports */}
-            <div 
+            <div
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && onNavigateToReports()}
+              className="bg-white hover:bg-[#fbf9f5] text-[#101010] rounded-2xl p-5 border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] transition cursor-pointer group min-h-[136px] flex flex-col justify-between"
             >
-              <div 
-                className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]"
-                style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-              >
-                MONTHLY REPORTS
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#6e6b7b]">
+                  MONTHLY REPORTS
+                </span>
+                <div className="w-7 h-7 rounded-full bg-[#b4b1fc]/25 flex items-center justify-center text-[#101010] group-hover:bg-[#b4b1fc]/45 transition shrink-0">
+                  <ArrowUpRight className="w-4 h-4 stroke-[2.2]" />
+                </div>
               </div>
 
-              {/* Bottom Container: Progress bar on top, percentage stat underneath (Swapped per user request) */}
-              <div className="space-y-2 mt-auto pt-3">
-                <div className="w-full bg-[#242031]/20 h-1.5 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-[#242031] h-full rounded-full transition-all duration-500" 
+              <div className="space-y-2.5 mt-auto pt-3">
+                <div className="w-full bg-[#e5e7eb] h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-[#46e3a5] h-full rounded-full transition-all duration-500"
                     style={{ width: `${completionPercent}%` }}
                   />
                 </div>
-                <div className="flex items-baseline justify-between pt-0.5">
-                  <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                    {completionPercent}% <span className="text-xs font-semibold opacity-75">({submittedCount}/{monthlyReports.length || 12})</span>
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                  </div>
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums whitespace-nowrap text-[#101010]">
+                  {completionPercent}%{' '}
+                  <span className="text-xs font-semibold text-[#6e6b7b]">
+                    ({submittedCount}/{monthlyReports.length || 12})
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Metric 2: Average Spend -> Navigates to Bank Accounts */}
-            <div 
+            <div
               onClick={onNavigateToBankAccounts}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && onNavigateToBankAccounts()}
+              className="bg-white hover:bg-[#fbf9f5] text-[#101010] rounded-2xl p-5 border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] transition cursor-pointer group min-h-[136px] flex flex-col justify-between"
               title="Click to view connected bank accounts & balances"
             >
-              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]">
-                AVERAGE SPEND
-              </div>
-              <div className="flex items-baseline justify-between mt-auto pt-3">
-                <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                  {formatCurrency(avgSpend)}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#6e6b7b]">
+                  AVERAGE SPEND
+                </span>
+                <div className="w-7 h-7 rounded-full bg-[#b4b1fc]/25 flex items-center justify-center text-[#101010] group-hover:bg-[#b4b1fc]/45 transition shrink-0">
+                  <ArrowDownRight className="w-4 h-4 stroke-[2.2]" />
                 </div>
-                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                  <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div className="mt-auto pt-3 space-y-1.5">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#4b4856] text-[10px] font-semibold">
+                  Bank Import Feed
+                </span>
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums whitespace-nowrap text-[#101010]">
+                  {formatCurrency(avgSpend)}
                 </div>
               </div>
             </div>
 
             {/* Metric 3: Current Payment */}
-            <div 
+            <div
               onClick={onNavigateToReports}
-              className="bg-[#b4b1fc] hover:bg-[#bebbff] text-[#242031] rounded-2xl p-5 sm:p-6 transition cursor-pointer shadow-xs relative group min-h-[136px] flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && onNavigateToReports()}
+              className="bg-white hover:bg-[#fbf9f5] text-[#101010] rounded-2xl p-5 border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] transition cursor-pointer group min-h-[136px] flex flex-col justify-between"
             >
-              <div className="text-[10px] font-bold tracking-wider uppercase text-[#3f3b54]">
-                CURRENT PAYMENT
-              </div>
-              <div className="flex items-baseline justify-between mt-auto pt-3">
-                <div className="text-2xl font-bold tracking-tight whitespace-nowrap">
-                  {formatCurrency(currentPayment)}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#6e6b7b]">
+                  CURRENT PAYMENT
+                </span>
+                <div className="w-7 h-7 rounded-full bg-[#46e3a5]/30 flex items-center justify-center text-[#102a1f] transition shrink-0">
+                  <CheckCircle2 className="w-4 h-4 stroke-[2.2]" />
                 </div>
-                <div className="w-7 h-7 rounded-full bg-[#242031]/10 flex items-center justify-center text-[#242031] group-hover:bg-[#242031]/20 transition shrink-0">
-                  <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div className="mt-auto pt-3 space-y-1.5">
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums whitespace-nowrap text-[#101010]">
+                  {formatCurrency(currentPayment)}
                 </div>
               </div>
             </div>
@@ -220,26 +236,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 5. LATEST TRANSACTIONS Card (Item 15: Full Screen Width, Generous Padding) */}
-      <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-7 shadow-sm">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-sm font-bold tracking-wider uppercase text-[#242031]">
-            LATEST TRANSACTIONS
-          </h3>
+      {/* 5. LATEST TRANSACTIONS Card */}
+      <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#8c93fc]/25">
+          <div className="flex items-center gap-2.5">
+            <FileText className="w-5 h-5 text-[#8c93fc] shrink-0" />
+            <h3 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
+              LATEST TRANSACTIONS
+            </h3>
+          </div>
           <button
+            type="button"
             onClick={onNavigateToCategorize}
-            style={{ color: '#FF6BBC' }}
-            className="text-xs transition flex items-center gap-1 cursor-pointer hover:underline"
+            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
-            <span className="font-normal underline text-right">AI Categorizer</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <span>Open Categorizer</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#8c93fc]" />
           </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="text-[10px] font-semibold text-slate-400 border-b border-slate-200/80 pb-3">
+              <tr className="text-[11px] font-bold uppercase tracking-wider text-[#6e6b7b] border-b border-slate-200/80 pb-3">
                 <th className="pb-3 pr-4 whitespace-nowrap">
                   Transaction ID
                 </th>
@@ -258,52 +277,51 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <th className="pb-3 w-8"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium">
+            <tbody className="divide-y divide-[#d8d9f8]/70 font-medium">
               {transactions.slice(0, 5).map((tx) => {
                 const txLinkedReceipt = receipts.find(r => r.linkedTransactionId === tx.id || (tx.receiptId && r.id === tx.receiptId));
                 const isAttached = Boolean(txLinkedReceipt || tx.receiptFileName || tx.receiptId);
                 const txProofInfo = getProofRequirementInfo(tx);
 
                 return (
-                  <tr 
-                    key={tx.id} 
+                  <tr
+                    key={tx.id}
                     onClick={() => setSelectedTx(tx)}
-                    className="hover:bg-slate-100/70 transition cursor-pointer group"
+                    className="hover:bg-white transition cursor-pointer group"
                   >
-                    <td className="py-4 pr-4 text-[10px] font-mono text-slate-400 font-normal whitespace-nowrap">
+                    <td className="py-4 pr-4 text-xs font-mono text-[#6e6b7b] font-normal whitespace-nowrap">
                       #{tx.id}
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-bold text-slate-800 block text-sm">{tx.company}</span>
-                      <span className="block text-[11px] text-slate-400 font-normal truncate max-w-[200px] sm:max-w-none">
+                      <span className="font-bold text-[#101010] block text-sm">{tx.company}</span>
+                      <span className="block text-[11px] text-[#6e6b7b] font-normal truncate max-w-[200px] sm:max-w-none">
                         {tx.form65Category || tx.category}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-xs text-slate-500 font-normal whitespace-nowrap">
+                    <td className="py-4 px-4 text-xs text-[#4b4856] font-normal tabular-nums whitespace-nowrap">
                       {tx.date}
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       {isAttached ? (
-                        <span className="status-tag-compact text-emerald-800 bg-emerald-50 border border-emerald-200/90">
-                          <CheckCircle2 className="w-2 h-2 text-emerald-600 shrink-0" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
+                          <CheckCircle2 className="w-3 h-3 shrink-0" />
                           <span>Receipt attached</span>
                         </span>
                       ) : txProofInfo.required ? (
-                        <span className="status-tag-compact text-amber-900 bg-amber-50 border border-amber-300">
-                          <AlertCircle className="w-2 h-2 text-amber-600 shrink-0" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fbf050] text-[#1d1a27] border border-black/15 text-[11px] font-semibold">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
                           <span>{txProofInfo.type === 'prescription' ? 'Prescription needed' : 'Receipt needed'}</span>
                         </span>
                       ) : (
-                        <span className="status-tag-compact text-slate-500 bg-slate-100 border border-slate-200/80">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#4b4856] text-[11px] font-semibold">
                           <span>Optional</span>
                         </span>
                       )}
                     </td>
-                    {/* Item 16: Currency & amount strictly on one line */}
-                    <td className="py-4 pl-4 text-right font-bold text-slate-900 whitespace-nowrap text-sm sm:text-base">
+                    <td className="py-4 pl-4 text-right font-bold text-[#101010] tabular-nums whitespace-nowrap text-sm sm:text-base">
                       {formatCurrency(tx.amount)}
                     </td>
-                    <td className="py-4 pl-2 text-right text-slate-300 group-hover:text-slate-700 transition">
+                    <td className="py-4 pl-2 text-right text-[#6e6b7b] group-hover:text-[#101010] transition">
                       <ChevronRight className="w-4 h-4 ml-auto" />
                     </td>
                   </tr>
@@ -314,11 +332,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 6. Connected Bank Accounts (Item 16: Full Width, Amount strictly on one line) */}
-      <div>
-        <div className="flex items-center justify-between mb-3 px-1">
+      {/* 6. Connected Bank Accounts */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <Building2 className="w-4 h-4 text-[#8c93fc]" />
+            <span className="text-xs font-extrabold uppercase tracking-wider text-white">
               CONNECTED BANK ACCOUNTS
             </span>
             {isSyncing && (
@@ -329,11 +348,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
           <button
+            type="button"
             onClick={onNavigateToBankAccounts}
-            style={{ color: '#FF6BBC' }}
-            className="text-xs transition flex items-center gap-1 cursor-pointer hover:underline"
+            className="text-xs font-semibold text-[#b6b3ff] hover:text-white transition flex items-center gap-1 cursor-pointer hover:underline"
           >
-            <span className="font-normal underline text-right">Manage & Add Accounts</span>
+            <span>Manage &amp; Add Accounts</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -343,24 +362,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div
               key={account.id}
               onClick={onNavigateToBankAccounts}
-              className="bg-[#fbf9f5] hover:bg-white text-[#242031] rounded-3xl p-6 shadow-sm transition cursor-pointer group relative"
+              className="bg-[#fbf9f5] hover:bg-white text-[#101010] rounded-3xl p-6 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] transition cursor-pointer group relative flex flex-col justify-between"
             >
-              <div className="text-[12px] font-bold uppercase tracking-wide text-slate-900 mb-1 truncate">
-                {account.name}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="text-xs font-extrabold uppercase tracking-wide text-[#101010] truncate">
+                    {account.name}
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-[#e9e8ec] text-[#4b4856] text-[10px] font-semibold shrink-0">
+                    {account.accountType}
+                  </span>
+                </div>
+                <div className="text-xs font-mono text-[#6e6b7b] mb-6">
+                  {account.accountMask}
+                </div>
               </div>
-              <div className="text-xs font-mono text-slate-400 mb-6">
-                {account.accountMask}
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                {/* Item 16: Currency & amounts always on same line, never wrapped */}
-                <span className="text-xl sm:text-2xl font-normal text-slate-900 tracking-tight whitespace-nowrap">
+              <div className="flex items-baseline justify-between gap-2 pt-3 border-t border-[#d8d9f8]">
+                <span className="text-xl sm:text-2xl font-extrabold text-[#101010] tracking-tight tabular-nums whitespace-nowrap">
                   {formatCurrency(account.balance)}
                 </span>
-                <div className="text-slate-400 group-hover:text-slate-900 transition shrink-0">
+                <div className="w-7 h-7 rounded-full bg-white border border-[#d8d9f8] group-hover:border-[#101010] flex items-center justify-center text-[#101010] transition shrink-0">
                   {account.trendDirection === 'up' ? (
-                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                    <ArrowUpRight className="w-4 h-4 stroke-[2.2] text-emerald-700" />
                   ) : (
-                    <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />
+                    <ArrowDownRight className="w-4 h-4 stroke-[2.2] text-rose-600" />
                   )}
                 </div>
               </div>
@@ -369,31 +394,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-
-
-      {/* Quick transaction inspect modal */}
+      {/* Quick transaction inspect modal — unified light neo-brutalist modal style */}
       {selectedTx && (() => {
         const linkedReceipt = receipts.find(r => r.linkedTransactionId === selectedTx.id || (selectedTx.receiptId && r.id === selectedTx.receiptId));
         const hasReceiptAttached = Boolean(linkedReceipt || selectedTx.receiptFileName || selectedTx.receiptFileUrl || selectedTx.receiptId);
         const proofInfo = getProofRequirementInfo(selectedTx);
 
         return (
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150"
+          <div
+            className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto animate-in fade-in duration-150"
             onClick={() => setSelectedTx(null)}
           >
-            <div 
-              className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-4"
+            <div
+              className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-[6px_8px_0px_#000000] space-y-5 my-auto"
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#b6b3ff]">
+              <div className="flex items-center justify-between pb-3.5 border-b border-[#b4b1fc]/35">
+                <div className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
                   TRANSACTION DETAILS
                 </div>
-                <button 
+                <button
+                  type="button"
                   onClick={() => setSelectedTx(null)}
-                  className="text-slate-400 hover:text-white text-xs font-bold p-1 cursor-pointer"
+                  className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 text-xs font-bold cursor-pointer transition"
                   aria-label="Close transaction details"
                 >
                   ✕
@@ -401,89 +425,92 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Vendor & Amount */}
-              <div className="flex items-baseline justify-between gap-4">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-white tracking-tight">{selectedTx.company}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Reference #{selectedTx.id}</div>
+              <div className="flex items-baseline justify-between gap-4 bg-[#fbf9f5] rounded-2xl p-4 border border-[#d8d9f8]">
+                <div className="min-w-0">
+                  <div className="text-lg sm:text-xl font-extrabold text-[#101010] tracking-tight truncate">
+                    {selectedTx.company}
+                  </div>
+                  <div className="text-xs font-mono text-[#6e6b7b] mt-0.5">
+                    Reference #{selectedTx.id}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xl sm:text-2xl font-bold text-[#fbf050]">{formatCurrency(selectedTx.amount)}</div>
-                  <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">CAD</div>
+                <div className="text-right shrink-0">
+                  <div className="text-lg sm:text-xl font-extrabold text-[#101010] tabular-nums">
+                    {formatCurrency(selectedTx.amount)}
+                  </div>
+                  <div className="text-[10px] text-[#6e6b7b] uppercase tracking-wider font-bold">CAD</div>
                 </div>
               </div>
 
               {/* Transaction Meta Grid */}
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                  <span className="text-slate-400 block mb-1">Date</span>
-                  <span className="font-semibold text-white">{selectedTx.date}</span>
+                <div className="bg-white p-3.5 rounded-2xl border border-[#d8d9f8]">
+                  <span className="text-[#6e6b7b] block mb-1 text-[11px]">Date</span>
+                  <span className="font-bold text-[#101010] tabular-nums">{selectedTx.date}</span>
                 </div>
-                <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                  <span className="text-slate-400 block mb-1">Reference ID</span>
-                  <span className="font-mono text-white">{selectedTx.id}</span>
+                <div className="bg-white p-3.5 rounded-2xl border border-[#d8d9f8]">
+                  <span className="text-[#6e6b7b] block mb-1 text-[11px]">Reference ID</span>
+                  <span className="font-mono font-semibold text-[#101010]">{selectedTx.id}</span>
                 </div>
-                <div className="bg-white/5 p-3 rounded-xl col-span-2 border border-white/5">
-                  <span className="text-slate-400 block mb-1">Form 65 Statutory Line</span>
-                  <span className="font-semibold text-white">{selectedTx.form65Category || 'Uncategorized'}</span>
+                <div className="bg-white p-3.5 rounded-2xl col-span-2 border border-[#d8d9f8]">
+                  <span className="text-[#6e6b7b] block mb-1 text-[11px]">Form 65 Statutory Line</span>
+                  <span className="font-bold text-[#101010]">{selectedTx.form65Category || 'Uncategorized'}</span>
                 </div>
               </div>
 
               {/* Statutory Compliance Proof Section */}
               <div className="space-y-2">
                 {hasReceiptAttached ? (
-                  <div className="bg-emerald-950/40 border border-emerald-500/40 p-3.5 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
-                        <ShieldCheck className="w-4 h-4 shrink-0" />
-                        <span>Receipt Proof Attached & Verified</span>
+                  <div className="bg-emerald-50 border border-emerald-300 p-4 rounded-2xl space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-emerald-900 text-xs font-bold">
+                        <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <span>Receipt Proof Attached &amp; Verified</span>
                       </div>
-                      <span className="status-tag-compact text-emerald-300 bg-emerald-500/20 border border-emerald-500/30">
-                        BIA Form 65 ready
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[10px] font-bold">
+                        BIA Form 65 Ready
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-slate-300 bg-white/5 p-2 rounded-xl">
+                    <div className="flex items-center justify-between text-xs text-[#101010] bg-white p-2.5 rounded-xl border border-emerald-200">
                       <div className="flex items-center gap-2 truncate">
-                        <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                         <span className="font-mono text-[11px] truncate">
                           {linkedReceipt?.fileName || selectedTx.receiptFileName || 'Receipt_Document.pdf'}
                         </span>
                       </div>
                       {(linkedReceipt?.fileUrl || selectedTx.receiptFileUrl) && (
-                        <a 
-                          href={linkedReceipt?.fileUrl || selectedTx.receiptFileUrl} 
+                        <a
+                          href={linkedReceipt?.fileUrl || selectedTx.receiptFileUrl}
                           download={linkedReceipt?.fileName || selectedTx.receiptFileName || 'receipt.pdf'}
-                          className="text-[10.5px] text-[#b6b3ff] hover:underline flex items-center gap-0.5 shrink-0 ml-2"
+                          className="text-[11px] text-[#5b56d6] font-semibold hover:underline flex items-center gap-0.5 shrink-0 ml-2"
                         >
                           <span>View</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-tight">
+                    <p className="text-[11px] text-emerald-900/80 leading-tight">
                       Tightly linked to transaction #{selectedTx.id} for Licensed Insolvency Trustee Sarah Jenkins' audit.
                     </p>
                   </div>
                 ) : proofInfo.required ? (
-                  <div className="bg-amber-950/50 border border-amber-500/70 p-3.5 rounded-2xl space-y-2">
-                    <div className="flex items-center gap-2 text-amber-300 text-xs font-bold">
-                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>Statutory requirement: Receipt must be uploaded</span>
+                  <div className="bg-[#fbf9f5] border border-[#101010] p-4 rounded-2xl space-y-2">
+                    <div className="flex items-center gap-2 text-[#101010] text-xs font-extrabold">
+                      <AlertCircle className="w-4 h-4 text-[#b45309] shrink-0" />
+                      <span>Statutory Requirement: Proof Upload Needed</span>
                     </div>
-                    <div className="text-[11px] text-amber-200/95 leading-relaxed">
-                      <strong className="text-white block mb-0.5">{proofInfo.label}</strong>
+                    <div className="text-xs text-[#4b4856] leading-relaxed">
+                      <strong className="text-[#101010] block mb-0.5">{proofInfo.label}</strong>
                       {proofInfo.explanation}
-                    </div>
-                    <div className="text-[10.5px] text-amber-300/80 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20 leading-tight">
-                      Under Canadian Bankruptcy and Insolvency Act (BIA) Form 65 rules, receipts MUST be uploaded on all transactions that require proof of purchase or prescription for trustee deduction approval.
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white/5 border border-white/10 p-3 rounded-2xl text-xs space-y-1">
-                    <div className="flex items-center gap-2 text-slate-300 font-semibold">
-                      <Paperclip className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="bg-[#fbf9f5] border border-[#d8d9f8] p-3.5 rounded-2xl text-xs space-y-1">
+                    <div className="flex items-center gap-2 text-[#101010] font-bold">
+                      <Paperclip className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>Receipt Proof (Optional)</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-tight">
+                    <p className="text-[11px] text-[#4b4856] leading-tight">
                       Discretionary day-to-day expenditure. Attaching a receipt is optional but recommended for your monthly reconciliation.
                     </p>
                   </div>
@@ -492,53 +519,51 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Upload Success Feedback */}
               {uploadSuccessToast && (
-                <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-2.5 rounded-xl text-xs flex items-center gap-2 animate-in fade-in">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span className="truncate">{uploadSuccessToast}</span>
                 </div>
               )}
 
               {/* Two-Button Action Layout */}
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Secondary Button: Upload / Replace Receipt via Upload Confirmation Modal */}
                 <button
                   type="button"
                   onClick={() => setIsUploadConfirmOpen(true)}
-                  className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
+                  className={`py-2.5 px-4 rounded-xl text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
                     hasReceiptAttached
-                      ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 active:scale-98'
+                      ? 'bg-white hover:bg-slate-50 text-[#101010]'
                       : proofInfo.required
-                      ? 'bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold shadow-md active:scale-98'
-                      : 'bg-white/15 hover:bg-white/25 text-white border border-white/20 active:scale-98'
+                      ? 'bg-[#F9F45D] hover:brightness-105 text-[#1d1a27]'
+                      : 'bg-white hover:bg-slate-50 text-[#101010]'
                   }`}
                   title={proofInfo.required ? 'Receipt / prescription upload mandatory for this transaction' : 'Upload proof receipt'}
                 >
                   {hasReceiptAttached ? (
                     <>
-                      <Paperclip className="w-3.5 h-3.5 text-[#b6b3ff]" />
+                      <Paperclip className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>Replace Receipt</span>
                     </>
                   ) : proofInfo.required ? (
                     <>
-                      <Upload className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <Upload className="w-3.5 h-3.5 stroke-[2.2]" />
                       <span>Upload Receipt (Required)</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="w-3.5 h-3.5" />
+                      <Upload className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>Upload Receipt Proof</span>
                     </>
                   )}
                 </button>
 
-                {/* Primary Button: Re-categorize */}
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedTx(null);
                     onNavigateToCategorize();
                   }}
-                  className="py-2.5 px-3.5 rounded-xl bg-[#b6b3ff] hover:bg-white text-[#242031] font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  className="py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                 >
                   <span>Re-categorize in AI Tool</span>
                 </button>

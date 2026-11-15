@@ -64,42 +64,50 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#1d1a27] text-white border-2 border-[#b6b3ff] rounded-3xl p-6 shadow-2xl space-y-6">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 shadow-[6px_8px_0px_#000000] space-y-5"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer"
+          aria-label="Close sign in modal"
+          className="absolute top-4 right-4 p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 stroke-[2]" />
         </button>
 
         {/* Brand Header */}
         <div className="text-center space-y-2 pt-2">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#b6b3ff] to-[#e76192] text-[#1d1a27] flex items-center justify-center shadow-lg">
-            <ShieldCheck className="w-8 h-8 stroke-[2.5]" />
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#b6b3ff] border-[1.5px] border-[#101010] text-[#101010] flex items-center justify-center shadow-[3px_4px_0px_#000000]">
+            <ShieldCheck className="w-7 h-7 stroke-[2.2]" />
           </div>
-          <h2 className="text-xl font-black uppercase tracking-wider text-white">
+          <h2 className="text-lg font-extrabold uppercase tracking-wide text-[#101010]">
             CleanSlate OSB Vault
           </h2>
-          <p className="text-xs text-slate-300">
-            Secure Canadian Bankruptcy & Surplus Income Management
+          <p className="text-xs text-[#4b4856]">
+            Secure Canadian Bankruptcy &amp; Surplus Income Management
           </p>
         </div>
 
         {/* Security Assurance */}
-        <div className="bg-[#262135] border border-white/10 rounded-2xl p-4 text-xs text-slate-300 space-y-2">
-          <div className="flex items-center gap-2 text-[#b6b3ff] font-bold">
-            <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>PIPEDA & OSB Compliance Encrypted</span>
+        <div className="bg-[#fbf9f5] border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-2xl p-4 text-xs text-[#4b4856] space-y-1.5">
+          <div className="flex items-center gap-2 text-[#101010] font-extrabold">
+            <Lock className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>PIPEDA &amp; OSB Compliance Encrypted</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
+          <p className="text-[11px] text-[#4b4856] leading-relaxed">
             Multi-tenant document isolation guarantees that your Form 65 reports, bank feeds, and trustee dispatches are protected by document-level access rules.
           </p>
         </div>
 
         {authError && (
-          <div className="p-3 bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs rounded-xl text-center">
+          <div className="p-3 bg-rose-50 border border-rose-300 text-rose-800 text-xs font-semibold rounded-xl text-center">
             {authError}
           </div>
         )}
@@ -110,7 +118,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isSigningIn}
-            className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs transition flex items-center justify-center gap-3 shadow-md cursor-pointer active:scale-98"
+            className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#101010] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -125,7 +133,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleDemoSignIn}
             disabled={isSigningIn}
-            className="w-full py-3.5 px-4 rounded-2xl bg-[#b6b3ff] hover:bg-[#a3a0fa] text-[#1d1a27] font-black text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-98"
+            className="w-full py-3 px-4 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <UserCheck className="w-4 h-4" />
             <span>Continue with Debtor Profile</span>
@@ -133,7 +141,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        <div className="text-center pt-2 border-t border-white/10 text-[11px] text-slate-400">
+        <div className="text-center pt-3 border-t border-[#b4b1fc]/35 text-[11px] text-[#6e6b7b]">
           CleanSlate Canada · Licensed Insolvency Trustee Integration Portal
         </div>
 

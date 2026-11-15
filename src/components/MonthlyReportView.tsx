@@ -228,11 +228,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         {/* Left Column: HISTORY Card & LITbot AI Assistant (4 cols when open) */}
         {isHistoryOpen && (
           <div className="lg:col-span-4 space-y-6 animate-in fade-in duration-200">
-            <div className="bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 shadow-sm">
-              <div className="flex items-center justify-between gap-2 mb-5">
+            <div className="bg-white text-[#101010] rounded-3xl p-6 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
+              <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-[#b4b1fc]/35">
                 <div className="flex items-center gap-2">
-                  <Hourglass className="w-4 h-4 text-slate-700" />
-                  <h3 className="text-sm font-extrabold tracking-wider uppercase text-[#242031]">
+                  <Hourglass className="w-4 h-4 text-[#8c93fc]" />
+                  <h3 className="text-sm font-extrabold tracking-wide uppercase text-[#101010]">
                     MONTHLY HISTORY
                   </h3>
                 </div>
@@ -240,7 +240,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsHistoryOpen(false)}
-                  className="p-1.5 rounded-xl hover:bg-slate-200/80 text-slate-700 border border-slate-300 transition cursor-pointer"
+                  className="p-1.5 rounded-xl bg-white hover:bg-slate-100 text-[#101010] border border-[#101010] shadow-[2px_2px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                   title="Collapse Monthly History to expand form area"
                   aria-label="Collapse Monthly History"
                 >
@@ -248,8 +248,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 </button>
               </div>
 
-              {/* Monthly History List with generous whitespace */}
-              <div className="space-y-2 divide-y divide-slate-100">
+              {/* Monthly History List matching PAST UPLOADS in Receipts */}
+              <div className="divide-y divide-[#d8d9f8]/70">
                 {reports.map((rep) => {
                   const isCurrent = rep.id === activeReport.id;
                   const isOverdue = rep.status === 'Overdue';
@@ -259,39 +259,38 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     <div
                       key={rep.id}
                       onClick={() => onSelectReport(rep.id)}
-                      className={`py-4 px-3.5 my-1 rounded-2xl transition cursor-pointer flex items-center justify-between relative ${
-                        isCurrent 
-                          ? 'bg-slate-100/90' 
-                          : 'hover:bg-slate-50'
+                      className={`py-3.5 px-3.5 transition cursor-pointer flex items-center justify-between relative ${
+                        isCurrent
+                          ? 'bg-[#f7f4eb] rounded-xl'
+                          : 'hover:bg-[#fbf9f5] rounded-xl'
                       }`}
                     >
                       {/* Active highlight bar on left */}
                       {isCurrent && (
-                        <div className="absolute left-1 top-3 bottom-3 w-1.5 rounded-full bg-[#242031]" />
+                        <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r bg-[#4b4856]" />
                       )}
 
-                      <div className="pl-3 min-w-0">
-                        <div className="text-sm font-bold text-slate-900">
+                      <div className="pl-2.5 min-w-0">
+                        <div className="text-xs font-extrabold uppercase tracking-wide text-[#101010]">
                           {rep.month}
                         </div>
-                        <div className="text-xs text-slate-400 truncate mt-0.5">
-                          {isSubmitted 
+                        <div className="text-[11px] text-[#6e6b7b] truncate mt-0.5 tabular-nums">
+                          {isSubmitted
                             ? `Sent to ${rep.sentToLitName?.split(',')[0] || profile.litName?.split(',')[0] || 'LIT'} on ${new Date(rep.submittedAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
-                            : rep.lastEditDate
-                          }
+                            : rep.lastEditDate}
                         </div>
                       </div>
 
                       <div className="text-right shrink-0 ml-2">
-                        <span 
-                          className={`text-xs ${
-                            isCurrent 
-                              ? 'text-slate-500 font-medium' 
-                              : isOverdue 
-                              ? 'text-rose-500 font-semibold' 
-                              : isSubmitted 
-                              ? 'text-emerald-700 font-semibold' 
-                              : 'text-slate-400 font-normal'
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isSubmitted
+                              ? 'bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20'
+                              : isOverdue
+                              ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                              : isCurrent
+                              ? 'bg-[#fbf050] text-[#101010] border border-[#101010]/30'
+                              : 'bg-slate-100 text-[#6e6b7b]'
                           }`}
                         >
                           {rep.status}
@@ -302,10 +301,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 })}
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100">
+              <div className="mt-5 pt-4 border-t border-[#b4b1fc]/35">
                 <button
+                  type="button"
                   onClick={() => {}}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <span>See All (12 Months)</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -327,45 +327,42 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         )}
 
         {/* Right Column: Multi-Step Form 65 Wizard (8 cols when open, 12 cols when collapsed) */}
-        <div className={`${isHistoryOpen ? 'lg:col-span-8' : 'lg:col-span-12'} bg-[#fbf9f5] text-[#242031] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 transition-all duration-300`}>
+        <div className={`${isHistoryOpen ? 'lg:col-span-8' : 'lg:col-span-12'} bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-6 transition-all duration-300`}>
           
           {/* Top Bar: Calendar + Month/Year + Re-open History + More Actions Dropdown */}
-          <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-200/80">
+          <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#8c93fc]/25">
             <div className="flex items-center gap-2.5 flex-wrap">
               {!isHistoryOpen && (
                 <button
                   type="button"
                   onClick={() => setIsHistoryOpen(true)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs mr-1"
+                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer mr-1"
                   title="Show Monthly History"
                 >
                   <PanelLeftOpen className="w-3.5 h-3.5" />
                   <span>Monthly History</span>
                 </button>
               )}
-              <div className="w-8 h-8 rounded-lg bg-[#b4b1fc] flex items-center justify-center text-[#242031] shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#b4b1fc] border border-[#101010] flex items-center justify-center text-[#101010] shrink-0">
                 <Calendar className="w-4 h-4" />
               </div>
-              <h2 
-                className="text-lg font-bold tracking-wider uppercase text-slate-900"
-                style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-              >
+              <h2 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-[#101010]">
                 {activeReport.month} {activeReport.year}
               </h2>
               {activeReport.status === 'Submitted' && (
-                <span className="ml-2 inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                <span className="ml-2 inline-flex items-center gap-1 bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                   <CheckCircle2 className="w-3 h-3" />
                   Filed to LIT
                 </span>
               )}
             </div>
 
-            {/* Sleek "More Actions" Dropdown Button matching dropdown_29fce253.png */}
+            {/* Sleek "More Actions" Dropdown Button */}
             <DropdownMenu
               trigger={
                 <button
                   type="button"
-                  className="w-9 h-9 rounded-xl bg-[#2be4a7] hover:bg-[#25c490] text-[#1d1a27] flex items-center justify-center transition shadow-2xs cursor-pointer active:scale-95 shrink-0"
+                  className="w-9 h-9 rounded-xl bg-[#46e3a5] hover:brightness-105 text-[#101010] border-[1.5px] border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center transition-all cursor-pointer shrink-0"
                   title="More actions"
                   aria-label="More actions"
                 >
@@ -398,16 +395,16 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           </div>
 
           {pdfSuccessToast && (
-            <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-semibold rounded-2xl flex items-center gap-2 shadow-xs animate-in fade-in">
+            <div className="p-3 bg-[#46e3a5]/20 border border-[#46e3a5] text-[#102a1f] text-xs font-semibold rounded-2xl flex items-center gap-2 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>{pdfSuccessToast}</span>
             </div>
           )}
 
-          {/* Statement Auto-Categorization Hero Banner (Text Expanded + Button Across Bottom) */}
-          <div className="bg-[#1d1a27] text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-white/10 space-y-4">
+          {/* Statement Auto-Categorization Hero Banner */}
+          <div className="bg-[#1d1a27] text-white rounded-2xl p-5 sm:p-6 border-[1.5px] border-[#101010] space-y-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#fbf050] text-[#1d1a27] flex items-center justify-center font-extrabold shrink-0 mt-0.5 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-[#F9F45D] text-[#1d1a27] border border-[#101010] flex items-center justify-center font-extrabold shrink-0 mt-0.5">
                 <Sparkles className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div className="space-y-1 min-w-0 flex-1">
@@ -415,7 +412,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   <h3 className="text-sm sm:text-base font-bold text-white tracking-wide">
                     Auto-Fill Form 65 from Bank Statement
                   </h3>
-                  <span className="status-tag-compact bg-[#fbf050] text-[#1d1a27] font-bold border border-[#fbf050]">
+                  <span className="status-tag-compact bg-[#F9F45D] text-[#1d1a27] font-bold border border-[#101010]">
                     Jan 1 – Jan 30
                   </span>
                 </div>
@@ -425,33 +422,32 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
             </div>
 
-            {/* Button positioned across bottom underneath text */}
             <button
               type="button"
               onClick={() => setIsStatementModalOpen(true)}
-              className="w-full bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs py-3 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              className="w-full bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs py-3 px-4 rounded-xl border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
             >
               <Upload className="w-4 h-4 stroke-[2.5]" />
               <span>Upload Statement (Jan 1-30)</span>
             </button>
           </div>
 
-          {/* Debtor Overview Strip matching mockups */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-600 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Debtor Overview Strip */}
+          <div className="bg-white border border-[#d8d9f8] rounded-2xl p-4 text-xs text-[#4b4856] grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <div className="font-bold text-slate-900 text-sm">{profile.firstName} {profile.lastName}</div>
+              <div className="font-extrabold text-[#101010] text-sm">{profile.firstName} {profile.lastName}</div>
               <div>{profile.addressLine1}, {profile.province} {profile.postalCode}</div>
-              <div>{profile.phone}</div>
+              <div className="tabular-nums">{profile.phone}</div>
             </div>
             <div className="sm:text-right">
-              <div className="font-semibold text-slate-900">{profile.currentTitle}, {profile.company}</div>
+              <div className="font-bold text-[#101010]">{profile.currentTitle}, {profile.company}</div>
               <div>{profile.maritalStatus}, {profile.spouseName}</div>
-              <div className="font-medium text-slate-500">{profile.householdSize} in household · LIT: {profile.litName?.split(',')[0]}</div>
+              <div className="font-medium text-[#6e6b7b]">{profile.householdSize} in household · LIT: {profile.litName?.split(',')[0]}</div>
             </div>
           </div>
 
-          {/* Wizard Step Navigation Pills */}
-          <div className="flex items-center justify-between overflow-x-auto pb-1 text-xs gap-2 select-none">
+          {/* Wizard Step Navigation Pills matching CategorizeView */}
+          <div className="flex items-center justify-between overflow-x-auto pb-1.5 text-xs gap-2.5 select-none">
             {[
               { num: 1, label: '1. Household Income' },
               { num: 2, label: '2. Non-Discretionary' },
@@ -461,11 +457,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             ].map(step => (
               <button
                 key={step.num}
+                type="button"
                 onClick={() => setCurrentStep(step.num)}
-                className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition ${
+                className={`px-4 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
                   currentStep === step.num
-                    ? 'bg-[#1d1a27] text-white shadow-sm font-bold'
-                    : 'bg-slate-200/60 text-slate-600 hover:bg-slate-200 font-normal'
+                    ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
+                    : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
                 }`}
               >
                 {step.label}
@@ -546,9 +543,9 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
 
               {/* Total combined */}
-              <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-between text-xs font-bold text-slate-800">
-                <span className="font-bold">Combined Monthly Household Gross:</span>
-                <span className="text-base font-normal text-slate-900">
+              <div className="p-4 bg-white rounded-2xl border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] flex items-center justify-between text-xs font-bold text-[#101010]">
+                <span className="font-bold uppercase tracking-wide">Combined Monthly Household Gross:</span>
+                <span className="text-base font-extrabold text-[#101010] tabular-nums">
                   {formatCurrency(totalGrossIncome)} CAD
                 </span>
               </div>
@@ -595,10 +592,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setAttachingCategory(row.key)}
-                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer min-h-[52px] ${
+                          className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer min-h-[48px] whitespace-nowrap ${
                             hasAttachment
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-white border border-[#2d2d2d] text-slate-700 hover:bg-slate-100 shadow-[0_2px_0_rgba(0,0,0,0.22)]'
+                              ? 'bg-[#46e3a5] text-[#102a1f] border-[1.5px] border-[#101010] shadow-[2px_3px_0px_#000000]'
+                              : 'bg-white border border-[#2d2a37] text-[#101010] hover:bg-slate-50 shadow-[2px_3px_0px_#a5a7fb]'
                           }`}
                         >
                           <Paperclip className="w-3.5 h-3.5" />
@@ -610,15 +607,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 })}
               </div>
 
-              <div className="pt-2 text-sm font-bold text-slate-900">
+              <div className="pt-2 text-sm font-extrabold text-[#101010] tabular-nums">
                 Total: {formatCurrency(totalNonDiscretionary)}
               </div>
 
-              {/* Did you know? callout matching screenshot */}
-              <div className="bg-slate-100 border border-slate-200/90 rounded-2xl p-5 text-xs text-slate-700 space-y-1">
-                <div className="font-bold text-slate-900 text-sm">Did you know?</div>
+              {/* Did you know? callout */}
+              <div className="bg-white border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-2xl p-5 text-xs text-[#4b4856] space-y-1">
+                <div className="font-extrabold text-[#101010] text-sm">Did you know?</div>
                 <p>
-                  <span className="font-bold text-slate-900">Medical Condition Expenses</span> include medical marijuana prescriptions and can be submitted with other medicines.
+                  <span className="font-bold text-[#101010]">Medical Condition Expenses</span> include medical marijuana prescriptions and can be submitted with other medicines.
                 </p>
               </div>
             </div>
@@ -695,10 +692,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
 
               {/* Did you know? callout matching Screen 3 */}
-              <div className="bg-slate-100 border border-slate-200/90 rounded-2xl p-5 text-xs text-slate-700 space-y-1">
-                <div className="font-extrabold text-slate-900 text-sm">Did you know?</div>
+              <div className="bg-white border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-2xl p-5 text-xs text-[#4b4856] space-y-1">
+                <div className="font-extrabold text-[#101010] text-sm">Did you know?</div>
                 <p>
-                  All discretionary expenses should have a receipt or prescription attached. Any transactions without attachments will be moved into <span className="font-bold text-slate-900">Non-Discretionary</span> section.
+                  All discretionary expenses should have a receipt or prescription attached. Any transactions without attachments will be moved into <span className="font-bold text-[#101010]">Non-Discretionary</span> section.
                 </p>
               </div>
             </div>
@@ -873,12 +870,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
 
               {/* Statutory Surplus Income Calculation Breakdown (OSB Official Standard) */}
-              <div className="bg-[#1d1a27] text-white p-6 rounded-2xl space-y-4">
+              <div className="bg-[#1d1a27] text-white p-6 rounded-2xl border-[1.5px] border-[#101010] space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="text-sm font-bold uppercase tracking-wider text-[#b6b3ff]">
                     Superintendent of Bankruptcy Surplus Calculation
                   </div>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-slate-400 tabular-nums">
                     Statutory Household Size: {profile.householdSize}
                   </span>
                 </div>
@@ -886,19 +883,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                   <div>
                     <span className="text-slate-400 block mb-1">Gross Household:</span>
-                    <span className="text-base font-bold text-white">{formatCurrency(totalGrossIncome)}</span>
+                    <span className="text-base font-bold text-white tabular-nums">{formatCurrency(totalGrossIncome)}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block mb-1">Non-Discretionary:</span>
-                    <span className="text-base font-bold text-white">{formatCurrency(totalNonDiscretionary)}</span>
+                    <span className="text-base font-bold text-white tabular-nums">{formatCurrency(totalNonDiscretionary)}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block mb-1">OSB Threshold:</span>
-                    <span className="text-base font-bold text-slate-300">{formatCurrency(householdThreshold)}</span>
+                    <span className="text-base font-bold text-slate-300 tabular-nums">{formatCurrency(householdThreshold)}</span>
                   </div>
                   <div>
-                    <span className="text-[#fbf050] font-bold block mb-1">Surplus Owed (50%):</span>
-                    <span className="text-xl font-bold text-[#fbf050]">{formatCurrency(calculatedSurplus)}</span>
+                    <span className="text-[#F9F45D] font-bold block mb-1">Surplus Owed (50%):</span>
+                    <span className="text-xl font-extrabold text-[#F9F45D] tabular-nums">{formatCurrency(calculatedSurplus)}</span>
                   </div>
                 </div>
 
@@ -916,9 +913,9 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   type="button"
                   onClick={handleDownloadReport}
                   disabled={isGeneratingPdf}
-                  className="w-full sm:w-auto px-5 py-4 rounded-2xl bg-[#1d1a27] hover:bg-[#2d283c] text-white font-bold text-xs tracking-wide transition shadow-sm flex items-center justify-center gap-2 cursor-pointer border border-white/10 shrink-0 disabled:opacity-70 active:scale-95"
+                  className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white font-semibold text-xs tracking-wide transition-all border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-70 whitespace-nowrap"
                 >
-                  <Download className={`w-4 h-4 text-[#b6b3ff] ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
+                  <Download className={`w-4 h-4 text-white ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
                   <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Form 65 PDF'}</span>
                 </button>
 
@@ -926,22 +923,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  style={{
-                    background: 'var(--colour-dark-highlight, #F9F45D)',
-                    boxShadow: '4px 6px 0px black',
-                    borderRadius: 8,
-                    color: 'var(--colour-dark-accent, #3E4A4F)',
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '13.34px',
-                    fontWeight: '700',
-                    lineHeight: '20.96px'
-                  }}
-                  className="flex-1 w-full py-3.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
+                  className="flex-1 w-full py-3.5 px-5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                 >
-                  <Send className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-pulse' : ''}`} style={{ color: '#3E4A4F' }} />
-                  <span style={{ fontWeight: '700' }}>
-                    {isSubmitting 
-                      ? 'Generating Form 65 & Dispatching to LIT...' 
+                  <Send className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-pulse' : ''}`} />
+                  <span>
+                    {isSubmitting
+                      ? 'Generating Form 65 & Dispatching to LIT...'
                       : `Submit ${activeReport.month} Report & Email to Trustee (${profile.litName?.split(',')[0] || 'LIT'})`}
                   </span>
                 </button>
@@ -950,12 +937,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           )}
 
           {/* Navigation Buttons at Bottom */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div className="flex items-center justify-between pt-4 border-t border-[#8c93fc]/25">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={() => setCurrentStep(prev => prev - 1)}
-                className="px-5 py-3 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-bold transition flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Prev. Section</span>
@@ -966,81 +953,87 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               <button
                 type="button"
                 onClick={() => setCurrentStep(prev => prev + 1)}
-                style={{
-                  background: 'var(--colour-dark-highlight, #F9F45D)',
-                  boxShadow: '4px 6px 0px black',
-                  borderRadius: 8,
-                  color: 'var(--colour-dark-accent, #3E4A4F)',
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '13.34px',
-                  fontWeight: '700',
-                  lineHeight: '20.96px'
-                }}
-                className="px-5 py-2.5 transition-all flex items-center gap-2 cursor-pointer hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] active:[box-shadow:2px_3px_0px_black]"
+                className="px-5 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap"
               >
-                <span style={{ fontWeight: '700' }}>Next Section</span>
-                <ChevronRight className="w-4 h-4 stroke-[2.5]" style={{ color: '#3E4A4F' }} />
+                <span>Next Section</span>
+                <ChevronRight className="w-4 h-4 stroke-[2.5]" />
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Attach Receipt Modal */}
+      {/* Attach Receipt Modal — unified crisp white neo-brutalist design */}
       {attachingCategory && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150"
+        <div
+          className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150"
           onClick={() => setAttachingCategory(null)}
         >
-          <div 
-            className="bg-[#2e293f] text-white border border-white/10 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-4"
+          <div
+            className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-[6px_8px_0px_#000000] space-y-4"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <div className="text-xs font-bold uppercase tracking-wider text-[#b6b3ff]">
-                Attach Statutory Proof: {attachingCategory}
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#b4b1fc]/35">
+              <div>
+                <div className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
+                  Attach Statutory Proof
+                </div>
+                <div className="text-xs text-[#6e6b7b] mt-0.5">
+                  Category: <span className="font-semibold text-[#101010]">{attachingCategory}</span>
+                </div>
               </div>
-              <button 
+              <button
+                type="button"
                 onClick={() => setAttachingCategory(null)}
-                className="text-slate-400 hover:text-white text-xs font-bold p-1"
+                aria-label="Close attach proof modal"
+                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-300">
-              The Superintendent of Bankruptcy requires verified receipts or medical prescriptions for non-discretionary statutory deductions. Select from your receipt vault or upload a new scan.
+            <p className="text-xs text-[#4b4856] leading-relaxed">
+              The Superintendent of Bankruptcy requires verified receipts or medical prescriptions for non-discretionary statutory deductions. Select from your receipt vault below.
             </p>
 
             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
               {receipts.map(r => (
-                <label 
-                  key={r.id} 
-                  className={`flex items-center justify-between p-3 rounded-xl border transition cursor-pointer text-xs ${
+                <label
+                  key={r.id}
+                  className={`flex items-center justify-between p-3 rounded-2xl border transition cursor-pointer text-xs ${
                     selectedReceiptId === r.id
-                      ? 'border-[#b6b3ff] bg-[#b6b3ff]/10 text-white'
-                      : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                      ? 'border-[#101010] bg-[#f7f4eb] shadow-[2px_3px_0px_#a5a7fb]'
+                      : 'border-[#d8d9f8] bg-white hover:border-[#8c93fc]'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <input
                       type="radio"
                       name="receiptAttachment"
                       checked={selectedReceiptId === r.id}
                       onChange={() => setSelectedReceiptId(r.id)}
-                      className="accent-[#b6b3ff]"
+                      className="accent-[#101010]"
                     />
-                    <div>
-                      <div className="font-bold text-white">{r.title}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">{r.fileName || 'Document.pdf'} · {r.date}</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-[#101010] truncate">{r.title}</div>
+                      <div className="text-[11px] text-[#6e6b7b] font-mono truncate tabular-nums">
+                        {r.fileName || 'Document.pdf'} · {r.date}
+                      </div>
                     </div>
                   </div>
-                  <span className="font-bold text-[#fbf050]">{formatCurrency(r.amount)}</span>
+                  <span className="font-extrabold text-[#101010] tabular-nums ml-2 shrink-0">{formatCurrency(r.amount)}</span>
                 </label>
               ))}
             </div>
 
-            <div className="pt-3 flex items-center justify-between gap-3 border-t border-white/10">
+            <div className="pt-3 flex items-center justify-end gap-3 border-t border-[#b4b1fc]/35">
+              <button
+                type="button"
+                onClick={() => setAttachingCategory(null)}
+                className="py-2.5 px-5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -1061,31 +1054,24 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   }
                   setAttachingCategory(null);
                 }}
-                className="flex-1 py-3 rounded-xl bg-[#b6b3ff] text-[#242031] font-bold text-xs hover:bg-white transition"
+                className="flex-1 py-2.5 px-5 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
               >
                 Link Selected Proof to Form 65
               </button>
-                <button
-                  type="button"
-                  onClick={() => setAttachingCategory(null)}
-                  className="py-3 px-4 rounded-xl border border-white/20 text-slate-300 hover:bg-white/5 text-xs font-bold transition"
-                >
-                  Cancel
-                </button>
-              </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* PDF Download Toast Notification */}
       {pdfSuccessToast && (
-        <div className="fixed bottom-6 left-6 max-w-sm bg-[#1d1a27] text-white border-2 border-[#b6b3ff] rounded-2xl p-4 shadow-2xl z-50 flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
-          <div className="w-8 h-8 rounded-xl bg-[#b6b3ff] text-[#242031] flex items-center justify-center shrink-0">
+        <div className="fixed bottom-6 left-6 max-w-sm bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-2xl p-4 shadow-[5px_6px_0px_#000000] z-50 flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
+          <div className="w-8 h-8 rounded-xl bg-[#46e3a5] border border-[#101010] text-[#101010] flex items-center justify-center shrink-0">
             <Check className="w-4 h-4 stroke-[3]" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-black uppercase text-[#b6b3ff] tracking-wider">PDF Report Downloaded</div>
-            <div className="text-xs text-slate-200 mt-0.5">{pdfSuccessToast}</div>
+            <div className="text-[11px] font-extrabold uppercase text-[#101010] tracking-wider">PDF Report Downloaded</div>
+            <div className="text-xs text-[#4b4856] mt-0.5">{pdfSuccessToast}</div>
           </div>
         </div>
       )}

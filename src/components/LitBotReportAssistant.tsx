@@ -230,19 +230,19 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   };
 
   return (
-    <div className="bg-[#1d1a27] text-white rounded-3xl p-6 shadow-xl border border-white/10 space-y-4">
+    <div className="bg-[#1d1a27] text-white rounded-3xl p-6 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-4">
       {/* Clean, Uncrowded Widget Header Bar */}
       <div className="flex items-center justify-between pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#b6b3ff] text-[#1d1a27] flex items-center justify-center font-bold shadow-sm shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-[#b6b3ff] border border-[#101010] text-[#1d1a27] flex items-center justify-center font-bold shrink-0">
             <Bot className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wide">
                 LITbot AI Assistant
               </h3>
-              <span className="status-tag-compact bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="status-tag-compact bg-[#46e3a5] text-[#102a1f] font-bold border border-[#101010]/20">
                 Live trustee guide
               </span>
             </div>
@@ -262,11 +262,11 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
       )}
 
       {/* Suggested Quick Question Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1.5 text-xs no-scrollbar">
         <button
           type="button"
           onClick={() => setIsStatementModalOpen(true)}
-          className="px-3 py-1.5 rounded-full bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold transition shrink-0 cursor-pointer shadow-2xs flex items-center gap-1"
+          className="px-3.5 py-1.5 rounded-full bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all shrink-0 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
         >
           <Upload className="w-3 h-3 stroke-[2.5]" />
           <span>Upload Statement (Jan 1-30)</span>
@@ -274,14 +274,14 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
         <button
           type="button"
           onClick={() => handleSendMessage("You spent $50 at Instacart - was this for Dining or Groceries?")}
-          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition shrink-0 cursor-pointer"
+          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/15 transition shrink-0 cursor-pointer whitespace-nowrap"
         >
           Instacart: Groceries vs. Dining?
         </button>
         <button
           type="button"
           onClick={() => handleSendMessage("This $20 transaction at Rexall needs a prescription receipt attached")}
-          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition shrink-0 cursor-pointer"
+          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/15 transition shrink-0 cursor-pointer whitespace-nowrap"
         >
           Rexall $20 Prescription Proof
         </button>
@@ -376,62 +376,66 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
         </button>
       </div>
 
-      {/* Modal: Bank Statement Import for Jan 1 - Jan 30 */}
+      {/* Modal: Bank Statement Import for Jan 1 - Jan 30 — unified white neo-brutalist design + #b6c0fb dropzone */}
       {isStatementModalOpen && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in"
+          className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150"
           onClick={() => setIsStatementModalOpen(false)}
         >
           <div
-            className="bg-[#2e293f] text-white border border-white/15 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4"
+            className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[6px_8px_0px_#000000] space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <div className="flex items-center justify-between pb-3 border-b border-[#b4b1fc]/35">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#b6b3ff]" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                <FileText className="w-5 h-5 text-[#8c93fc]" />
+                <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
                   Upload Statement (Jan 1 – Jan 30)
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setIsStatementModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs font-bold p-1"
+                aria-label="Close upload statement modal"
+                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4 stroke-[2]" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Upload your bank or credit card statement for the period of <strong>Jan 1 to Jan 30</strong>. Cleanslate will automatically parse transactions, populate your Form 65 line items, and guide you through quick clarifications with LITbot.
+            <p className="text-xs text-[#4b4856] leading-relaxed">
+              Upload your bank or credit card statement for the period of <strong className="text-[#101010]">Jan 1 to Jan 30</strong>. CleanSlate will automatically parse transactions, populate your Form 65 line items, and guide you through quick clarifications with LITbot.
             </p>
 
-            {/* Dropzone mockup */}
-            <div 
+            {/* Periwinkle Dropzone matching ReceiptsView */}
+            <div
               onClick={() => handleProcessBankStatement('Jan_1_to_Jan_30_Bank_Statement.pdf')}
-              className="border-2 border-dashed border-white/20 hover:border-[#b6b3ff] rounded-2xl p-6 text-center space-y-2 bg-white/5 transition cursor-pointer"
+              className="rounded-2xl bg-[#b6c0fb] p-3 hover:brightness-[0.99] transition cursor-pointer"
             >
-              <Upload className="w-8 h-8 text-[#b6b3ff] mx-auto" />
-              <div className="text-xs font-bold text-white">
-                Drop your statement file here (PDF / CSV / Image)
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Statement period: January 1, 2026 – January 30, 2026
+              <div className="border border-dashed border-[#242031]/55 rounded-xl p-6 text-center space-y-2">
+                <Upload className="w-7 h-7 text-[#1d1a27] mx-auto" />
+                <div className="text-xs font-extrabold text-[#101010]">
+                  Drop your statement file here (PDF / CSV / Image)
+                </div>
+                <div className="text-[11px] text-[#242031]/80 font-medium">
+                  Statement period: January 1, 2026 – January 30, 2026
+                </div>
               </div>
             </div>
 
-            <div className="pt-2 space-y-2">
+            <div className="pt-2 space-y-2.5">
               <button
                 type="button"
                 onClick={() => handleProcessBankStatement('Jan_1_to_Jan_30_Bank_Statement.pdf')}
-                className="w-full py-3 rounded-xl bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-[#1d1a27]" />
-                <span>Import & Auto-Categorize Statement</span>
+                <span>Import &amp; Auto-Categorize Statement</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsStatementModalOpen(false)}
-                className="w-full py-2.5 rounded-xl border border-white/20 text-slate-300 hover:bg-white/5 text-xs font-bold transition"
+                className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all cursor-pointer"
               >
                 Cancel
               </button>
