@@ -2,6 +2,7 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 import { LitBotKnowledgeArticle, findRelevantKnowledge } from '../lib/litbotKnowledge';
 import { mergeKnowledgeArticles } from './litbotKnowledgeStore';
+import { askBotPenguinAgent } from './botpenguinAgent';
 
 const BASE_LITBOT_SYSTEM_INSTRUCTION = `You are LITbot, the official AI Licensed Insolvency Trustee (LIT) assistant for CleanSlate — Canada's personal bankruptcy guidance app.
 
@@ -47,6 +48,39 @@ CRITICAL STATUTORY RULES & COMMON CONFUSING QUESTIONS:
 DOCUMENT & IMAGE ANALYSIS:
 - When the user uploads bank statements, paystubs, receipts, or BIA documents: inspect payee names, amounts, dates, map them to exact Form 65 fields, flag internal transfers so nothing is double-counted, and note mandatory receipts.`;
 
+const STOPWORDS = new Set([
+  'about', 'after', 'again', 'being', 'between', 'could', 'doing', 'during',
+  'every', 'first', 'found', 'getting', 'having', 'how', 'inside', 'into',
+  'might', 'monthly', 'month', 'other', 'please', 'question', 'questions',
+  'should', 'simple', 'something', 'terms', 'their', 'there', 'these',
+  'thing', 'things', 'think', 'those', 'through', 'under', 'using', 'what',
+  'where', 'which', 'while', 'would', 'explain', 'means', 'mean', 'tell'
+]);
+
+function findMatchingCustomArticles(
+  query: string,
+  articles: LitBotKnowledgeArticle[]
+): LitBotKnowledgeArticle[] {
+  const customActive = articles.filter((a) => a.isActive && !a.isBuiltIn);
+  if (customActive.length === 0) return [];
+
+  const qLower = query.toLowerCase();
+  const tokens = qLower
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 4 && !STOPWORDS.has(w));
+
+  return customActive.filter((art) => {
+    const titleLower = art.title.toLowerCase();
+    if (titleLower.length >= 6 && qLower.includes(titleLower)) return true;
+    const body = `${titleLower} ${(art.citation || '').toLowerCase()} ${art.content.toLowerCase()}`;
+    let hits = 0;
+    for (const tok of tokens) {
+      if (body.includes(tok)) hits++;
+    }
+    return hits >= 2 || (tokens.length <= 2 && hits >= 1);
+  });
+}
+
 function buildSystemInstruction(
   prompt: string,
   knowledgeArticles: LitBotKnowledgeArticle[]
@@ -54,7 +88,6 @@ function buildSystemInstruction(
   const activeCustom = knowledgeArticles.filter((a) => a.isActive && !a.isBuiltIn);
   const topRelevant = findRelevantKnowledge(prompt, knowledgeArticles, 4);
 
-  // Combine user-added custom articles + top relevant articles (deduped)
   const combinedMap = new Map<string, LitBotKnowledgeArticle>();
   for (const item of activeCustom.slice(0, 6)) {
     combinedMap.set(item.id, item);
@@ -87,11 +120,46 @@ export async function processLitBotChatRequest(
   messages: Array<{ role: 'user' | 'model'; text: string }> = [],
   attachments: Array<{ fileName: string; mimeType: string; base64: string }> = [],
   contextProfile?: any,
-  clientKnowledgeArticles: LitBotKnowledgeArticle[] = []
+  clientKnowledgeArticles: LitBotKnowledgeArticle[] = [],
+  sessionId?: string
 ) {
   const mergedKnowledge = mergeKnowledgeArticles(clientKnowledgeArticles);
-  const apiKey = process.env.GEMINI_API_KEY;
+  const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+  const matchingCustom = findMatchingCustomArticles(prompt, mergedKnowledge);
 
+  // 1. Primary Basis: BotPenguin AI Agent for conversational Q&A (when no binary file attachment is uploaded)
+  if (!hasAttachments) {
+    try {
+      const bpReply = await askBotPenguinAgent(prompt, sessionId || 'cleanslate-default', 18000);
+      if (bpReply?.text && bpReply.text.trim().length > 0) {
+        let finalText = bpReply.text.trim();
+
+        // If user also added custom training articles that directly match this question, surface their notes concisely
+        if (matchingCustom.length > 0) {
+          const customNotes = matchingCustom
+            .slice(0, 2)
+            .map((art) => {
+              const cite = art.citation ? ` (*${art.citation}*)` : '';
+              const snippet = art.content.trim().slice(0, 450);
+              return `- **${art.title}**${cite}: ${snippet}${art.content.trim().length > 450 ? '…' : ''}`;
+            })
+            .join('\n');
+          finalText += `\n\n### From Your Added CleanSlate Training Library\n${customNotes}`;
+        }
+
+        return {
+          text: finalText,
+          provider: 'botpenguin',
+          sessionId: bpReply.sessionId
+        };
+      }
+    } catch (bpErr) {
+      console.warn('BotPenguin primary agent failed, falling back cleanly:', bpErr);
+    }
+  }
+
+  // 2. Multimodal attachment path OR resilient Gemini fallback
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.warn('GEMINI_API_KEY is not set in environment. Falling back to local statutory response engine.');
     return getFallbackLitBotResponse(prompt, contextProfile, mergedKnowledge);
@@ -109,7 +177,6 @@ export async function processLitBotChatRequest(
 
     const contents: any[] = [];
 
-    // Append prior chat history cleanly: start from the first 'user' turn and merge consecutive same-role turns
     if (Array.isArray(messages) && messages.length > 0) {
       const recent = messages.slice(-8).filter((m) => m && m.text && m.text.trim().length > 0);
       const firstUserIdx = recent.findIndex((m) => m.role === 'user');
@@ -129,10 +196,7 @@ export async function processLitBotChatRequest(
       }
     }
 
-    // Build parts for current user request
     const currentParts: any[] = [];
-
-    const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
     if (hasAttachments) {
       for (const att of attachments) {
         if (att.base64 && att.mimeType) {
@@ -147,7 +211,6 @@ export async function processLitBotChatRequest(
       }
     }
 
-    // Append context profile summary if available
     let fullPrompt = prompt;
     if (contextProfile) {
       const extraSimContext = contextProfile.activeThreshold
@@ -181,8 +244,6 @@ export async function processLitBotChatRequest(
         )
       ]);
 
-    // Use ultra-fast gemini-3.1-flash-lite first for text chat (~2-4s), falling back to gemini-4-hydrogen;
-    // for multimodal file/image uploads, prefer gemini-4-hydrogen first.
     const modelsToTry = hasAttachments
       ? ['gemini-4-hydrogen', 'gemini-3.1-flash-lite']
       : ['gemini-3.1-flash-lite', 'gemini-4-hydrogen'];
@@ -209,7 +270,7 @@ export async function processLitBotChatRequest(
 
         const textOutput = response.text;
         if (textOutput && textOutput.trim().length > 0) {
-          return { text: textOutput };
+          return { text: textOutput, provider: 'gemini' };
         }
       } catch (err) {
         lastError = err;

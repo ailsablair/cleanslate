@@ -67,6 +67,13 @@ export const LitBotView: React.FC<LitBotViewProps> = ({
   onNavigateToReports
 }) => {
   const [activeMode, setActiveMode] = useState<'chat' | 'training'>('chat');
+  const [chatSessionId, setChatSessionId] = useState<string>(() => `litbot-main-${Date.now()}`);
+  const [agentIceBreakers, setAgentIceBreakers] = useState<string[]>([
+    'Which categories are not counted towards my bankruptcy payment calculation?',
+    'What is the difference between Employment Insurance Benefits vs. Social Assistance?',
+    'Do I include a breakdown for each bank account or total each category across all accounts?',
+    'How do I count cash gifts from family and friends for the holidays and my birthday?'
+  ]);
 
   // Knowledge Base / Training State
   const [knowledgeArticles, setKnowledgeArticles] = useState<LitBotKnowledgeArticle[]>(() =>
@@ -104,6 +111,23 @@ export const LitBotView: React.FC<LitBotViewProps> = ({
       .catch(() => {
         // Offline / local mode continues cleanly with localStorage
       });
+    // Load configured BotPenguin AI Agent starter prompts (icebreakers) while keeping CleanSlate UI
+    fetch('/api/litbot/agent-config')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((cfg) => {
+        if (cancelled || !cfg) return;
+        if (Array.isArray(cfg.iceBreakers) && cfg.iceBreakers.length > 0) {
+          const combined = [
+            ...cfg.iceBreakers,
+            'How do I count cash gifts from family and friends for the holidays and my birthday?'
+          ];
+          setAgentIceBreakers(Array.from(new Set(combined)));
+        }
+      })
+      .catch(() => {
+        // Offline / local fallback keeps default starter prompts
+      });
+
     return () => {
       cancelled = true;
     };
@@ -300,7 +324,8 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
         litName: profile.litName,
         surplusPayment: 159
       },
-      knowledgeArticles
+      knowledgeArticles,
+      sessionId: chatSessionId
     });
 
     try {
@@ -377,6 +402,7 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
   };
 
   const handleClearHistory = () => {
+    setChatSessionId(`litbot-main-${Date.now()}`);
     setMessages([
       {
         id: 'welcome-reset',
@@ -571,12 +597,7 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
               <Sparkles className="w-3.5 h-3.5 text-[#8c93fc]" />
               Try Asking:
             </span>
-            {[
-              'How do I count cash gifts from family and friends for the holidays and my birthday?',
-              'What is the difference between Medical Condition Expenses and Prescriptions?',
-              'Which categories are not counted towards my bankruptcy payment calculation?',
-              'Do I include a breakdown for each bank account or total each category across all accounts?'
-            ].map((promptText, i) => (
+            {agentIceBreakers.map((promptText, i) => (
               <button
                 key={i}
                 type="button"

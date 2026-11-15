@@ -72,6 +72,7 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   const [statementSuccessToast, setStatementSuccessToast] = useState<string | null>(null);
 
   const [isSendingQuery, setIsSendingQuery] = useState<boolean>(false);
+  const [chatSessionId] = useState<string>(() => `litbot-report-${Date.now()}`);
 
   // Resilient local fallback only if API is unreachable
   const getOfflineFallbackResponse = (query: string): string => {
@@ -155,7 +156,8 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             litName: profile.litName,
             activeReportMonth: `${activeReport.month} ${activeReport.year}`
           },
-          knowledgeArticles: loadKnowledgeArticlesFromStorage()
+          knowledgeArticles: loadKnowledgeArticlesFromStorage(),
+          sessionId: chatSessionId
         })
       });
 

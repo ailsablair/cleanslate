@@ -63,6 +63,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
   ]);
   const [inputQuestion, setInputQuestion] = useState<string>('');
   const [isAskingBot, setIsAskingBot] = useState<boolean>(false);
+  const [chatSessionId] = useState<string>(() => `litbot-sim-${Date.now()}`);
 
   // OSB Canadian Statutory Household Thresholds (Directive 11R2-2024 standards)
   const getThreshold = (size: number) => {
@@ -150,7 +151,8 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             surplusPayment: Math.round(newCalculatedSurplus),
             activeThreshold
           },
-          knowledgeArticles: loadKnowledgeArticlesFromStorage()
+          knowledgeArticles: loadKnowledgeArticlesFromStorage(),
+          sessionId: chatSessionId
         })
       });
 
