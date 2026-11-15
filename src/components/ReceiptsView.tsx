@@ -421,33 +421,12 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
           </div>
         </div>
       ) : (
-        /* POPULATED STATE — Matches receipts-filled_b78bebe1.png & receipts_1dff74b1.png */
-        <>
-          {/* Top Periwinkle Upload Dropzone */}
-          <div
-            onClick={() => directFileInputRef.current?.click()}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-            className={`bg-[#b6c0fb] rounded-3xl p-4 border border-[#1a1822] shadow-[4px_5px_0px_#000000] transition cursor-pointer ${
-              isDragging ? 'ring-2 ring-[#F9F45D]' : ''
-            }`}
-          >
-            <div className="border border-dashed border-[#242031]/55 rounded-2xl py-8 sm:py-10 flex flex-col items-center justify-center gap-2 hover:bg-white/15 transition">
-              <Upload className="w-5 h-5 text-[#1d1a27]" />
-              <span className="text-xs sm:text-sm font-bold text-[#101010]">
-                {isParsingUpload ? 'Analyzing Receipt with CleanSlate AI...' : 'Upload Receipt'}
-              </span>
-            </div>
-          </div>
-
-          {/* Main 2-Column Split: PAST UPLOADS + Receipt Preview & Editable Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column: PAST UPLOADS */}
-            <div className="lg:col-span-4 bg-white text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] overflow-hidden flex flex-col">
+        /* POPULATED STATE — Matches receipts-new_85f48e55.png */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          {/* Left Column: PAST UPLOADS + Upload Receipt Dropzone */}
+          <div className="lg:col-span-4 flex flex-col gap-5">
+            {/* PAST UPLOADS Card */}
+            <div className="bg-white text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] overflow-hidden flex flex-col flex-1">
               <div className="px-5 pt-5 pb-3.5 flex items-center justify-between gap-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <History className="w-4 h-4 text-[#8c93fc] shrink-0" />
@@ -467,7 +446,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 </button>
               </div>
 
-              <div className="divide-y divide-slate-100 max-h-[580px] overflow-y-auto">
+              <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto flex-1">
                 {receipts.map((rec) => {
                   const isActive = selectedReceipt?.id === rec.id;
                   const displayVendor = deriveVendorFromTitle(rec);
@@ -527,77 +506,99 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Receipt Document Preview + Editable Details Form */}
-            {selectedReceipt && (
-              <div className="lg:col-span-8 bg-white text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] overflow-hidden flex flex-col">
-                {/* Top Preview Area */}
-                <div className="bg-white px-5 sm:px-8 pt-6 pb-4 flex items-center justify-center min-h-[290px] max-h-[380px] overflow-hidden">
-                  {selectedReceipt.fileUrl && selectedReceipt.fileUrl.startsWith('data:image') ? (
-                    <img
+            {/* Bottom-Left Periwinkle Upload Receipt Dropzone */}
+            <div
+              onClick={() => directFileInputRef.current?.click()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              className={`bg-[#b6c0fb] rounded-3xl p-3.5 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] transition cursor-pointer shrink-0 ${
+                isDragging ? 'ring-2 ring-[#F9F45D]' : ''
+              }`}
+            >
+              <div className="border border-dashed border-[#242031]/55 rounded-2xl py-8 px-4 flex flex-col items-center justify-center gap-2 hover:bg-white/15 transition">
+                <Upload className="w-5 h-5 text-[#1d1a27]" />
+                <span className="text-xs sm:text-sm font-bold text-[#101010]">
+                  {isParsingUpload ? 'Analyzing Receipt...' : 'Upload Receipt'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Receipt Document Preview + Editable Details Form */}
+          {selectedReceipt && (
+            <div className="lg:col-span-8 bg-white text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] overflow-hidden flex flex-col">
+              {/* Top Preview Area */}
+              <div className="bg-white px-5 sm:px-8 pt-6 pb-4 flex items-center justify-center flex-1 min-h-[340px] max-h-[440px] overflow-hidden">
+                {selectedReceipt.fileUrl && selectedReceipt.fileUrl.startsWith('data:image') ? (
+                  <img
+                    src={selectedReceipt.fileUrl}
+                    alt={selectedReceipt.title}
+                    className="max-h-[390px] w-auto max-w-full object-contain border border-slate-300 shadow-xs"
+                  />
+                ) : selectedReceipt.fileUrl && selectedReceipt.fileUrl.startsWith('data:application/pdf') ? (
+                  <div className="w-full max-w-md border border-slate-300 rounded-xl overflow-hidden shadow-xs">
+                    <iframe
                       src={selectedReceipt.fileUrl}
-                      alt={selectedReceipt.title}
-                      className="max-h-[340px] w-auto max-w-full object-contain border border-slate-300 shadow-xs"
+                      title={selectedReceipt.title}
+                      className="w-full h-[360px]"
                     />
-                  ) : selectedReceipt.fileUrl && selectedReceipt.fileUrl.startsWith('data:application/pdf') ? (
-                    <div className="w-full max-w-md border border-slate-300 rounded-xl overflow-hidden shadow-xs">
-                      <iframe
-                        src={selectedReceipt.fileUrl}
-                        title={selectedReceipt.title}
-                        className="w-full h-[320px]"
-                      />
+                  </div>
+                ) : (
+                  /* Crisp Authentic Paper Receipt Sheet for PDF / Text / Seeded Records */
+                  <div className="w-full max-w-[340px] border border-[#2d2d2d]/45 bg-white px-6 py-6 shadow-xs font-mono text-xs text-[#101010] space-y-3">
+                    <div className="text-center space-y-1">
+                      <div className="w-9 h-9 rounded-full bg-[#101010] text-white flex items-center justify-center mx-auto mb-2">
+                        <ReceiptIcon className="w-4 h-4" />
+                      </div>
+                      <div className="font-extrabold text-sm uppercase tracking-wide">
+                        {formVendor || deriveVendorFromTitle(selectedReceipt)}
+                      </div>
+                      <div className="text-[11px] text-[#4b4856]">
+                        Ref #{selectedReceipt.id.toUpperCase()}
+                      </div>
+                      <div className="text-[11px] text-[#4b4856]">
+                        {selectedReceipt.fileName || 'Verified_Proof_Document.pdf'}
+                      </div>
                     </div>
-                  ) : (
-                    /* Crisp Authentic Paper Receipt Sheet for PDF / Text / Seeded Records */
-                    <div className="w-full max-w-[340px] border border-[#2d2d2d]/45 bg-white px-6 py-6 shadow-xs font-mono text-xs text-[#101010] space-y-3">
-                      <div className="text-center space-y-1">
-                        <div className="w-9 h-9 rounded-full bg-[#101010] text-white flex items-center justify-center mx-auto mb-2">
-                          <ReceiptIcon className="w-4 h-4" />
-                        </div>
-                        <div className="font-extrabold text-sm uppercase tracking-wide">
-                          {formVendor || deriveVendorFromTitle(selectedReceipt)}
-                        </div>
-                        <div className="text-[11px] text-[#4b4856]">
-                          Ref #{selectedReceipt.id.toUpperCase()}
-                        </div>
-                        <div className="text-[11px] text-[#4b4856]">
-                          {selectedReceipt.fileName || 'Verified_Proof_Document.pdf'}
-                        </div>
-                      </div>
 
-                      <div className="border-t border-dashed border-slate-300 pt-3 space-y-1.5 text-[11px]">
-                        <div className="flex justify-between gap-2">
-                          <span className="text-[#4b4856]">Date:</span>
-                          <span className="font-semibold tabular-nums">
-                            {formDate || selectedReceipt.date}
-                          </span>
-                        </div>
-                        <div className="flex justify-between gap-2">
-                          <span className="text-[#4b4856]">Form 65 Line:</span>
-                          <span className="font-semibold text-right truncate max-w-[180px]">
-                            {formCategory || normalizeReceiptCategory(selectedReceipt.category)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between gap-2">
-                          <span className="text-[#4b4856]">Filing Period:</span>
-                          <span className="font-semibold">
-                            {selectedReceipt.reportMonth || 'September 2022'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-dashed border-slate-300 pt-3 flex items-baseline justify-between">
-                        <span className="font-bold uppercase">Total Paid (CAD)</span>
-                        <span className="text-sm font-extrabold tabular-nums">
-                          {formatCurrency(parseFloat(formAmount) || 0)}
+                    <div className="border-t border-dashed border-slate-300 pt-3 space-y-1.5 text-[11px]">
+                      <div className="flex justify-between gap-2">
+                        <span className="text-[#4b4856]">Date:</span>
+                        <span className="font-semibold tabular-nums">
+                          {formDate || selectedReceipt.date}
                         </span>
                       </div>
-
-                      <div className="pt-1 text-[10px] text-center text-[#767676] uppercase tracking-wider">
-                        AES-256 Encrypted Statutory Vault Copy
+                      <div className="flex justify-between gap-2">
+                        <span className="text-[#4b4856]">Form 65 Line:</span>
+                        <span className="font-semibold text-right truncate max-w-[180px]">
+                          {formCategory || normalizeReceiptCategory(selectedReceipt.category)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <span className="text-[#4b4856]">Filing Period:</span>
+                        <span className="font-semibold">
+                          {selectedReceipt.reportMonth || 'September 2022'}
+                        </span>
                       </div>
                     </div>
-                  )}
-                </div>
+
+                    <div className="border-t border-dashed border-slate-300 pt-3 flex items-baseline justify-between">
+                      <span className="font-bold uppercase">Total Paid (CAD)</span>
+                      <span className="text-sm font-extrabold tabular-nums">
+                        {formatCurrency(parseFloat(formAmount) || 0)}
+                      </span>
+                    </div>
+
+                    <div className="pt-1 text-[10px] text-center text-[#767676] uppercase tracking-wider">
+                      AES-256 Encrypted Statutory Vault Copy
+                    </div>
+                  </div>
+                )}
+              </div>
 
                 {/* Bottom Warm Cream Editable Form */}
                 <form
@@ -725,8 +726,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 </form>
               </div>
             )}
-          </div>
-        </>
+        </div>
       )}
 
       {/* Upload / Scan Modal triggered from Header "+ Upload Receipt" */}
