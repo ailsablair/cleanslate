@@ -20,7 +20,6 @@ app.get('/api/health', (req, res) => {
 
 import { generateFinancialInsightWithAI } from './src/server/financialInsight';
 import { processLitBotChatRequest } from './src/server/litbotChat';
-import { getServerKnowledgeArticles, saveServerKnowledgeArticles } from './src/server/litbotKnowledgeStore';
 import { getBotPenguinAgentConfig } from './src/server/botpenguinAgent';
 
 // AI Receipt parsing endpoint
@@ -51,31 +50,6 @@ app.post('/api/financial-insight', async (req, res) => {
   }
 });
 
-// LITbot Knowledge & Training endpoints
-app.get('/api/litbot/knowledge', (req, res) => {
-  try {
-    const articles = getServerKnowledgeArticles();
-    return res.json({ articles });
-  } catch (error: any) {
-    console.error('Server error in GET /api/litbot/knowledge:', error);
-    return res.status(500).json({ error: error.message || 'Internal server error' });
-  }
-});
-
-app.post('/api/litbot/knowledge', (req, res) => {
-  try {
-    const { articles } = req.body;
-    if (!Array.isArray(articles)) {
-      return res.status(400).json({ error: 'articles array is required' });
-    }
-    const saved = saveServerKnowledgeArticles(articles);
-    return res.json({ success: true, articles: saved });
-  } catch (error: any) {
-    console.error('Server error in POST /api/litbot/knowledge:', error);
-    return res.status(500).json({ error: error.message || 'Internal server error' });
-  }
-});
-
 // LITbot Agent Config endpoint (reads live welcomeNote & iceBreakers from configured BotPenguin AI Agent)
 app.get('/api/litbot/agent-config', async (req, res) => {
   try {
@@ -90,7 +64,7 @@ app.get('/api/litbot/agent-config', async (req, res) => {
 // LITbot Chat endpoint (BotPenguin AI Agent basis + Canadian BIA guidance + document analysis)
 app.post('/api/litbot/chat', async (req, res) => {
   try {
-    const { prompt, messages = [], attachments = [], contextProfile, knowledgeArticles = [], sessionId } = req.body;
+    const { prompt, messages = [], attachments = [], contextProfile, sessionId } = req.body;
     if (!prompt && (!attachments || attachments.length === 0)) {
       return res.status(400).json({ error: 'prompt or attachments parameter is required' });
     }
@@ -100,7 +74,7 @@ app.post('/api/litbot/chat', async (req, res) => {
       messages,
       attachments,
       contextProfile,
-      knowledgeArticles,
+      [],
       sessionId
     );
     return res.json(result);

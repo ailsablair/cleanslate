@@ -18,7 +18,6 @@ import {
 import { MonthlyReport, UserProfile, Receipt } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
-import { loadKnowledgeArticlesFromStorage } from '../lib/litbotKnowledge';
 
 interface LitBotReportAssistantProps {
   activeReport: MonthlyReport;
@@ -84,8 +83,7 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
         householdSize: profile.householdSize,
         litName: profile.litName,
         activeReportMonth: `${activeReport.month} ${activeReport.year}`
-      },
-      loadKnowledgeArticlesFromStorage()
+      }
     ).text;
   };
 
@@ -156,7 +154,6 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             litName: profile.litName,
             activeReportMonth: `${activeReport.month} ${activeReport.year}`
           },
-          knowledgeArticles: loadKnowledgeArticlesFromStorage(),
           sessionId: chatSessionId
         })
       });

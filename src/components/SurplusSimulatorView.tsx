@@ -21,7 +21,6 @@ import { UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { FloatingInput } from './FloatingInput';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
-import { loadKnowledgeArticlesFromStorage } from '../lib/litbotKnowledge';
 
 interface SurplusSimulatorViewProps {
   profile: UserProfile;
@@ -111,8 +110,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
         litName: profile.litName,
         surplusPayment: Math.round(newCalculatedSurplus),
         activeThreshold
-      },
-      loadKnowledgeArticlesFromStorage()
+      }
     ).text;
   };
 
@@ -151,7 +149,6 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             surplusPayment: Math.round(newCalculatedSurplus),
             activeThreshold
           },
-          knowledgeArticles: loadKnowledgeArticlesFromStorage(),
           sessionId: chatSessionId
         })
       });

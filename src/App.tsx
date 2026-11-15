@@ -349,7 +349,7 @@ export default function App() {
       case 'categorize': return 'CATEGORIZE';
       case 'user-profile': return 'USER PROFILE';
       case 'support': return 'SUPPORT';
-      case 'litbot': return 'LITBOT AI TRUSTEE ASSISTANT';
+      case 'litbot': return 'LITBOT';
       default: return 'DASHBOARD';
     }
   };

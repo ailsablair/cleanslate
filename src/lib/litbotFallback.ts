@@ -378,7 +378,7 @@ Your trustee (**${litName}**) and CleanSlate will guide you through each step on
   return {
     text: `### I'm Here to Walk You Through This Step-by-Step
 
-Bankruptcy paperwork can feel overwhelming, and there is no such thing as a silly question here! You can ask me anything in plain English—or head to the **Train LITbot** tab above to paste articles, OSB directives, or studies so I learn your exact rules.
+Bankruptcy paperwork can feel overwhelming, and there is no such thing as a silly question here! Ask me anything in plain English, and we'll walk through it together step-by-step.
 
 For example, try asking:
 - **"How do I count cash gifts from family and friends for the holidays and my birthday?"**
