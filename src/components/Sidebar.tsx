@@ -14,6 +14,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { BrandLogo } from './BrandLogo';
 
 export type NavTab = 
   | 'dashboard' 
@@ -55,23 +56,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 h-screen overflow-y-auto bg-[#242031] text-white flex-col justify-between gap-6 p-6 select-none border-r border-[#2d283c]">
-      <div>
-        {/* Brand Logo matching the Figma / attachment */}
-        <div className="mb-8 px-2 pt-1 flex items-center">
-          <img 
-            src="/assets/aistudio/type_logo-brand-white_4fdd6b68.png" 
-            alt="CleanSlate" 
-            className="h-9 object-contain"
-            onError={(e) => {
-              // fallback if asset path shifts
-              (e.target as HTMLElement).style.display = 'none';
-            }}
+    <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 h-screen overflow-hidden bg-[#242031] text-white flex-col justify-between gap-4 p-6 select-none border-r border-[#2d283c]">
+      {/* Pinned Brand Logo (always visible at top of side nav) */}
+      <div className="shrink-0 px-1 pt-1 pb-3">
+        <button
+          type="button"
+          onClick={() => onSelectTab('dashboard')}
+          className="flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b6b3ff] rounded-lg cursor-pointer transition-opacity hover:opacity-90"
+          aria-label="CleanSlate Dashboard"
+          title="Return to Dashboard"
+        >
+          <BrandLogo
+            variant="brand-white"
+            className="h-8 w-auto max-w-full object-contain"
           />
-        </div>
+        </button>
+      </div>
 
+      {/* Scrollable Navigation Sections */}
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-6">
         {/* Section: MAIN MENU */}
-        <div className="mb-6">
+        <div>
           <div className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-2.5">
             MAIN MENU
           </div>
@@ -139,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer: Trustee Direct Link & Log Out */}
-      <div className="pt-4 border-t border-white/10 space-y-3">
+      <div className="shrink-0 pt-4 border-t border-white/10 space-y-3">
         <button
           onClick={onOpenEmailLog}
           className="w-full text-left bg-[#1d1a28] hover:bg-[#1a1724] border border-white/5 rounded-xl p-3 transition-colors group"

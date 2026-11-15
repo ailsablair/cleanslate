@@ -10,6 +10,7 @@ import {
   X
 } from 'lucide-react';
 import { loginWithGoogle, loginAsDemoUser } from '../lib/authService';
+import { BrandLogo } from './BrandLogo';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -83,12 +84,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </button>
 
         {/* Brand Header */}
-        <div className="text-center space-y-2 pt-2">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#b6b3ff] border-[1.5px] border-[#101010] text-[#101010] flex items-center justify-center shadow-[3px_4px_0px_#000000]">
-            <ShieldCheck className="w-7 h-7 stroke-[2.2]" />
+        <div className="text-center space-y-2.5 pt-2">
+          <div className="flex justify-center">
+            <BrandLogo
+              variant="brand-dark"
+              className="h-8 w-auto object-contain"
+            />
           </div>
-          <h2 className="text-lg font-extrabold uppercase tracking-wide text-[#101010]">
-            CleanSlate OSB Vault
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#101010]">
+            OSB Debtor Vault
           </h2>
           <p className="text-xs text-[#4b4856]">
             Secure Canadian Bankruptcy &amp; Surplus Income Management

@@ -12,6 +12,7 @@ import {
   MailCheck, 
   FileText 
 } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 interface SubscriptionPaywallModalProps {
   isOpen: boolean;
@@ -91,19 +92,18 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
         style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#2d283c] via-[#352f47] to-[#2d283c] px-6 py-5 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#fbf050] text-[#242031] flex items-center justify-center font-black shadow-md">
-              <Zap className="w-6 h-6 text-[#242031]" />
-            </div>
-            <div>
+        <div className="bg-gradient-to-r from-[#2d283c] via-[#352f47] to-[#2d283c] px-6 py-5 border-b border-white/10 flex items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-3 flex-wrap">
+              <BrandLogo variant="brand-white" className="h-5 w-auto object-contain" />
+              <span className="text-slate-400 text-xs" aria-hidden="true">·</span>
               <span className="text-[10px] font-black tracking-widest text-[#b6b3ff] uppercase">
-                CleanSlate Subscription Tiers
+                Subscription Tiers
               </span>
-              <h2 className="text-lg font-extrabold text-white">
-                Accelerate Your Pathway to Bankruptcy Discharge
-              </h2>
             </div>
+            <h2 className="text-lg font-extrabold text-white">
+              Accelerate Your Pathway to Bankruptcy Discharge
+            </h2>
           </div>
 
           <button

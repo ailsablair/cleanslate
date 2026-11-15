@@ -23,6 +23,7 @@ import {
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
 import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
+import { BrandLogo } from './BrandLogo';
 
 interface HeaderProps {
   title: string;
@@ -129,15 +130,15 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="relative px-4 sm:px-8 pt-6 sm:pt-8 pb-4">
+    <header className="sticky top-0 z-30 bg-[#242031]/95 backdrop-blur-sm lg:static lg:bg-transparent lg:backdrop-blur-none px-4 sm:px-8 pt-3.5 sm:pt-6 lg:pt-8 pb-3 sm:pb-4">
       <div className="flex items-center justify-between gap-3">
         
-        {/* Left: Hamburger Button (Visible on mobile/tablet < lg) + Page Title */}
-        <div className="flex items-center gap-3">
+        {/* Left: Hamburger Button (Visible on mobile/tablet < lg) + CleanSlate Logo (< lg) + Page Title */}
+        <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white border border-white/10 transition flex items-center justify-center cursor-pointer shadow-xs"
+            className="lg:hidden p-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white border border-white/10 transition flex items-center justify-center cursor-pointer shadow-xs shrink-0"
             aria-label="Toggle navigation menu"
             title="Navigation Menu"
           >
@@ -148,24 +149,32 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          <div>
-            <div className="lg:hidden flex items-center gap-2 mb-0.5">
-              <span className="text-[10px] font-black tracking-wider text-[#b6b3ff] uppercase">
-                CleanSlate
-              </span>
-              <span className="w-1 h-1 rounded-full bg-[#fbf050]" />
-              <span className="text-[10px] text-slate-400 font-light truncate max-w-[120px]">
+          <div className="min-w-0">
+            <div className="lg:hidden flex items-center gap-2 mb-1">
+              <button
+                type="button"
+                onClick={() => onSelectTab('dashboard')}
+                className="flex items-center focus:outline-none cursor-pointer"
+                aria-label="CleanSlate Dashboard"
+              >
+                <BrandLogo
+                  variant="brand-white"
+                  className="h-5 sm:h-6 w-auto object-contain"
+                />
+              </button>
+              <span className="text-slate-500 text-xs" aria-hidden="true">·</span>
+              <span className="text-[10px] text-slate-400 font-light truncate max-w-[110px]">
                 {profile.litName?.split(',')[0] || 'LIT'}
               </span>
             </div>
-            <h1 className="text-base sm:text-xl font-extrabold tracking-wide text-white uppercase whitespace-nowrap">
+            <h1 className="text-base sm:text-xl font-extrabold tracking-wide text-white uppercase truncate max-w-[175px] sm:max-w-none">
               {title}
             </h1>
           </div>
         </div>
 
         {/* Right: Action Controls & Notifications */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {onNewTransaction && (
             <button
               type="button"
@@ -239,7 +248,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Characteristic gradient line */}
-      <div className="mt-4 h-[3px] w-full rounded-full bg-gradient-to-r from-[#e76192] via-[#b6b3ff] to-[#45b7d1] opacity-90" />
+      <div className="mt-3 sm:mt-4 h-[3px] w-full rounded-full bg-gradient-to-r from-[#e76192] via-[#b6b3ff] to-[#45b7d1] opacity-90" />
 
       {/* Tablet & Mobile Dropdown Navigation Menu */}
       {isMobileMenuOpen && (
@@ -254,10 +263,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="absolute left-4 right-4 top-full mt-2 bg-[#1e1b29] text-white border border-white/15 rounded-3xl p-5 shadow-2xl z-50 lg:hidden animate-in fade-in slide-in-from-top-2 duration-150 space-y-4">
             
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#b6b3ff] uppercase tracking-wider">
-                  Menu Navigation
-                </span>
+              <div className="flex items-center gap-2.5">
+                <BrandLogo
+                  variant="brand-white"
+                  className="h-5 w-auto object-contain"
+                />
               </div>
               <span className="text-[11px] text-slate-400">
                 {profile.firstName} {profile.lastName}

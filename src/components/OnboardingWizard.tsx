@@ -14,6 +14,7 @@ import {
 import { UserProfile, LIT } from '../types';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect } from './FloatingSelect';
+import { BrandLogo } from './BrandLogo';
 
 interface OnboardingWizardProps {
   isOpen: boolean;
@@ -67,19 +68,18 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
       >
         {/* Wizard Header Banner */}
-        <div className="bg-gradient-to-r from-[#2d283c] via-[#352f47] to-[#2d283c] px-6 py-5 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#fbf050] text-[#242031] flex items-center justify-center font-black shadow-md">
-              <Award className="w-6 h-6 text-[#242031]" />
-            </div>
-            <div>
+        <div className="bg-gradient-to-r from-[#2d283c] via-[#352f47] to-[#2d283c] px-6 py-5 border-b border-white/10 flex items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-3 flex-wrap">
+              <BrandLogo variant="brand-white" className="h-5 w-auto object-contain" />
+              <span className="text-slate-400 text-xs" aria-hidden="true">·</span>
               <span className="text-[10px] font-black tracking-widest text-[#b6b3ff] uppercase">
                 Personalized Onboarding · Step {step} of 3
               </span>
-              <h2 className="text-lg font-extrabold text-white">
-                Customize Your Pathway to Freedom
-              </h2>
             </div>
+            <h2 className="text-lg font-extrabold text-white">
+              Customize Your Pathway to Freedom
+            </h2>
           </div>
 
           {onSkip && (

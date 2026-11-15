@@ -12,6 +12,7 @@ import {
   Scale
 } from 'lucide-react';
 import { UserProfile, MonthlyReport, BankAccount, Transaction, Receipt } from '../types';
+import { BrandLogo } from './BrandLogo';
 
 interface ComplianceModalProps {
   isOpen: boolean;
@@ -248,10 +249,12 @@ export const ComplianceModal: React.FC<ComplianceModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[#fbf9f5] border-t border-[#b4b1fc]/35 flex items-center justify-between">
-          <span className="text-[11px] text-[#4b4856] font-medium flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-            <span>CleanSlate OSB Vault · Encrypted Session</span>
+        <div className="px-6 py-4 bg-[#fbf9f5] border-t border-[#b4b1fc]/35 flex items-center justify-between gap-3">
+          <span className="text-[11px] text-[#4b4856] font-medium flex items-center gap-2 flex-wrap">
+            <BrandLogo variant="brand-dark" className="h-4 w-auto object-contain" />
+            <span aria-hidden="true">·</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+            <span>OSB Vault · Encrypted Session</span>
           </span>
 
           <button
