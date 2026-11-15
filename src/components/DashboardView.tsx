@@ -17,6 +17,7 @@ import {
 import { BankAccount, Transaction, MonthlyReport, UserProfile, Receipt } from '../types';
 import { BudgetSummary } from './BudgetSummary';
 import { FinancialInsightCard } from './FinancialInsightCard';
+import { UploadConfirmationModal } from './UploadConfirmationModal';
 import { formatCurrency } from '../lib/formatters';
 import { isProofRequiredForTransaction, getProofRequirementInfo } from '../lib/transactionUtils';
 
@@ -52,9 +53,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   isSyncing
 }) => {
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-  const [isUploadingReceipt, setIsUploadingReceipt] = useState<boolean>(false);
+  const [isUploadConfirmOpen, setIsUploadConfirmOpen] = useState<boolean>(false);
   const [uploadSuccessToast, setUploadSuccessToast] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter overdue or draft reports
   const outstandingCount = monthlyReports.filter(r => r.status === 'Draft' || r.status === 'Overdue').length;
@@ -69,58 +69,40 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Current surplus payment
   const currentPayment = 159;
 
-  // Handle tight receipt upload and association with selected transaction
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedTx) return;
+  // Handle linking uploaded receipt/proof from UploadConfirmationModal to selectedTx
+  const handleAttachConfirmedReceipt = (newRec: Omit<Receipt, 'id'>) => {
+    if (!selectedTx) return;
+    const generatedReceiptId = `rec-${Date.now()}`;
 
-    setIsUploadingReceipt(true);
-    const reader = new FileReader();
+    if (onAddReceipt) {
+      onAddReceipt({
+        ...newRec,
+        linkedTransactionId: selectedTx.id
+      });
+    }
 
-    reader.onload = () => {
-      const fileDataUrl = typeof reader.result === 'string' ? reader.result : '';
-      const generatedReceiptId = `rec-${Date.now()}`;
-
-      // 1. Create linked Receipt tightly associated with this transaction ID
-      if (onAddReceipt) {
-        onAddReceipt({
-          userId: selectedTx.userId || profile.uid,
-          title: `${selectedTx.company} Receipt`,
-          category: selectedTx.form65Category || selectedTx.category || 'Discretionary',
-          amount: selectedTx.amount,
-          date: selectedTx.date || 'Sep 01, 2022',
-          fileName: file.name,
-          fileUrl: fileDataUrl,
-          linkedLineItem: selectedTx.form65Category,
-          linkedTransactionId: selectedTx.id,
-          reportMonth: 'September'
-        });
-      }
-
-      // 2. Update Transaction with receipt reference
-      const updatedTx: Transaction = {
-        ...selectedTx,
-        receiptId: generatedReceiptId,
-        receiptFileName: file.name,
-        receiptFileUrl: fileDataUrl
-      };
-
-      if (onUpdateTransaction) {
-        onUpdateTransaction(updatedTx);
-      }
-
-      setSelectedTx(updatedTx);
-      setIsUploadingReceipt(false);
-      setUploadSuccessToast(`Receipt "${file.name}" linked to ${selectedTx.company} (#${selectedTx.id})`);
-      setTimeout(() => setUploadSuccessToast(null), 4500);
+    const updatedTx: Transaction = {
+      ...selectedTx,
+      form65Category:
+        newRec.category && newRec.category !== 'Unknown'
+          ? newRec.category
+          : selectedTx.form65Category,
+      isCategorized:
+        Boolean(newRec.category && newRec.category !== 'Unknown') || selectedTx.isCategorized,
+      receiptId: generatedReceiptId,
+      receiptFileName: newRec.fileName || `${selectedTx.company}_Proof.pdf`,
+      receiptFileUrl: newRec.fileUrl
     };
 
-    reader.onerror = () => {
-      setIsUploadingReceipt(false);
-    };
+    if (onUpdateTransaction) {
+      onUpdateTransaction(updatedTx);
+    }
 
-    reader.readAsDataURL(file);
-    if (e.target) e.target.value = '';
+    setSelectedTx(updatedTx);
+    setUploadSuccessToast(
+      `Proof "${updatedTx.receiptFileName}" linked to ${selectedTx.company} (#${selectedTx.id})`
+    );
+    setTimeout(() => setUploadSuccessToast(null), 4500);
   };
 
   return (
@@ -516,26 +498,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               )}
 
-              {/* Hidden file input */}
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept="image/*,application/pdf"
-                onChange={handleFileUpload}
-              />
-
               {/* Two-Button Action Layout */}
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Secondary Button: Upload / Replace Receipt (Requested Feature) */}
+                {/* Secondary Button: Upload / Replace Receipt via Upload Confirmation Modal */}
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingReceipt}
+                  onClick={() => setIsUploadConfirmOpen(true)}
                   className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
-                    isUploadingReceipt
-                      ? 'opacity-60 cursor-wait bg-white/10 text-white'
-                      : hasReceiptAttached
+                    hasReceiptAttached
                       ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 active:scale-98'
                       : proofInfo.required
                       ? 'bg-[#fbf050] hover:bg-[#fffa78] text-[#1d1a27] font-bold shadow-md active:scale-98'
@@ -543,12 +513,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   }`}
                   title={proofInfo.required ? 'Receipt / prescription upload mandatory for this transaction' : 'Upload proof receipt'}
                 >
-                  {isUploadingReceipt ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Uploading...</span>
-                    </>
-                  ) : hasReceiptAttached ? (
+                  {hasReceiptAttached ? (
                     <>
                       <Paperclip className="w-3.5 h-3.5 text-[#b6b3ff]" />
                       <span>Replace Receipt</span>
@@ -582,6 +547,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         );
       })()}
+
+      {/* Upload Confirmation Modal when attaching receipt/prescription/bill to a transaction */}
+      {selectedTx && (
+        <UploadConfirmationModal
+          isOpen={isUploadConfirmOpen}
+          onClose={() => setIsUploadConfirmOpen(false)}
+          userId={selectedTx.userId || profile.uid}
+          initialValues={{
+            vendorName: selectedTx.company,
+            date: selectedTx.date,
+            amount: selectedTx.amount,
+            category: selectedTx.form65Category || selectedTx.category,
+            documentType:
+              getProofRequirementInfo(selectedTx).type === 'prescription'
+                ? 'Prescription'
+                : 'New Receipt',
+            linkedTransactionId: selectedTx.id
+          }}
+          onSaveReceipt={handleAttachConfirmedReceipt}
+        />
+      )}
     </div>
   );
 };

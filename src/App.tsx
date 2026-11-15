@@ -478,6 +478,7 @@ export default function App() {
               onUpdateTransaction={handleUpdateTransaction}
               onUpdateTransactions={handleUpdateTransactions}
               onAddTransaction={handleAddTransaction}
+              onAddReceipt={handleAddReceipt}
               isNewTxModalOpen={isNewTxModalOpen}
               onCloseNewTxModal={() => setIsNewTxModalOpen(false)}
               onOpenNewTxModal={() => setIsNewTxModalOpen(true)}

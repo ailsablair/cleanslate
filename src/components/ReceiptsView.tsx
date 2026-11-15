@@ -10,15 +10,14 @@ import {
   History,
   Save,
   Sparkles,
-  X,
-  Plus,
-  FileText
+  X
 } from 'lucide-react';
 import { Receipt, UserProfile, MonthlyReport } from '../types';
 import { CameraReceiptModal } from './CameraReceiptModal';
+import { UploadConfirmationModal } from './UploadConfirmationModal';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect, SelectOption } from './FloatingSelect';
-import { FORM_65_SECTIONED_CATEGORIES } from './CategorizeView';
+import { FORM_65_SECTIONED_CATEGORIES, normalizeForm65Category } from '../lib/form65Categories';
 import { formatCurrency } from '../lib/formatters';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 
@@ -34,22 +33,8 @@ interface ReceiptsViewProps {
   onOpenUploadModal?: () => void;
 }
 
-const RECEIPT_LEGACY_CATEGORY_MAP: Record<string, string> = {
-  'Expenses as a condition of employment': 'Employment Expenses',
-  'Expenses as Condition of Employment': 'Employment Expenses',
-  'Employment-Related Mandatory Expenses': 'Employment Expenses',
-  'Spousal / Child Support': 'Child Support Payments',
-  'Food & Grocery': 'Food/Grocery',
-  'Housing & Utilities': 'Rent/Mortgage',
-  'Dining Out / Takeout': 'Dining/Lunches/Restaurants',
-  'Non-Recoverable Prescriptions': 'Prescriptions',
-  'Repair, Maintenance & Gas': 'Repair/Maintenance/Gas',
-  'Transportation': 'Repair/Maintenance/Gas'
-};
-
 function normalizeReceiptCategory(cat?: string): string {
-  if (!cat) return '';
-  return RECEIPT_LEGACY_CATEGORY_MAP[cat] || cat;
+  return normalizeForm65Category(cat);
 }
 
 function deriveVendorFromTitle(rec: Receipt): string {
@@ -91,17 +76,6 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
   const [formNotes, setFormNotes] = useState('');
   const [isNotesFocused, setIsNotesFocused] = useState(false);
   const [showNotesHelp, setShowNotesHelp] = useState(false);
-
-  // Manual upload modal fields
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalCategory, setModalCategory] = useState('Medical Condition Expenses');
-  const [modalAmount, setModalAmount] = useState('85.00');
-  const [modalDate, setModalDate] = useState(() =>
-    new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-  );
-  const [modalNotes, setModalNotes] = useState('');
-  const [modalFileName, setModalFileName] = useState('');
-  const [modalFileUrl, setModalFileUrl] = useState<string | undefined>(undefined);
 
   const directFileInputRef = useRef<HTMLInputElement>(null);
   const prevReceiptsLengthRef = useRef(receipts.length);
@@ -273,55 +247,6 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
       onUpdateReceipt(updated);
     }
     showToast(`Saved details for ${cleanVendor}!`);
-  };
-
-  const handleModalFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setModalFileName(file.name);
-      if (!modalTitle) {
-        setModalTitle(file.name.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' '));
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setModalFileUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleModalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const vendor = modalTitle.trim() || 'Expense Proof';
-    const nowLabel = new Date().toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'long'
-    }) + ' at ' + new Date().toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-
-    onAddReceipt({
-      userId: profile?.uid || 'demo-user-chad-001',
-      title: vendor,
-      vendorName: vendor,
-      category: normalizeReceiptCategory(modalCategory) || 'Medical Condition Expenses',
-      amount: parseFloat(modalAmount) || 0,
-      date: modalDate.trim() || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
-      uploadedAtLabel: nowLabel,
-      notes: modalNotes.trim(),
-      fileName: modalFileName || 'Proof_Document.pdf',
-      fileUrl: modalFileUrl,
-      reportMonth: 'September 2022'
-    });
-
-    closeUploadModal();
-    setModalTitle('');
-    setModalAmount('85.00');
-    setModalNotes('');
-    setModalFileName('');
-    setModalFileUrl(undefined);
-    showToast(`Added "${vendor}" to your receipt vault.`);
   };
 
   const handleExportAuditPacket = () => {
@@ -729,128 +654,16 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
         </div>
       )}
 
-      {/* Upload / Scan Modal triggered from Header "+ Upload Receipt" */}
-      {uploadModalVisible && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in"
-          onClick={closeUploadModal}
-        >
-          <div
-            className="bg-[#fbf9f5] text-[#101010] border border-[#1a1822] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-[6px_8px_0px_#000000] space-y-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div>
-                <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
-                  Upload Expense Proof or Prescription
-                </h3>
-                <p className="text-xs text-[#6e6b7b] mt-0.5">
-                  Attach a receipt file or take a photo with CleanSlate AI extraction.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeUploadModal}
-                className="p-2 rounded-xl hover:bg-slate-200/70 text-[#6e6b7b] hover:text-[#101010] transition cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  closeUploadModal();
-                  setIsCameraOpen(true);
-                }}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold border border-black shadow-[2px_3px_0px_#000000] flex items-center justify-center gap-2 cursor-pointer transition"
-              >
-                <Camera className="w-3.5 h-3.5 text-[#fbf050]" />
-                <span>Take Photo (AI Scan)</span>
-              </button>
-              <label
-                htmlFor="modal-receipt-file-input"
-                className="flex-1 py-2.5 px-3 rounded-xl bg-[#b6c0fb] hover:brightness-105 text-[#101010] text-xs font-bold border border-[#101010] shadow-[2px_3px_0px_#000000] flex items-center justify-center gap-2 cursor-pointer transition"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span>{modalFileName ? 'Change File' : 'Browse Image / PDF'}</span>
-              </label>
-              <input
-                id="modal-receipt-file-input"
-                type="file"
-                accept="image/*,.pdf"
-                onChange={handleModalFileChange}
-                className="hidden"
-              />
-            </div>
-
-            {modalFileName && (
-              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-semibold flex items-center gap-2">
-                <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="truncate">{modalFileName}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleModalSubmit} className="space-y-3.5">
-              <FloatingInput
-                label="Vendor Name"
-                value={modalTitle}
-                onChange={(e) => setModalTitle(e.target.value)}
-                required
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <FloatingInput
-                  type="number"
-                  step="0.01"
-                  prefix="$"
-                  label="Transaction Amount"
-                  value={modalAmount}
-                  onChange={(e) => setModalAmount(e.target.value)}
-                  required
-                />
-                <FloatingInput
-                  label="Date of Transaction"
-                  value={modalDate}
-                  onChange={(e) => setModalDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <FloatingSelect
-                label="Category"
-                value={modalCategory}
-                onChange={(e) => setModalCategory(e.target.value)}
-                options={categoryOptions}
-              />
-
-              <FloatingInput
-                label="Notes (Optional)"
-                value={modalNotes}
-                onChange={(e) => setModalNotes(e.target.value)}
-              />
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={closeUploadModal}
-                  className="px-4 py-2 rounded-xl border border-[#2d2d2d] bg-white hover:bg-slate-50 text-xs font-semibold text-[#101010] transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border border-black shadow-[3px_4px_0px_#000000] flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Save to Vault</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Upload Confirmation Modal triggered from Header "+ Upload Receipt" */}
+      <UploadConfirmationModal
+        isOpen={uploadModalVisible}
+        onClose={closeUploadModal}
+        userId={profile?.uid || 'demo-user-chad-001'}
+        onSaveReceipt={(newRec) => {
+          onAddReceipt(newRec);
+          showToast(`Added "${newRec.vendorName || newRec.title}" to your receipt vault.`);
+        }}
+      />
 
       {/* Compliance & Security Safeguards Modal */}
       {isComplianceModalOpen && (
