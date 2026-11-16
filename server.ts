@@ -21,6 +21,14 @@ app.get('/api/health', (req, res) => {
 import { generateFinancialInsightWithAI } from './src/server/financialInsight';
 import { processLitBotChatRequest } from './src/server/litbotChat';
 import { getBotPenguinAgentConfig } from './src/server/botpenguinAgent';
+import {
+  getPlaidStatus,
+  createPlaidLinkToken,
+  exchangePlaidPublicToken,
+  syncPlaidItemsForUser,
+  removePlaidItem,
+} from './src/server/plaidService';
+import { parseBankStatementPdfWithAI } from './src/server/statementParser';
 
 // AI Receipt parsing endpoint
 app.post('/api/parse-receipt', async (req, res) => {
@@ -81,6 +89,91 @@ app.post('/api/litbot/chat', async (req, res) => {
   } catch (error: any) {
     console.error('Server error in /api/litbot/chat:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// Bank Sync: Plaid Status
+app.get('/api/bank/plaid/status', (req, res) => {
+  const userId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
+  res.json(getPlaidStatus(userId));
+});
+
+// Bank Sync: Create Plaid Link Token (supports Canadian institutions & OAuth redirects)
+app.post('/api/bank/plaid/create-link-token', async (req, res) => {
+  try {
+    const { userId = 'demo-user-chad-001', redirectUri } = req.body || {};
+    const result = await createPlaidLinkToken(userId, redirectUri);
+    if (!result.configured) {
+      return res.status(503).json(result);
+    }
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/bank/plaid/create-link-token:', error);
+    return res.status(500).json({
+      configured: true,
+      error: error?.response?.data?.error_message || error.message || 'Failed to create Plaid Link token',
+    });
+  }
+});
+
+// Bank Sync: Exchange Plaid Public Token for server-stored access_token & initial sync
+app.post('/api/bank/plaid/exchange-token', async (req, res) => {
+  try {
+    const { publicToken, userId = 'demo-user-chad-001', institutionName } = req.body || {};
+    if (!publicToken) {
+      return res.status(400).json({ error: 'publicToken is required' });
+    }
+    const result = await exchangePlaidPublicToken(publicToken, userId, institutionName);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/bank/plaid/exchange-token:', error);
+    return res.status(500).json({
+      error: error?.response?.data?.error_message || error.message || 'Failed to exchange Plaid token',
+    });
+  }
+});
+
+// Bank Sync: Sync all Plaid-linked accounts & incremental transactions
+app.post('/api/bank/plaid/sync', async (req, res) => {
+  try {
+    const { userId } = req.body || {};
+    const result = await syncPlaidItemsForUser(userId);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/bank/plaid/sync:', error);
+    return res.status(500).json({
+      error: error?.response?.data?.error_message || error.message || 'Failed to sync Plaid accounts',
+    });
+  }
+});
+
+// Bank Sync: Disconnect a Plaid item cleanly
+app.delete('/api/bank/plaid/item/:itemId', async (req, res) => {
+  try {
+    const removed = await removePlaidItem(req.params.itemId);
+    return res.json({ removed });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Failed to remove Plaid item' });
+  }
+});
+
+// Fallback Bank Statement PDF Parser (for User-Initiated Statement Export)
+app.post('/api/bank/parse-statement', async (req, res) => {
+  try {
+    const { fileBase64, mimeType = 'application/pdf', userId = 'demo-user-chad-001' } = req.body || {};
+    if (!fileBase64) {
+      return res.status(400).json({ error: 'fileBase64 is required' });
+    }
+    const result = await parseBankStatementPdfWithAI(fileBase64, mimeType, userId);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Server error in /api/bank/parse-statement:', error);
+    return res.status(500).json({
+      success: false,
+      code: 'PARSE_ERROR',
+      transactions: [],
+      error: error.message || 'Failed to parse statement',
+    });
   }
 });
 

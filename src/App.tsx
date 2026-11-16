@@ -59,7 +59,12 @@ import { doc, getDoc, setDoc, getDocFromServer } from 'firebase/firestore';
 import { MailCheck, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
+  const [currentTab, setCurrentTab] = useState<NavTab>(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('oauth_state_id=')) {
+      return 'bank-accounts';
+    }
+    return 'dashboard';
+  });
   
   // Auth & Compliance Modals
   const [isComplianceOpen, setIsComplianceOpen] = useState<boolean>(false);
@@ -283,22 +288,139 @@ export default function App() {
     setBankAccounts(prev => prev.map(a => a.id === updated.id ? updated : a));
   };
 
-  const handleDeleteBankAccount = (id: string) => {
-    setBankAccounts(prev => prev.filter(a => a.id !== id));
+  const handleDeleteBankAccount = async (id: string) => {
+    const target = bankAccounts.find(a => a.id === id);
+    const nextAccounts = bankAccounts.filter(a => a.id !== id);
+    setBankAccounts(nextAccounts);
+
+    if (target?.plaidItemId && !nextAccounts.some(a => a.plaidItemId === target.plaidItemId)) {
+      fetch(`/api/bank/plaid/item/${encodeURIComponent(target.plaidItemId)}`, {
+        method: 'DELETE'
+      }).catch(() => {});
+    }
   };
 
-  // On-demand Bank API Sync
-  const handleSyncAllBanks = () => {
+  const mergeSyncedTransactions = (incoming: Transaction[], removedIds: string[] = []) => {
+    if (incoming.length === 0 && removedIds.length === 0) return;
+    const removedSet = new Set(removedIds);
+    setTransactions(prev => {
+      const kept = prev.filter(t => !removedSet.has(t.id));
+      const existingById = new Map(kept.map(t => [t.id, t]));
+      const existingSignatures = new Set(
+        kept.map(t => `${t.date}|${t.company.toLowerCase()}|${t.amount.toFixed(2)}`)
+      );
+
+      const newItems: Transaction[] = [];
+      for (const tx of incoming) {
+        if (existingById.has(tx.id)) {
+          existingById.set(tx.id, { ...existingById.get(tx.id)!, ...tx });
+          continue;
+        }
+        const sig = `${tx.date}|${tx.company.toLowerCase()}|${tx.amount.toFixed(2)}`;
+        if (!existingSignatures.has(sig)) {
+          existingSignatures.add(sig);
+          newItems.push(tx);
+        }
+      }
+
+      return [...newItems, ...Array.from(existingById.values())];
+    });
+  };
+
+  const handlePlaidConnected = (newAccounts: BankAccount[], syncedTransactions: Transaction[]) => {
+    if (newAccounts.length > 0) {
+      setBankAccounts(prev => {
+        const map = new Map(prev.map(a => [a.id, a]));
+        for (const acc of newAccounts) {
+          map.set(acc.id, acc);
+        }
+        return Array.from(map.values());
+      });
+    }
+    mergeSyncedTransactions(syncedTransactions);
+  };
+
+  const handleStatementImported = ({
+    account,
+    isUpdate,
+    transactions: importedTxs
+  }: {
+    account: BankAccount | Omit<BankAccount, 'id'>;
+    isUpdate: boolean;
+    transactions: Array<Omit<Transaction, 'id'>>;
+  }) => {
+    let targetAccountId = '';
+    if (isUpdate && 'id' in account) {
+      targetAccountId = account.id;
+      setBankAccounts(prev => prev.map(a => (a.id === account.id ? account : a)));
+    } else {
+      targetAccountId = `bank-${Date.now()}`;
+      const created: BankAccount = {
+        ...account,
+        id: targetAccountId
+      };
+      setBankAccounts(prev => [...prev, created]);
+    }
+
+    const withIds: Transaction[] = importedTxs.map((tx, idx) => ({
+      ...tx,
+      accountId: tx.accountId || targetAccountId,
+      id: `stmt-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`
+    }));
+    mergeSyncedTransactions(withIds);
+  };
+
+  // On-demand Bank API Sync (uses live Plaid sync when connected; preserves exact uploaded statement balances)
+  const handleSyncAllBanks = async () => {
     setIsSyncingBanks(true);
-    setTimeout(() => {
-      setBankAccounts(prev => prev.map(acc => ({
-        ...acc,
-        balance: Math.max(10, acc.balance + (Math.random() * 40 - 20)),
-        lastSyncedAt: 'Just now',
-        status: 'connected'
-      })));
+    try {
+      const hasPlaidAccounts = bankAccounts.some(a => a.connectionType === 'plaid');
+      if (hasPlaidAccounts) {
+        const res = await fetch('/api/bank/plaid/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: profile.uid })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            const plaidMap = new Map<string, BankAccount>(
+              data.accounts.map((a: BankAccount) => [a.id, a])
+            );
+            setBankAccounts(prev =>
+              prev.map(acc =>
+                plaidMap.has(acc.id)
+                  ? plaidMap.get(acc.id)!
+                  : acc.connectionType === 'statement-export' || acc.connectionType === 'manual'
+                  ? acc
+                  : { ...acc, lastSyncedAt: 'Just now', status: 'connected' }
+              )
+            );
+          }
+          mergeSyncedTransactions(data.addedTransactions || [], data.removedTransactionIds || []);
+          setIsSyncingBanks(false);
+          return;
+        }
+      }
+
+      setTimeout(() => {
+        setBankAccounts(prev =>
+          prev.map(acc =>
+            acc.connectionType === 'statement-export' || acc.connectionType === 'manual'
+              ? acc
+              : {
+                  ...acc,
+                  lastSyncedAt: 'Just now',
+                  status: 'connected'
+                }
+          )
+        );
+        setIsSyncingBanks(false);
+      }, 800);
+    } catch (err) {
+      console.warn('Bank sync error:', err);
       setIsSyncingBanks(false);
-    }, 1200);
+    }
   };
 
   // Receipt Handlers
@@ -449,12 +571,16 @@ export default function App() {
 
           {currentTab === 'bank-accounts' && (
             <BankAccountsView
+              userId={profile.uid}
               bankAccounts={bankAccounts}
               onAddAccount={handleAddBankAccount}
               onUpdateAccount={handleUpdateBankAccount}
               onDeleteAccount={handleDeleteBankAccount}
               onSyncAll={handleSyncAllBanks}
               isSyncing={isSyncingBanks}
+              onPlaidConnected={handlePlaidConnected}
+              onStatementImported={handleStatementImported}
+              onNavigateToCategorize={() => setCurrentTab('categorize')}
             />
           )}
 

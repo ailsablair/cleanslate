@@ -171,6 +171,9 @@ export interface BankAccount {
   lastSyncedAt: string;
   status: 'connected' | 'syncing' | 'error';
   trendDirection?: 'up' | 'down';
+  connectionType?: 'plaid' | 'statement-export' | 'manual';
+  plaidItemId?: string;
+  plaidAccountId?: string;
 }
 
 export interface Transaction {
