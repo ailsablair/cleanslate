@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  CalendarIcon,
   HistoryIcon,
   LinkIcon,
   ChevronRightIcon,
@@ -340,9 +339,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   Monthly History
                 </CleanSlateButton>
               )}
-              <div className="w-8 h-8 rounded-xl bg-[#b4b1fc] border border-[#101010] flex items-center justify-center text-[#101010] shrink-0">
-                <CalendarIcon className="w-4 h-4" />
-              </div>
               <h2 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-[#101010]">
                 {activeReport.month} {activeReport.year}
               </h2>
