@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   MagicWandIcon,
   SendIcon,
@@ -10,9 +10,10 @@ import {
   CancelIcon
 } from './ui/CleanSlateIcons';
 import { CleanSlateButton } from './ui/CleanSlateButton';
-import { MonthlyReport, UserProfile, Receipt } from '../types';
+import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
+import { parseCsvStatement, parseOfxStatement } from '../lib/statementParser';
 
 interface LitBotReportAssistantProps {
   activeReport: MonthlyReport;
@@ -64,6 +65,10 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
   const [inputQuery, setInputQuery] = useState<string>('');
   const [isUploadingStatement, setIsUploadingStatement] = useState<boolean>(false);
   const [statementSuccessToast, setStatementSuccessToast] = useState<string | null>(null);
+  const [selectedStatementFile, setSelectedStatementFile] = useState<File | null>(null);
+  const [isDraggingStatement, setIsDraggingStatement] = useState<boolean>(false);
+  const [statementError, setStatementError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isSendingQuery, setIsSendingQuery] = useState<boolean>(false);
   const [chatSessionId] = useState<string>(() => `litbot-report-${Date.now()}`);
@@ -178,104 +183,228 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
     }
   };
 
-  // Automated Bank Statement Processing & Interactive Reconciliation Flow
-  const handleProcessBankStatement = (statementName: string = 'Bank_Statement_Jan1_Jan30.pdf') => {
-    setIsUploadingStatement(true);
+  const applyParsedTransactionsToReport = (
+    report: MonthlyReport,
+    parsedTransactions: Array<Omit<Transaction, 'id'>>
+  ): MonthlyReport => {
+    const next: MonthlyReport = {
+      ...report,
+      lastEditDate: `Edited on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+      income: {
+        ...report.income,
+        debtor: { ...report.income.debtor },
+        spouse: { ...report.income.spouse }
+      },
+      nonDiscretionary: { ...report.nonDiscretionary },
+      discretionary: {
+        ...report.discretionary,
+        housing: { ...report.discretionary.housing },
+        personal: { ...report.discretionary.personal },
+        medical: { ...report.discretionary.medical },
+        dayToDay: { ...report.discretionary.dayToDay },
+        transportation: { ...report.discretionary.transportation },
+        insurance: { ...report.discretionary.insurance },
+        payments: { ...report.discretionary.payments }
+      }
+    };
+
+    const round2 = (n: number) => Number(n.toFixed(2));
+
+    for (const tx of parsedTransactions) {
+      const amt = Math.abs(Number(tx.amount) || 0);
+      if (amt <= 0) continue;
+
+      switch (tx.form65Category) {
+        case 'Employment Income':
+          next.income.debtor.employmentIncome = round2((next.income.debtor.employmentIncome || 0) + amt);
+          break;
+        case 'Employment Insurance Benefits':
+          next.income.debtor.employmentIncomeBenefits = round2((next.income.debtor.employmentIncomeBenefits || 0) + amt);
+          break;
+        case 'Child Tax Benefit':
+          next.income.debtor.childTaxBenefit = round2((next.income.debtor.childTaxBenefit || 0) + amt);
+          break;
+        case 'Social Assistance':
+          next.income.debtor.socialAssistance = round2((next.income.debtor.socialAssistance || 0) + amt);
+          break;
+        case 'Other Net Income':
+          next.income.debtor.otherNetIncome = round2((next.income.debtor.otherNetIncome || 0) + amt);
+          break;
+        case 'Child Care':
+          next.nonDiscretionary.childCare = round2((next.nonDiscretionary.childCare || 0) + amt);
+          break;
+        case 'Medical Condition Expenses':
+          next.nonDiscretionary.medicalConditionExpenses = round2((next.nonDiscretionary.medicalConditionExpenses || 0) + amt);
+          break;
+        case 'Prescriptions':
+          next.discretionary.medical.prescriptions = round2((next.discretionary.medical.prescriptions || 0) + amt);
+          break;
+        case 'Dental':
+          next.discretionary.medical.dental = round2((next.discretionary.medical.dental || 0) + amt);
+          break;
+        case 'Food/Grocery':
+          next.discretionary.dayToDay.foodGrocery = round2((next.discretionary.dayToDay.foodGrocery || 0) + amt);
+          break;
+        case 'Dining/Lunches/Restaurants':
+          next.discretionary.personal.diningOut = round2((next.discretionary.personal.diningOut || 0) + amt);
+          break;
+        case 'Hydro':
+          next.discretionary.housing.hydro = round2((next.discretionary.housing.hydro || 0) + amt);
+          break;
+        case 'Heating/Gas/Oil':
+          next.discretionary.housing.heatingGasOil = round2((next.discretionary.housing.heatingGasOil || 0) + amt);
+          break;
+        case 'Telephone':
+          next.discretionary.housing.telephone = round2((next.discretionary.housing.telephone || 0) + amt);
+          break;
+        case 'Rent/Mortgage':
+          next.discretionary.housing.rentOrMortgage = round2((next.discretionary.housing.rentOrMortgage || 0) + amt);
+          break;
+        case 'Repair/Maintenance/Gas':
+          next.discretionary.transportation.repairMaintenanceGas = round2((next.discretionary.transportation.repairMaintenanceGas || 0) + amt);
+          break;
+        case 'Public Transportation':
+          next.discretionary.transportation.publicTransportation = round2((next.discretionary.transportation.publicTransportation || 0) + amt);
+          break;
+        case 'Vehicle':
+          next.discretionary.insurance.vehicle = round2((next.discretionary.insurance.vehicle || 0) + amt);
+          break;
+        case 'Other Payments':
+          next.discretionary.payments.other = round2((next.discretionary.payments.other || 0) + amt);
+          break;
+        default:
+          next.discretionary.dayToDay.other = round2((next.discretionary.dayToDay.other || 0) + amt);
+          break;
+      }
+    }
+
+    return next;
+  };
+
+  const handleSelectStatementFile = (file: File | null | undefined) => {
+    if (!file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const isSupported =
+      ['pdf', 'csv', 'ofx', 'qfx'].includes(ext) || file.type.startsWith('image/') || file.type === 'application/pdf' || file.type === 'text/csv';
+
+    if (!isSupported) {
+      setStatementError('Unsupported file format. Please select a PDF, CSV, OFX, QFX, or image statement.');
+      setSelectedStatementFile(null);
+      return;
+    }
+
+    setStatementError(null);
+    setSelectedStatementFile(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    handleSelectStatementFile(file);
+    e.target.value = '';
+  };
+
+  const handleCloseStatementModal = () => {
+    if (isUploadingStatement) return;
     setIsStatementModalOpen(false);
+    setStatementError(null);
+    setIsDraggingStatement(false);
+  };
 
-    setTimeout(() => {
-      // 1. Auto-populate Form 65 line items in the active report
-      const updatedReport: MonthlyReport = {
-        ...activeReport,
-        lastEditDate: `Edited on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-        discretionary: {
-          ...activeReport.discretionary,
-          dayToDay: {
-            ...activeReport.discretionary.dayToDay,
-            foodGrocery: (activeReport.discretionary.dayToDay.foodGrocery || 0) + 430.00,
-          },
-          transportation: {
-            ...activeReport.discretionary.transportation,
-            repairMaintenanceGas: (activeReport.discretionary.transportation.repairMaintenanceGas || 0) + 145.00,
-          },
-          personal: {
-            ...activeReport.discretionary.personal,
-            alcohol: (activeReport.discretionary.personal.alcohol || 0) + 50.00
-          }
-        },
-        nonDiscretionary: {
-          ...activeReport.nonDiscretionary,
-          medicalConditionExpenses: (activeReport.nonDiscretionary.medicalConditionExpenses || 0) + 20.00
+  // Automated Bank Statement Processing & Interactive Reconciliation Flow
+  const handleProcessBankStatement = async (fileOverride?: File) => {
+    const file = fileOverride || selectedStatementFile;
+    if (!file) {
+      fileInputRef.current?.click();
+      return;
+    }
+
+    setStatementError(null);
+    setIsUploadingStatement(true);
+
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const userId = profile.uid || 'demo-user-chad-001';
+      let parsedTransactions: Array<Omit<Transaction, 'id'>> = [];
+
+      if (ext === 'csv' || file.type === 'text/csv') {
+        const text = await file.text();
+        const parsed = parseCsvStatement(text, userId);
+        parsedTransactions = parsed.transactions;
+        if (parsedTransactions.length === 0) {
+          throw new Error(parsed.warnings[0] || 'No valid transactions were found in this CSV statement.');
         }
-      };
+      } else if (ext === 'ofx' || ext === 'qfx') {
+        const text = await file.text();
+        const parsed = parseOfxStatement(text, ext as 'ofx' | 'qfx', userId);
+        parsedTransactions = parsed.transactions;
+        if (parsedTransactions.length === 0) {
+          throw new Error(parsed.warnings[0] || `No transactions were found in this ${ext.toUpperCase()} file.`);
+        }
+      } else if (ext === 'pdf' || file.type === 'application/pdf' || file.type.startsWith('image/')) {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ''));
+          reader.onerror = () => reject(new Error('Could not read the selected file.'));
+          reader.readAsDataURL(file);
+        });
 
+        const res = await fetch('/api/bank/parse-statement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileBase64: base64,
+            mimeType: file.type || 'application/pdf',
+            userId
+          })
+        });
+
+        if (!res.ok) {
+          const errPayload = await res.json().catch(() => null);
+          throw new Error(
+            errPayload?.error ||
+              'PDF/image AI statement parsing is unavailable here. Export a CSV, OFX, or QFX file from your bank for instant browser-side parsing.'
+          );
+        }
+
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.transactions) || data.transactions.length === 0) {
+          throw new Error(
+            data.error || 'Could not extract transactions from this statement. Try exporting CSV, OFX, or QFX from your bank.'
+          );
+        }
+        parsedTransactions = data.transactions;
+      } else {
+        throw new Error('Unsupported file format. Please choose a PDF, CSV, OFX, QFX, or image file.');
+      }
+
+      const updatedReport = applyParsedTransactionsToReport(activeReport, parsedTransactions);
       onUpdateReport(updatedReport);
-      setIsUploadingStatement(false);
+      setIsStatementModalOpen(false);
+      setSelectedStatementFile(null);
 
-      setStatementSuccessToast(`Statement "${statementName}" (Jan 1 - Jan 30) auto-categorized into ${activeReport.month} Form 65!`);
+      setStatementSuccessToast(
+        `Statement "${file.name}" (${parsedTransactions.length} transactions) auto-categorized into ${activeReport.month} Form 65!`
+      );
       setTimeout(() => setStatementSuccessToast(null), 5000);
 
-      // 2. Insert Interactive Clarification & Encouragement Messages into LITbot
-      const clarificationMsg1: ChatMessage = {
-        id: `clarify-1-${Date.now()}`,
+      const uncategorizedCount = parsedTransactions.filter((t) => !t.isCategorized).length;
+      const summaryMsg: ChatMessage = {
+        id: `stmt-summary-${Date.now()}`,
         sender: 'bot',
-        text: `I've analyzed your statement for Jan 1 to Jan 30! Most items were mapped automatically. I have a quick clarification for you:`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        clarificationData: {
-          id: 'clarify-instacart',
-          type: 'choice',
-          merchant: 'Instacart',
-          amount: 50.00,
-          options: [
-            {
-              label: 'Groceries ($50.00)',
-              action: () => handleResolveClarification('clarify-instacart', 'Groceries', 'Categorized $50.00 Instacart transaction as Day-to-Day Groceries.')
-            },
-            {
-              label: 'Dining Out ($50.00)',
-              action: () => handleResolveClarification('clarify-instacart', 'Dining Out', 'Categorized $50.00 Instacart transaction as Personal Dining Out.')
-            }
-          ]
-        }
-      };
-
-      const clarificationMsg2: ChatMessage = {
-        id: `clarify-2-${Date.now()}`,
-        sender: 'bot',
-        text: `Here's one more compliance check to protect your statutory deductions:`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        clarificationData: {
-          id: 'clarify-rexall',
-          type: 'proof',
-          merchant: 'Rexall Pharmacy',
-          amount: 20.00,
-          options: [
-            {
-              label: 'Attach Prescription Receipt',
-              action: () => {
-                if (onAttachReceiptToCategory) {
-                  onAttachReceiptToCategory('medicalConditionExpenses', receipts[0]?.id || 'mock-rec-1');
-                }
-                handleResolveClarification('clarify-rexall', 'Prescription Attached', 'Prescription receipt tightly linked to Rexall $20.00 transaction for trustee audit!');
-              }
-            },
-            {
-              label: 'General Non-Prescription',
-              action: () => handleResolveClarification('clarify-rexall', 'General', 'Logged as general personal expense.')
-            }
-          ]
-        }
-      };
-
-      const motivationalMsg: ChatMessage = {
-        id: `motive-${Date.now()}`,
-        sender: 'bot',
-        text: `🔥 Awesome work! You've auto-mapped 14 statement transactions and saved 45 minutes of manual filing. Your ${activeReport.month} Form 65 is 100% audit-ready for your Licensed Insolvency Trustee, Sarah Jenkins, LIT. Keep crushing your monthly reports — you are 1 step closer to your absolute discharge certificate!`,
+        text: `I processed **${file.name}** and extracted **${parsedTransactions.length} transactions** into your ${activeReport.month} ${activeReport.year} Form 65 report.${
+          uncategorizedCount > 0
+            ? ` ${uncategorizedCount} item(s) were placed in Day-to-Day Other for review — check your line items or ask me where any transaction belongs.`
+            : ' Every line item was mapped to its corresponding statutory Form 65 category!'
+        }`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      setMessages(prev => [...prev, clarificationMsg1, clarificationMsg2, motivationalMsg]);
-    }, 1200);
+      setMessages((prev) => [...prev, summaryMsg]);
+    } catch (err: any) {
+      setStatementError(err?.message || 'Unable to process the selected statement file.');
+    } finally {
+      setIsUploadingStatement(false);
+    }
   };
 
   const handleResolveClarification = (msgId: string, choiceLabel: string, resultSummary: string) => {
@@ -461,12 +590,20 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
       {isStatementModalOpen && (
         <div
           className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150"
-          onClick={() => setIsStatementModalOpen(false)}
+          onClick={handleCloseStatementModal}
         >
           <div
             className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[6px_8px_0px_#000000] space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.csv,.ofx,.qfx,image/*,application/pdf,text/csv"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
+
             <div className="flex items-center justify-between pb-3 border-b border-[#b4b1fc]/35">
               <div className="flex items-center gap-2">
                 <ClipboardIcon className="w-5 h-5 text-[#8c93fc]" />
@@ -477,7 +614,8 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
               <CleanSlateButton
                 variant="white"
                 size="icon"
-                onClick={() => setIsStatementModalOpen(false)}
+                onClick={handleCloseStatementModal}
+                disabled={isUploadingStatement}
                 aria-label="Close upload statement modal"
               >
                 <CloseIcon className="w-3.5 h-3.5" />
@@ -490,36 +628,76 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
 
             {/* Periwinkle Dropzone matching ReceiptsView */}
             <div
-              onClick={() => handleProcessBankStatement('Jan_1_to_Jan_30_Bank_Statement.pdf')}
-              className="rounded-2xl bg-[#b6c0fb] p-3 hover:brightness-[0.99] transition cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => !isUploadingStatement && fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && !isUploadingStatement) {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingStatement(true);
+              }}
+              onDragLeave={() => setIsDraggingStatement(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingStatement(false);
+                if (!isUploadingStatement) {
+                  handleSelectStatementFile(e.dataTransfer.files?.[0]);
+                }
+              }}
+              className={`rounded-2xl bg-[#b6c0fb] p-3 transition cursor-pointer ${
+                isDraggingStatement ? 'ring-2 ring-[#101010] brightness-95' : 'hover:brightness-[0.98]'
+              }`}
             >
               <div className="border border-dashed border-[#242031]/55 rounded-xl p-6 text-center space-y-2">
-                <UploadIcon className="w-7 h-7 text-[#1d1a27] mx-auto" />
-                <div className="text-xs font-extrabold text-[#101010]">
-                  Drop your statement file here (PDF / CSV / Image)
+                <UploadIcon className={`w-7 h-7 text-[#1d1a27] mx-auto ${isUploadingStatement ? 'animate-bounce' : ''}`} />
+                <div className="text-xs font-extrabold text-[#101010] break-all">
+                  {isUploadingStatement
+                    ? `Parsing ${selectedStatementFile?.name || 'statement'}...`
+                    : selectedStatementFile
+                      ? `Selected: ${selectedStatementFile.name} (Click to replace)`
+                      : 'Click to browse or drop your statement file here'}
                 </div>
                 <div className="text-[11px] text-[#242031]/80 font-medium">
-                  Statement period: January 1, 2026 – January 30, 2026
+                  {selectedStatementFile
+                    ? `${Math.max(1, Math.round(selectedStatementFile.size / 1024))} KB · Ready to import into ${activeReport.month} Form 65`
+                    : 'Supports PDF, CSV, OFX, QFX, or statement images (Jan 1 – Jan 30)'}
                 </div>
               </div>
             </div>
+
+            {statementError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-medium">
+                {statementError}
+              </div>
+            )}
 
             <div className="pt-2 space-y-2.5">
               <CleanSlateButton
                 variant="yellow"
                 size="md"
                 fullWidth
-                leftIcon={SparklesIcon}
-                onClick={() => handleProcessBankStatement('Jan_1_to_Jan_30_Bank_Statement.pdf')}
+                leftIcon={selectedStatementFile ? SparklesIcon : UploadIcon}
+                disabled={isUploadingStatement}
+                onClick={() => handleProcessBankStatement()}
               >
-                Import &amp; Auto-Categorize Statement
+                {isUploadingStatement
+                  ? 'Parsing & Categorizing Statement...'
+                  : selectedStatementFile
+                    ? 'Import & Auto-Categorize Statement'
+                    : 'Choose Statement File...'}
               </CleanSlateButton>
               <CleanSlateButton
                 variant="white"
                 size="md"
                 fullWidth
                 leftIcon={CancelIcon}
-                onClick={() => setIsStatementModalOpen(false)}
+                disabled={isUploadingStatement}
+                onClick={handleCloseStatementModal}
               >
                 Cancel
               </CleanSlateButton>
