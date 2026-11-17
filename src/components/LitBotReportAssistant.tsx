@@ -218,23 +218,98 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
         case 'Employment Income':
           next.income.debtor.employmentIncome = round2((next.income.debtor.employmentIncome || 0) + amt);
           break;
+        case 'Pension/Annuities':
+          next.income.debtor.pensionAnnuities = round2((next.income.debtor.pensionAnnuities || 0) + amt);
+          break;
+        case 'Child Support':
+          next.income.debtor.childSupport = round2((next.income.debtor.childSupport || 0) + amt);
+          break;
+        case 'Spousal Support':
+          next.income.debtor.spousalSupport = round2((next.income.debtor.spousalSupport || 0) + amt);
+          break;
         case 'Employment Insurance Benefits':
           next.income.debtor.employmentIncomeBenefits = round2((next.income.debtor.employmentIncomeBenefits || 0) + amt);
-          break;
-        case 'Child Tax Benefit':
-          next.income.debtor.childTaxBenefit = round2((next.income.debtor.childTaxBenefit || 0) + amt);
           break;
         case 'Social Assistance':
           next.income.debtor.socialAssistance = round2((next.income.debtor.socialAssistance || 0) + amt);
           break;
+        case 'Self-Employment Income':
+          next.income.debtor.selfEmploymentIncome = round2((next.income.debtor.selfEmploymentIncome || 0) + amt);
+          break;
+        case 'Child Tax Benefit':
+          next.income.debtor.childTaxBenefit = round2((next.income.debtor.childTaxBenefit || 0) + amt);
+          break;
         case 'Other Net Income':
           next.income.debtor.otherNetIncome = round2((next.income.debtor.otherNetIncome || 0) + amt);
+          break;
+        case 'Child Support Payments':
+          next.nonDiscretionary.childSupportPayments = round2((next.nonDiscretionary.childSupportPayments || 0) + amt);
+          break;
+        case 'Spousal Support Payments':
+          next.nonDiscretionary.spousalSupportPayments = round2((next.nonDiscretionary.spousalSupportPayments || 0) + amt);
           break;
         case 'Child Care':
           next.nonDiscretionary.childCare = round2((next.nonDiscretionary.childCare || 0) + amt);
           break;
         case 'Medical Condition Expenses':
           next.nonDiscretionary.medicalConditionExpenses = round2((next.nonDiscretionary.medicalConditionExpenses || 0) + amt);
+          break;
+        case 'Fines/Penalties Imposed by Court':
+          next.nonDiscretionary.finesPenaltiesCourt = round2((next.nonDiscretionary.finesPenaltiesCourt || 0) + amt);
+          break;
+        case 'Expenses as Condition of Employment':
+          next.nonDiscretionary.expensesConditionEmployment = round2((next.nonDiscretionary.expensesConditionEmployment || 0) + amt);
+          break;
+        case 'Debts Stay Lifted':
+          next.nonDiscretionary.debtsStayLifted = round2((next.nonDiscretionary.debtsStayLifted || 0) + amt);
+          break;
+        case 'Rent/Mortgage':
+          next.discretionary.housing.rentOrMortgage = round2((next.discretionary.housing.rentOrMortgage || 0) + amt);
+          break;
+        case 'Property Taxes & Condo Fees':
+          next.discretionary.housing.propertyTaxesCondo = round2((next.discretionary.housing.propertyTaxesCondo || 0) + amt);
+          break;
+        case 'Heating/Gas/Oil':
+          next.discretionary.housing.heatingGasOil = round2((next.discretionary.housing.heatingGasOil || 0) + amt);
+          break;
+        case 'Telephone':
+          next.discretionary.housing.telephone = round2((next.discretionary.housing.telephone || 0) + amt);
+          break;
+        case 'Cable':
+          next.discretionary.housing.cable = round2((next.discretionary.housing.cable || 0) + amt);
+          break;
+        case 'Hydro':
+          next.discretionary.housing.hydro = round2((next.discretionary.housing.hydro || 0) + amt);
+          break;
+        case 'Water':
+          next.discretionary.housing.water = round2((next.discretionary.housing.water || 0) + amt);
+          break;
+        case 'Furniture':
+          next.discretionary.housing.furniture = round2((next.discretionary.housing.furniture || 0) + amt);
+          break;
+        case 'Other Housing':
+          next.discretionary.housing.other = round2((next.discretionary.housing.other || 0) + amt);
+          break;
+        case 'Smoking & Tobacco':
+          next.discretionary.personal.smoking = round2((next.discretionary.personal.smoking || 0) + amt);
+          break;
+        case 'Alcohol & Beverages':
+          next.discretionary.personal.alcohol = round2((next.discretionary.personal.alcohol || 0) + amt);
+          break;
+        case 'Dining/Lunches/Restaurants':
+          next.discretionary.personal.diningOut = round2((next.discretionary.personal.diningOut || 0) + amt);
+          break;
+        case 'Clothing & Apparel':
+          next.discretionary.personal.clothing = round2((next.discretionary.personal.clothing || 0) + amt);
+          break;
+        case 'Grooming & Personal Care':
+          next.discretionary.personal.grooming = round2((next.discretionary.personal.grooming || 0) + amt);
+          break;
+        case 'Hobbies & Recreation':
+          next.discretionary.personal.hobbies = round2((next.discretionary.personal.hobbies || 0) + amt);
+          break;
+        case 'Other Personal':
+          next.discretionary.personal.other = round2((next.discretionary.personal.other || 0) + amt);
           break;
         case 'Prescriptions':
           next.discretionary.medical.prescriptions = round2((next.discretionary.medical.prescriptions || 0) + amt);
@@ -245,20 +320,14 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
         case 'Food/Grocery':
           next.discretionary.dayToDay.foodGrocery = round2((next.discretionary.dayToDay.foodGrocery || 0) + amt);
           break;
-        case 'Dining/Lunches/Restaurants':
-          next.discretionary.personal.diningOut = round2((next.discretionary.personal.diningOut || 0) + amt);
+        case 'Laundry & Dry Cleaning':
+          next.discretionary.dayToDay.laundryDryCleaning = round2((next.discretionary.dayToDay.laundryDryCleaning || 0) + amt);
           break;
-        case 'Hydro':
-          next.discretionary.housing.hydro = round2((next.discretionary.housing.hydro || 0) + amt);
+        case 'Grooming & Toiletries':
+          next.discretionary.dayToDay.groomingToiletries = round2((next.discretionary.dayToDay.groomingToiletries || 0) + amt);
           break;
-        case 'Heating/Gas/Oil':
-          next.discretionary.housing.heatingGasOil = round2((next.discretionary.housing.heatingGasOil || 0) + amt);
-          break;
-        case 'Telephone':
-          next.discretionary.housing.telephone = round2((next.discretionary.housing.telephone || 0) + amt);
-          break;
-        case 'Rent/Mortgage':
-          next.discretionary.housing.rentOrMortgage = round2((next.discretionary.housing.rentOrMortgage || 0) + amt);
+        case 'Clothing':
+          next.discretionary.dayToDay.clothing = round2((next.discretionary.dayToDay.clothing || 0) + amt);
           break;
         case 'Repair/Maintenance/Gas':
           next.discretionary.transportation.repairMaintenanceGas = round2((next.discretionary.transportation.repairMaintenanceGas || 0) + amt);
@@ -268,6 +337,21 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
           break;
         case 'Vehicle':
           next.discretionary.insurance.vehicle = round2((next.discretionary.insurance.vehicle || 0) + amt);
+          break;
+        case 'House Insurance':
+          next.discretionary.insurance.house = round2((next.discretionary.insurance.house || 0) + amt);
+          break;
+        case 'Furniture & Contents Insurance':
+          next.discretionary.insurance.furnitureContents = round2((next.discretionary.insurance.furnitureContents || 0) + amt);
+          break;
+        case 'Life Insurance':
+          next.discretionary.insurance.lifeInsurance = round2((next.discretionary.insurance.lifeInsurance || 0) + amt);
+          break;
+        case 'To The Estate':
+          next.discretionary.payments.toEstate = round2((next.discretionary.payments.toEstate || 0) + amt);
+          break;
+        case 'To Secured Creditor':
+          next.discretionary.payments.toSecuredCreditor = round2((next.discretionary.payments.toSecuredCreditor || 0) + amt);
           break;
         case 'Other Payments':
           next.discretionary.payments.other = round2((next.discretionary.payments.other || 0) + amt);
@@ -288,7 +372,7 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
       ['pdf', 'csv', 'ofx', 'qfx'].includes(ext) || file.type.startsWith('image/') || file.type === 'application/pdf' || file.type === 'text/csv';
 
     if (!isSupported) {
-      setStatementError('Unsupported file format. Please select a PDF, CSV, OFX, QFX, or image statement.');
+      setStatementError('Unsupported file format. Please select a PDF bank statement (or statement image).');
       setSelectedStatementFile(null);
       return;
     }
@@ -360,21 +444,26 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
 
         if (!res.ok) {
           const errPayload = await res.json().catch(() => null);
+          if (res.status === 404) {
+            throw new Error(
+              'AI PDF statement parsing requires the CleanSlate backend server (/api/bank/parse-statement is not available on static hosting).'
+            );
+          }
           throw new Error(
             errPayload?.error ||
-              'PDF/image AI statement parsing is unavailable here. Export a CSV, OFX, or QFX file from your bank for instant browser-side parsing.'
+              `AI PDF statement parsing failed (HTTP ${res.status}). Please verify GEMINI_API_KEY in Settings > Secrets and try again.`
           );
         }
 
         const data = await res.json();
         if (!data.success || !Array.isArray(data.transactions) || data.transactions.length === 0) {
           throw new Error(
-            data.error || 'Could not extract transactions from this statement. Try exporting CSV, OFX, or QFX from your bank.'
+            data.error || 'Could not extract transactions from this PDF statement. Please ensure it is a readable bank or credit card PDF.'
           );
         }
         parsedTransactions = data.transactions;
       } else {
-        throw new Error('Unsupported file format. Please choose a PDF, CSV, OFX, QFX, or image file.');
+        throw new Error('Unsupported file format. Please choose a PDF bank statement or image file.');
       }
 
       const updatedReport = applyParsedTransactionsToReport(activeReport, parsedTransactions);
@@ -599,7 +688,7 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.csv,.ofx,.qfx,image/*,application/pdf,text/csv"
+              accept=".pdf,application/pdf,image/*,.csv,.ofx,.qfx"
               onChange={handleFileInputChange}
               className="hidden"
             />
@@ -657,15 +746,15 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
                 <UploadIcon className={`w-7 h-7 text-[#1d1a27] mx-auto ${isUploadingStatement ? 'animate-bounce' : ''}`} />
                 <div className="text-xs font-extrabold text-[#101010] break-all">
                   {isUploadingStatement
-                    ? `Parsing ${selectedStatementFile?.name || 'statement'}...`
+                    ? `AI is reading ${selectedStatementFile?.name || 'your PDF'}...`
                     : selectedStatementFile
                       ? `Selected: ${selectedStatementFile.name} (Click to replace)`
-                      : 'Click to browse or drop your statement file here'}
+                      : 'Click to browse or drop your PDF bank statement'}
                 </div>
                 <div className="text-[11px] text-[#242031]/80 font-medium">
                   {selectedStatementFile
-                    ? `${Math.max(1, Math.round(selectedStatementFile.size / 1024))} KB · Ready to import into ${activeReport.month} Form 65`
-                    : 'Supports PDF, CSV, OFX, QFX, or statement images (Jan 1 – Jan 30)'}
+                    ? `${Math.max(1, Math.round(selectedStatementFile.size / 1024))} KB · Ready for AI auto-categorization into ${activeReport.month} Form 65`
+                    : 'AI extracts & auto-categorizes transactions from PDF statements (Jan 1 – Jan 30)'}
                 </div>
               </div>
             </div>

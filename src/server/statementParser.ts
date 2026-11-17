@@ -1,10 +1,10 @@
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
 import type { BankAccount, Transaction } from '../types';
 import { inferForm65FromDescription } from '../lib/statementParser';
 
 export interface ServerStatementParseResult {
   success: boolean;
-  code?: 'NO_AI_KEY' | 'PARSE_ERROR';
+  code?: 'NO_AI_KEY' | 'PARSE_ERROR' | 'API_ERROR';
   institution?: string;
   accountName?: string;
   accountType?: BankAccount['accountType'];
@@ -14,6 +14,64 @@ export interface ServerStatementParseResult {
   error?: string;
 }
 
+const VALID_FORM65_CATEGORIES = [
+  'Employment Income',
+  'Pension/Annuities',
+  'Child Support',
+  'Spousal Support',
+  'Employment Insurance Benefits',
+  'Social Assistance',
+  'Self-Employment Income',
+  'Child Tax Benefit',
+  'Other Net Income',
+  'Child Support Payments',
+  'Spousal Support Payments',
+  'Child Care',
+  'Medical Condition Expenses',
+  'Fines/Penalties Imposed by Court',
+  'Expenses as Condition of Employment',
+  'Debts Stay Lifted',
+  'Rent/Mortgage',
+  'Property Taxes & Condo Fees',
+  'Heating/Gas/Oil',
+  'Telephone',
+  'Cable',
+  'Hydro',
+  'Water',
+  'Furniture',
+  'Other Housing',
+  'Smoking & Tobacco',
+  'Alcohol & Beverages',
+  'Dining/Lunches/Restaurants',
+  'Clothing & Apparel',
+  'Grooming & Personal Care',
+  'Hobbies & Recreation',
+  'Other Personal',
+  'Prescriptions',
+  'Dental',
+  'Food/Grocery',
+  'Laundry & Dry Cleaning',
+  'Grooming & Toiletries',
+  'Clothing',
+  'Repair/Maintenance/Gas',
+  'Public Transportation',
+  'Vehicle',
+  'House Insurance',
+  'Furniture & Contents Insurance',
+  'Life Insurance',
+  'To The Estate',
+  'To Secured Creditor',
+  'Other Payments',
+] as const;
+
+const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+
 export async function parseBankStatementPdfWithAI(
   fileBase64: string,
   mimeType: string = 'application/pdf',
@@ -22,13 +80,13 @@ export async function parseBankStatementPdfWithAI(
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   const cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, '');
 
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
     return {
       success: false,
       code: 'NO_AI_KEY',
       transactions: [],
       error:
-        'PDF statement parsing requires a server GEMINI_API_KEY. Please download CSV, OFX, or QFX from your online banking website—those formats parse 100% locally in your browser for free.',
+        'AI PDF statement parsing requires a valid GEMINI_API_KEY configured in Settings > Secrets.',
     };
   }
 
@@ -42,16 +100,52 @@ export async function parseBankStatementPdfWithAI(
       },
     });
 
-    const modelsToTry = ['gemini-4-hydrogen', 'gemini-3.1-flash-lite'];
+    const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-4-hydrogen'] as const;
     let lastError: any = null;
 
     for (const model of modelsToTry) {
       try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: [
-            {
-              role: 'user',
+        const config: any = {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              institution: { type: Type.STRING },
+              accountName: { type: Type.STRING },
+              accountType: { type: Type.STRING },
+              accountLast4: { type: Type.STRING },
+              endingBalance: { type: Type.NUMBER },
+              transactions: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    date: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    amount: { type: Type.NUMBER },
+                    isIncome: { type: Type.BOOLEAN },
+                    category: { type: Type.STRING },
+                    form65Category: { type: Type.STRING },
+                    requiresProof: { type: Type.BOOLEAN },
+                  },
+                  required: ['date', 'description', 'amount', 'isIncome', 'category', 'form65Category'],
+                },
+              },
+            },
+            required: ['transactions'],
+          },
+        };
+
+        if (model === 'gemini-4-hydrogen') {
+          config.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
+        }
+
+        const timeoutMs = model === 'gemini-4-hydrogen' ? 24000 : 18000;
+
+        const response = await withTimeout(
+          ai.models.generateContent({
+            model,
+            contents: {
               parts: [
                 {
                   inlineData: {
@@ -60,52 +154,45 @@ export async function parseBankStatementPdfWithAI(
                   },
                 },
                 {
-                  text: `You are extracting financial statement data for a Canadian personal bankruptcy Form 65 ledger.
-Inspect this bank or credit card statement document carefully and extract:
+                  text: `You are extracting and auto-categorizing financial statement transactions for a Canadian personal bankruptcy Form 65 ledger (Office of the Superintendent of Bankruptcy Canada).
+Inspect this PDF/image bank or credit card statement carefully and extract:
 1. institution: Canadian bank/issuer name (e.g. "RBC Royal Bank", "TD Canada Trust", "Neo Financial", "Scotiabank", "BMO", "CIBC", "Tangerine").
 2. accountName: Account label on the statement (e.g. "RBC Advantage Banking").
 3. accountType: One of "Chequing", "Savings", "Credit Card".
 4. accountLast4: Last 4 digits of account number if visible (e.g. "5678").
 5. endingBalance: Closing/ending balance in CAD as a number (optional if unclear).
-6. transactions: Array of every visible transaction row with:
-   - date formatted as "MMM DD, YYYY" (e.g. "Oct 14, 2026")
+6. transactions: Every visible transaction line item (exclude summary/header/opening-balance rows) with:
+   - date: formatted as "MMM DD, YYYY" (e.g. "Jan 15, 2026")
    - description: concise merchant or transaction description
    - amount: positive numeric CAD dollar value (e.g. 42.19)
-   - isIncome: true ONLY if it is a deposit/payroll/credit/refund; false if it is a withdrawal/purchase/debit/fee.
+   - isIncome: true ONLY if it is a deposit/payroll/credit/government benefit/refund; false if it is a withdrawal/purchase/debit/fee.
+   - category: broad readable category (e.g. "Income", "Government Benefits", "Food & Grocery", "Food & Dining", "Housing", "Utilities", "Transportation", "Healthcare", "Insurance", "Child Care", "Personal", "Payments", "Transfer / Internal").
+   - form65Category: MUST be one exact value from: ${VALID_FORM65_CATEGORIES.join(', ')}.
+     Mapping tips:
+     * Salary/payroll/wages -> "Employment Income"
+     * EI/Service Canada -> "Employment Insurance Benefits"
+     * Child Tax / CCB -> "Child Tax Benefit"
+     * Grocery/supermarket/Costco/Walmart grocery -> "Food/Grocery"
+     * Restaurants/coffee/Uber Eats/DoorDash/Skip -> "Dining/Lunches/Restaurants"
+     * Pharmacy prescriptions (Rexall/Shoppers/London Drugs Rx) -> "Prescriptions" (or "Medical Condition Expenses" if clearly ongoing medical condition care)
+     * Gas/fuel/auto repair/mechanic -> "Repair/Maintenance/Gas"
+     * Transit/Uber ride/Presto/Compass -> "Public Transportation"
+     * Hydro/electricity -> "Hydro"; Enbridge/Fortis -> "Heating/Gas/Oil"; Telus/Rogers/Bell/Fido -> "Telephone"; Internet/TV -> "Cable"
+     * Rent/mortgage -> "Rent/Mortgage"
+     * Credit card bill payment / internal e-transfer between own accounts -> "Other Payments"
+     * Beer/wine/liquor/LCBO/SAQ -> "Alcohol & Beverages"
+     * Clothing stores -> "Clothing & Apparel"
+   - requiresProof: true if statutory non-discretionary deduction (Child Care, Medical Condition Expenses, Child Support Payments, Spousal Support Payments, Expenses as Condition of Employment).
 
 Respond strictly with valid JSON matching the schema.`,
                 },
               ],
             },
-          ],
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                institution: { type: Type.STRING },
-                accountName: { type: Type.STRING },
-                accountType: { type: Type.STRING },
-                accountLast4: { type: Type.STRING },
-                endingBalance: { type: Type.NUMBER },
-                transactions: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.OBJECT,
-                    properties: {
-                      date: { type: Type.STRING },
-                      description: { type: Type.STRING },
-                      amount: { type: Type.NUMBER },
-                      isIncome: { type: Type.BOOLEAN },
-                    },
-                    required: ['date', 'description', 'amount', 'isIncome'],
-                  },
-                },
-              },
-              required: ['transactions'],
-            },
-          },
-        });
+            config,
+          }),
+          timeoutMs,
+          model
+        );
 
         const parsed = JSON.parse(response.text || '{}');
         const rawTxs: Array<{
@@ -113,24 +200,40 @@ Respond strictly with valid JSON matching the schema.`,
           description?: string;
           amount?: number;
           isIncome?: boolean;
+          category?: string;
+          form65Category?: string;
+          requiresProof?: boolean;
         }> = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+
+        const validSet = new Set<string>(VALID_FORM65_CATEGORIES);
 
         const mappedTransactions: Array<Omit<Transaction, 'id'>> = rawTxs
           .filter((tx) => typeof tx.amount === 'number' && tx.amount > 0 && tx.description)
           .map((tx) => {
             const signedAmount = tx.isIncome ? Math.abs(tx.amount!) : -Math.abs(tx.amount!);
             const desc = String(tx.description || 'Bank Transaction').slice(0, 90);
-            const inferred = inferForm65FromDescription(desc, signedAmount);
+            const fallback = inferForm65FromDescription(desc, signedAmount);
+            const aiCategory =
+              tx.form65Category && validSet.has(tx.form65Category)
+                ? tx.form65Category
+                : fallback.form65Category || undefined;
 
             return {
               userId,
               company: desc,
-              date: tx.date || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+              date:
+                tx.date ||
+                new Date().toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  year: 'numeric',
+                }),
               amount: Number(Math.abs(tx.amount!).toFixed(2)),
-              category: inferred.category,
-              form65Category: inferred.form65Category || undefined,
-              isCategorized: inferred.isCategorized,
+              category: tx.category || fallback.category,
+              form65Category: aiCategory,
+              isCategorized: Boolean(aiCategory),
               status: 'cleared',
+              requiresProof: Boolean(tx.requiresProof),
             };
           });
 
@@ -160,12 +263,31 @@ Respond strictly with valid JSON matching the schema.`,
     throw lastError || new Error('Unable to parse PDF statement');
   } catch (err: any) {
     console.error('PDF bank statement extraction failed:', err);
+    const msg = String(err?.message || '');
+    const status = err?.status || err?.code;
+    if (status === 400 || status === 403 || /API_KEY_INVALID|PERMISSION_DENIED/i.test(msg)) {
+      return {
+        success: false,
+        code: 'API_ERROR',
+        transactions: [],
+        error:
+          'Gemini API key was rejected or missing permissions. Please verify your GEMINI_API_KEY in Settings > Secrets.',
+      };
+    }
+    if (status === 429 || /RESOURCE_EXHAUSTED/i.test(msg)) {
+      return {
+        success: false,
+        code: 'API_ERROR',
+        transactions: [],
+        error: 'Gemini API rate limit reached. Please wait a moment and try uploading the PDF again.',
+      };
+    }
     return {
       success: false,
       code: 'PARSE_ERROR',
       transactions: [],
       error:
-        'Could not extract transactions from this PDF statement. Try exporting CSV, OFX, or QFX from your bank instead.',
+        'Could not extract transactions from this PDF statement. Ensure the file is a readable bank or credit card statement PDF.',
     };
   }
 }

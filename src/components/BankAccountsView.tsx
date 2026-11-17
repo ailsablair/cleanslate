@@ -331,7 +331,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
         if (!data.success) {
           setStatementError(
             data.error ||
-              'Could not extract PDF statement. Try exporting CSV, OFX, or QFX from your online banking portal instead.'
+              'Could not extract transactions from this PDF statement. Please ensure it is a readable bank or credit card statement PDF.'
           );
         } else {
           const parsed: ParsedStatementResult = {
@@ -851,7 +851,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   <ol className="list-decimal list-inside space-y-0.5 leading-relaxed">
                     <li>Log in to your Canadian bank&apos;s website in another tab.</li>
                     <li>
-                      Download your recent activity as <strong>CSV, OFX, or QFX</strong> (parses 100% locally in your browser) or <strong>PDF</strong>.
+                      Download your monthly bank or credit card statement as a <strong>PDF</strong> (AI extracts &amp; auto-categorizes transactions) or CSV / OFX / QFX.
                     </li>
                     <li>Upload the exported file below to import transactions and update your balance.</li>
                   </ol>
@@ -959,10 +959,10 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                         <span className="text-xs font-bold text-[#101010]">
                           {statementFileName
                             ? `Selected: ${statementFileName} (Click to replace)`
-                            : 'Choose Statement File (.CSV, .OFX, .QFX, or .PDF)'}
+                            : 'Choose PDF Statement (or CSV / OFX / QFX)'}
                         </span>
                         <span className="text-[11px] text-[#6e6b7b]">
-                          CSV / OFX / QFX files parse 100% locally in your browser
+                          PDF statements are extracted &amp; auto-categorized by AI
                         </span>
                       </>
                     )}
