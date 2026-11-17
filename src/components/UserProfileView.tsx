@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  UserCircle2, 
-  Pencil, 
-  Upload, 
-  Search, 
-  Building, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Check, 
-  ChevronDown, 
-  X, 
-  ShieldCheck, 
-  Save,
-  CheckCircle2,
-  FileCheck
-} from 'lucide-react';
+import {
+  UserCircleIcon,
+  PencilIcon,
+  UploadIcon,
+  FilterIcon,
+  BankIcon,
+  MailIcon,
+  IdBadgeIcon,
+  MapPinIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  CancelIcon,
+  ShieldCheckeredIcon,
+  SaveIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton, getCleanSlateButtonClass } from './ui/CleanSlateButton';
 import { UserProfile, LIT } from '../types';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect } from './FloatingSelect';
@@ -127,7 +126,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           {/* Header & Avatar Area */}
           <div>
             <div className="flex items-center gap-2.5 pb-4 mb-6 border-b border-[#8c93fc]/25">
-              <UserCircle2 className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <UserCircleIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
                 USER PROFILE
               </h2>
@@ -143,15 +142,15 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UserCircle2 className="w-16 h-16 text-[#6e6b7b]" />
+                    <UserCircleIcon className="w-16 h-16 text-[#6e6b7b]" />
                   )}
                 </div>
                 <label
                   htmlFor="avatar-upload"
-                  className="absolute bottom-0 right-0 w-7 h-7 bg-[#F9F45D] rounded-full border border-[#101010] flex items-center justify-center cursor-pointer hover:brightness-105 transition shadow-xs text-[#101010]"
+                  className="absolute bottom-0 right-0 w-7 h-7 bg-[#F9F45D] text-[#3B3B3B] rounded-full border-[1.5px] border-[#010101] shadow-[1px_2px_0px_#010101] flex items-center justify-center cursor-pointer hover:brightness-105 transition"
                   title="Change Avatar"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <PencilIcon className="w-3.5 h-3.5" />
                   <input
                     id="avatar-upload"
                     type="file"
@@ -289,9 +288,9 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               <div className="sm:col-span-4">
                 <label 
                   htmlFor="contract-upload"
-                  className="w-full py-3.5 min-h-[52px] px-4 rounded-xl border border-[#2d2d2d] bg-white hover:bg-slate-50 text-slate-900 text-xs font-normal transition flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_0_rgba(0,0,0,0.22)]"
+                  className={getCleanSlateButtonClass('white', 'lg', true, 'min-h-[52px]')}
                 >
-                  <Upload className="w-4 h-4 text-slate-800" />
+                  <UploadIcon className="w-4 h-4 shrink-0" />
                   <span className="truncate">
                     {formData.employmentContractFileName || 'Upload Employment Contract'}
                   </span>
@@ -338,7 +337,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <div className="flex items-center justify-between gap-2">
               <div>
                 <div className="text-xs font-extrabold tracking-wide uppercase text-[#101010] flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#8c93fc]" />
+                  <ShieldCheckeredIcon className="w-4 h-4 text-[#8c93fc]" />
                   LICENSED INSOLVENCY TRUSTEE (LIT) ASSIGNMENT
                 </div>
                 <p className="text-xs text-[#4b4856] mt-0.5">
@@ -361,14 +360,14 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                     </span>
                   </div>
                   <div className="text-xs font-medium text-[#4b4856] flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-[#8c93fc]" />
+                    <BankIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                     <span>{selectedLitObj.firm}</span>
                     <span className="text-slate-300">·</span>
                     <span className="font-mono text-[#6e6b7b] text-[11px]">{selectedLitObj.licenseNumber}</span>
                   </div>
                   <div className="text-xs text-[#6e6b7b] flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                     <span className="flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5 text-[#8c93fc]" />
+                      <MailIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <a
                         href={getMailtoUrl(selectedLitObj.email)}
                         className="font-semibold text-[#101010] underline hover:text-[#6366f1] transition"
@@ -378,11 +377,11 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                       </a>
                     </span>
                     <span className="flex items-center gap-1 tabular-nums">
-                      <Phone className="w-3.5 h-3.5 text-[#8c93fc]" />
+                      <IdBadgeIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>{selectedLitObj.phone}</span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#8c93fc]" />
+                      <MapPinIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>{selectedLitObj.city}, {selectedLitObj.province}</span>
                     </span>
                   </div>
@@ -408,18 +407,18 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <div className="flex items-center gap-2.5 text-[#101010] truncate">
-                  <Search className="w-4 h-4 text-[#8c93fc] shrink-0" />
+                  <FilterIcon className="w-4 h-4 text-[#8c93fc] shrink-0" />
                   <span className="font-medium truncate text-[#4b4856]">
                     {formData.litName ? `Change LIT: ${formData.litName} (${formData.litFirm})` : 'Search & select Licensed Insolvency Trustee from database...'}
                   </span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#4b4856] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDownIcon className={`w-4 h-4 text-[#4b4856] transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
 
               {isDropdownOpen && (
                 <div className="absolute left-0 right-0 top-full mt-2 bg-white border-[1.5px] border-[#101010] rounded-2xl shadow-[5px_6px_0px_#000000] z-30 p-3 space-y-2.5 animate-in fade-in duration-150">
                   <div className="relative">
-                    <Search className="w-4 h-4 text-[#6e6b7b] absolute left-3 top-3.5" />
+                    <FilterIcon className="w-4 h-4 text-[#6e6b7b] absolute left-3 top-3.5" />
                     <input
                       type="text"
                       placeholder="Type trustee name, firm (e.g. BDO, MNP, Sands), city, or license #..."
@@ -435,21 +434,17 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-[#4b4856] pb-2 border-b border-[#d8d9f8]/70">
                     <span className="text-[10px] text-[#6e6b7b] font-bold uppercase mr-1">Province:</span>
                     {['All', 'British Columbia', 'Alberta', 'Ontario', 'Quebec', 'Manitoba', 'Saskatchewan', 'Nova Scotia'].map((prov) => (
-                      <button
+                      <CleanSlateButton
                         key={prov}
-                        type="button"
+                        variant={provinceFilter === prov ? 'dark' : 'white'}
+                        size="xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           setProvinceFilter(prov);
                         }}
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] transition cursor-pointer ${
-                          provinceFilter === prov
-                            ? 'bg-[#2d2a37] text-white font-bold border border-[#101010]'
-                            : 'bg-[#e9e8ec] hover:bg-[#dfdde4] text-[#101010]'
-                        }`}
                       >
                         {prov === 'British Columbia' ? 'BC' : prov === 'Alberta' ? 'AB' : prov === 'Ontario' ? 'ON' : prov === 'Quebec' ? 'QC' : prov === 'Manitoba' ? 'MB' : prov === 'Saskatchewan' ? 'SK' : prov === 'Nova Scotia' ? 'NS' : 'All Canada'}
-                      </button>
+                      </CleanSlateButton>
                     ))}
                   </div>
 
@@ -470,7 +465,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                             <div className="space-y-0.5 min-w-0">
                               <div className="font-extrabold text-[#101010] flex items-center gap-1.5">
                                 <span>{lit.name}</span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-700" />}
+                                {isSelected && <CheckIcon className="w-3.5 h-3.5 text-emerald-700" />}
                               </div>
                               <div className="text-[#4b4856] font-semibold">{lit.firm}</div>
                               <div className="text-[11px] text-[#6e6b7b] flex items-center gap-2 flex-wrap">
@@ -523,7 +518,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
             {sendHistoryToLIT && (
               <div className="p-2.5 bg-[#fbf050]/30 border border-[#101010]/20 rounded-xl text-[11px] text-[#101010] font-medium flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#101010] shrink-0" />
+                <MailIcon className="w-4 h-4 text-[#101010] shrink-0" />
                 <span>
                   <strong>Transmission target:</strong>{' '}
                   <a href={getMailtoUrl(formData.litEmail)} className="underline hover:opacity-80 transition">{formData.litEmail}</a> will receive full estate history upon clicking Save.
@@ -533,31 +528,32 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
             {saveSuccess && (
               <span className="inline-flex bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 font-bold px-3 py-1 rounded-xl text-xs items-center gap-1.5 animate-in fade-in">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <CheckIcon className="w-3.5 h-3.5" />
                 Profile saved {sendHistoryToLIT ? `and data dispatched to ${formData.litEmail}` : 'without sending historical reports to LIT.'}
               </span>
             )}
           </div>
 
-          {/* Action Buttons: Cancel (white outline shadow) and Save (yellow hard shadow) */}
+          {/* Action Buttons: Cancel (white) and Save (yellow) */}
           <div className="flex items-center justify-between pt-4 border-t border-[#8c93fc]/25">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="md"
+              leftIcon={CancelIcon}
               onClick={onCancel}
-              className="px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
             >
-              <X className="w-4 h-4" />
-              <span>Cancel</span>
-            </button>
+              Cancel
+            </CleanSlateButton>
 
-            <button
+            <CleanSlateButton
               type="submit"
+              variant="yellow"
+              size="md"
+              leftIcon={SaveIcon}
               disabled={isSaving}
-              className="px-8 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-70 whitespace-nowrap"
             >
-              <Save className={`w-4 h-4 stroke-[2.5] ${isSaving ? 'animate-spin' : ''}`} />
-              <span>{isSaving ? 'Dispatching to LIT...' : 'Save'}</span>
-            </button>
+              {isSaving ? 'Dispatching to LIT...' : 'Save'}
+            </CleanSlateButton>
           </div>
         </div>
       </form>

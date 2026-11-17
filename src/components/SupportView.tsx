@@ -1,5 +1,12 @@
 import React from 'react';
-import { Headphones, ShieldCheck, Mail, Phone, ExternalLink, HelpCircle, FileText } from 'lucide-react';
+import {
+  HelpCircleIcon,
+  ShieldCheckeredIcon,
+  MailIcon,
+  IdBadgeIcon,
+  ClipboardIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile } from '../types';
 import { getMailtoUrl } from '../lib/formatters';
 
@@ -13,7 +20,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
       {/* Overview Card */}
       <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
         <div className="flex items-center gap-2.5 pb-3 mb-4 border-b border-[#8c93fc]/25">
-          <Headphones className="w-5 h-5 text-[#8c93fc] shrink-0" />
+          <HelpCircleIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
           <h2 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
             DEBTOR STATUTORY SUPPORT &amp; LIT DIRECT CONTACT
           </h2>
@@ -36,7 +43,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
             </div>
             <div className="text-xs text-[#6e6b7b] pt-1 flex flex-wrap items-center gap-4">
               <span className="flex items-center gap-1.5 font-bold text-[#101010]">
-                <Mail className="w-3.5 h-3.5 text-[#8c93fc]" />
+                <MailIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                 <a
                   href={getMailtoUrl(profile.litEmail)}
                   className="underline hover:text-[#6366f1] transition"
@@ -46,19 +53,22 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
                 </a>
               </span>
               <span className="flex items-center gap-1.5 tabular-nums">
-                <Phone className="w-3.5 h-3.5 text-[#8c93fc]" />
+                <IdBadgeIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                 {profile.litPhone}
               </span>
             </div>
           </div>
 
-          <a
+          <CleanSlateButton
+            as="a"
+            variant="yellow"
+            size="md"
+            leftIcon={MailIcon}
             href={getMailtoUrl(profile.litEmail, `Estate Inquiry - ${profile.firstName} ${profile.lastName}`)}
-            className="px-5 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
+            className="shrink-0"
           >
-            <Mail className="w-4 h-4 text-[#1d1a27]" />
-            <span>Email Trustee Directly</span>
-          </a>
+            Email Trustee Directly
+          </CleanSlateButton>
         </div>
       </div>
 
@@ -66,7 +76,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-4">
           <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010] flex items-center gap-2 pb-3 border-b border-[#8c93fc]/25">
-            <FileText className="w-4 h-4 text-[#8c93fc]" />
+            <ClipboardIcon className="w-4 h-4 text-[#8c93fc]" />
             <span>Statutory Form 65 Questions</span>
           </h3>
 
@@ -90,7 +100,7 @@ export const SupportView: React.FC<SupportViewProps> = ({ profile }) => {
 
         <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-7 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] space-y-4">
           <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010] flex items-center gap-2 pb-3 border-b border-[#8c93fc]/25">
-            <ShieldCheck className="w-4 h-4 text-[#8c93fc]" />
+            <ShieldCheckeredIcon className="w-4 h-4 text-[#8c93fc]" />
             <span>Bankruptcy Discharge Milestones</span>
           </h3>
 

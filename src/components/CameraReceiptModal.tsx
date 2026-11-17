@@ -1,21 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Camera, 
-  RotateCw, 
-  X, 
-  Sparkles, 
-  Check, 
-  Upload, 
-  RefreshCw, 
-  AlertCircle, 
-  CheckCircle2, 
-  Calendar, 
-  DollarSign, 
-  Building2, 
-  Tag, 
-  FileText,
-  ScanLine
-} from 'lucide-react';
+import {
+  CameraIcon,
+  RefreshIcon,
+  CloseIcon,
+  SparklesIcon,
+  CheckIcon,
+  UploadIcon,
+  ExclamationCircleIcon,
+  CancelIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { Receipt } from '../types';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect } from './FloatingSelect';
@@ -241,8 +235,8 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
         {/* Modal Header */}
         <div className="p-5 border-b border-[#b4b1fc]/35 flex items-center justify-between bg-[#fbf9f5]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#b6b3ff] border border-[#101010] flex items-center justify-center text-[#101010]">
-              <Camera className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#AEBBFD] border border-[#010101] flex items-center justify-center text-[#3B3B3B]">
+              <CameraIcon className="w-4 h-4" />
             </div>
             <div>
               <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
@@ -254,14 +248,15 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
             </div>
           </div>
 
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="white"
+            size="icon"
             onClick={handleClose}
             aria-label="Close camera scanner"
-            className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
+            className="!p-1.5"
           >
-            <X className="w-4 h-4 stroke-[2]" />
-          </button>
+            <CloseIcon className="w-4 h-4" />
+          </CleanSlateButton>
         </div>
 
         {/* Modal Body */}
@@ -273,17 +268,18 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
               <div className="relative aspect-[4/3] bg-black rounded-2xl overflow-hidden border-[1.5px] border-[#101010] flex items-center justify-center">
                 {cameraError ? (
                   <div className="p-6 text-center space-y-3">
-                    <AlertCircle className="w-8 h-8 text-[#F9F45D] mx-auto" />
+                    <ExclamationCircleIcon className="w-8 h-8 text-[#F9F45D] mx-auto" />
                     <p className="text-xs text-slate-300 max-w-xs mx-auto">
                       {cameraError}
                     </p>
-                    <button
-                      type="button"
+                    <CleanSlateButton
+                      variant="yellow"
+                      size="sm"
+                      leftIcon={CameraIcon}
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-[#F9F45D] text-[#101010] font-bold text-xs rounded-xl border border-[#101010] hover:brightness-105 transition cursor-pointer"
                     >
                       Choose Photo / Use Mobile Camera
-                    </button>
+                    </CleanSlateButton>
                   </div>
                 ) : (
                   <>
@@ -297,10 +293,10 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
 
                     {/* Receipt Target Guide Overlay with corner brackets */}
                     <div className="absolute inset-8 pointer-events-none border border-white/30 rounded-xl flex items-center justify-center">
-                      <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#b6b3ff]" />
-                      <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#b6b3ff]" />
-                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#b6b3ff]" />
-                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#b6b3ff]" />
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#AEBBFD]" />
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#AEBBFD]" />
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#AEBBFD]" />
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#AEBBFD]" />
                       
                       <div className="bg-black/55 backdrop-blur-xs px-3 py-1 rounded-full text-[10px] font-bold text-slate-100">
                         Align physical receipt in frame
@@ -308,14 +304,15 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                     </div>
 
                     {/* Camera Switch button */}
-                    <button
-                      type="button"
+                    <CleanSlateButton
+                      variant="dark"
+                      size="icon"
                       onClick={toggleCamera}
-                      className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20 cursor-pointer"
+                      className="absolute top-3 right-3"
                       title="Switch Camera (Front/Back)"
                     >
-                      <RotateCw className="w-4 h-4" />
-                    </button>
+                      <RefreshIcon className="w-4 h-4" />
+                    </CleanSlateButton>
                   </>
                 )}
               </div>
@@ -323,27 +320,28 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
               {/* Shutter & File Options */}
               {!cameraError && (
                 <div className="flex items-center justify-center gap-4 pt-1">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="yellow"
+                    size="lg"
+                    leftIcon={CameraIcon}
                     onClick={capturePhoto}
-                    className="w-16 h-16 rounded-full bg-[#F9F45D] hover:brightness-105 text-[#101010] flex items-center justify-center border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
                     title="Take Photo"
                   >
-                    <Camera className="w-7 h-7" />
-                  </button>
+                    Take Photo
+                  </CleanSlateButton>
                 </div>
               )}
 
               {/* Alternate File Upload Button */}
-              <div className="pt-2 text-center">
-                <button
-                  type="button"
+              <div className="pt-1 flex justify-center">
+                <CleanSlateButton
+                  variant="periwinkle"
+                  size="sm"
+                  leftIcon={UploadIcon}
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-xs font-bold text-[#101010] hover:text-[#5b52d6] transition flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
                 >
-                  <Upload className="w-3.5 h-3.5 text-[#8c93fc]" />
-                  <span>Or upload receipt photo from device</span>
-                </button>
+                  Or Upload Receipt Photo from Device
+                </CleanSlateButton>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -366,12 +364,12 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                   className="w-20 h-20 object-cover rounded-2xl opacity-70 border-[1.5px] border-[#101010]"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-[#8c93fc] animate-spin" />
+                  <SparklesIcon className="w-8 h-8 text-[#8c93fc] animate-spin" />
                 </div>
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-[#101010]">
-                  Gemini AI Analyzing Receipt...
+                  CleanSlate AI Analyzing Receipt...
                 </h4>
                 <p className="text-xs text-[#6e6b7b] mt-1">
                   Extracting transaction date, merchant, and total amount paid.
@@ -395,23 +393,25 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold mb-0.5">
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckIcon className="w-4 h-4" />
                     <span>AI Extraction Complete</span>
                   </div>
                   <div className="text-xs font-extrabold text-[#101010] truncate">
                     {extractedMerchant}
                   </div>
                   <div className="text-[11px] text-[#6e6b7b]">
-                    Review and verify extracted details before filing.
+                    {analysisError || 'Review and verify extracted details before filing.'}
                   </div>
                 </div>
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="xs"
+                  leftIcon={RefreshIcon}
                   onClick={handleRetake}
-                  className="text-xs font-bold text-[#101010] hover:bg-slate-50 px-3 py-1.5 rounded-xl bg-white border border-[#101010] cursor-pointer shrink-0"
+                  className="shrink-0"
                 >
                   Retake
-                </button>
+                </CleanSlateButton>
               </div>
 
               {/* Form Fields for Verified Details */}
@@ -454,14 +454,15 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
 
               {/* Action Buttons */}
               <div className="pt-2 flex items-center gap-3">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="dark-yellow"
+                  size="md"
+                  fullWidth
+                  leftIcon={CheckIcon}
                   onClick={handleSaveToVault}
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Check className="w-4 h-4 stroke-[3] text-[#F9F45D]" />
-                  <span>Save to Statutory Receipt Vault</span>
-                </button>
+                  Save to Statutory Receipt Vault
+                </CleanSlateButton>
               </div>
             </div>
           )}
@@ -471,13 +472,14 @@ export const CameraReceiptModal: React.FC<CameraReceiptModalProps> = ({
         {/* Modal Footer */}
         <div className="p-4 bg-[#fbf9f5] border-t border-[#b4b1fc]/35 flex justify-between items-center text-[11px] text-[#6e6b7b]">
           <span>CleanSlate AI Receipt Vision</span>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="white"
+            size="sm"
+            leftIcon={CancelIcon}
             onClick={handleClose}
-            className="text-[#101010] hover:underline transition font-bold cursor-pointer"
           >
             Cancel
-          </button>
+          </CleanSlateButton>
         </div>
       </div>
     </div>

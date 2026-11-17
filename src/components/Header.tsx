@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
-import { 
-  RefreshCw, 
-  MailCheck, 
-  Menu, 
-  X, 
-  LayoutDashboard, 
-  FileText, 
-  Building2, 
-  Receipt as ReceiptIcon, 
-  Shapes, 
-  UserCircle2, 
-  Headphones, 
-  Award, 
-  ChevronRight,
-  Download,
-  ChevronDown,
-  MessageSquare,
-  LogOut,
-  ShieldCheck,
-  Plus
-} from 'lucide-react';
+import {
+  SyncIcon,
+  MailIcon,
+  BarChartBoxIcon,
+  CloseIcon,
+  HomeIcon,
+  ClipboardIcon,
+  BankIcon,
+  CopyIcon,
+  ShapesIcon,
+  UserCircleIcon,
+  InfoCircleIcon,
+  TrophyIcon,
+  ChevronRightIcon,
+  DownloadIcon,
+  ChevronDownIcon,
+  SendIcon,
+  LockIcon,
+  ShieldCheckeredIcon,
+  PlusIcon,
+  UploadIcon,
+  ArrowRightIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile } from '../types';
 import { NavTab } from './Sidebar';
 import { DropdownMenu, DropdownMenuItem } from './DropdownMenu';
@@ -64,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
     {
       id: 'message-trustee',
       label: 'Message Trustee',
-      icon: MessageSquare,
+      icon: SendIcon,
       onClick: () => {
         onOpenEmailLog();
       }
@@ -72,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
     {
       id: 'download-reports',
       label: 'Download All Reports',
-      icon: Download,
+      icon: DownloadIcon,
       onClick: () => {
         if (onDownloadReport) onDownloadReport();
         else onSelectTab('monthly-reports');
@@ -81,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
     {
       id: 'export-audit',
       label: 'Export Audit Packet',
-      icon: FileText,
+      icon: ClipboardIcon,
       onClick: () => {
         if (onExportAuditPacket) onExportAuditPacket();
         else onSelectTab('receipts');
@@ -90,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
     {
       id: 'compliance-safeguards',
       label: 'Security & PIPEDA Privacy',
-      icon: ShieldCheck,
+      icon: ShieldCheckeredIcon,
       onClick: () => {
         if (onOpenCompliance) onOpenCompliance();
       }
@@ -98,14 +101,14 @@ export const Header: React.FC<HeaderProps> = ({
     {
       id: 'user-profile',
       label: 'User Profile',
-      icon: UserCircle2,
+      icon: UserCircleIcon,
       hasDividerAbove: true,
       onClick: () => onSelectTab('user-profile')
     },
     {
       id: 'log-out',
       label: 'Log Out of App',
-      icon: LogOut,
+      icon: LockIcon,
       hasDividerAbove: true,
       onClick: () => {
         if (onLogout) onLogout();
@@ -114,14 +117,14 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   const navItems = [
-    { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: FileText },
-    { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: Award },
-    { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: Building2 },
-    { id: 'receipts' as NavTab, label: 'Receipts', icon: ReceiptIcon },
-    { id: 'categorize' as NavTab, label: 'Categorize', icon: Shapes },
-    { id: 'user-profile' as NavTab, label: 'User Profile', icon: UserCircle2 },
-    { id: 'support' as NavTab, label: 'Support & LIT Contact', icon: Headphones },
+    { id: 'dashboard' as NavTab, label: 'Dashboard', icon: HomeIcon },
+    { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: ClipboardIcon },
+    { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: TrophyIcon },
+    { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: BankIcon },
+    { id: 'receipts' as NavTab, label: 'Receipts', icon: CopyIcon },
+    { id: 'categorize' as NavTab, label: 'Categorize', icon: ShapesIcon },
+    { id: 'user-profile' as NavTab, label: 'User Profile', icon: UserCircleIcon },
+    { id: 'support' as NavTab, label: 'Support & LIT Contact', icon: InfoCircleIcon }
   ];
 
   const handleSelectMobileTab = (tab: NavTab) => {
@@ -135,19 +138,20 @@ export const Header: React.FC<HeaderProps> = ({
         
         {/* Left: Hamburger Button (Visible on mobile/tablet < lg) + CleanSlate Logo (< lg) + Page Title */}
         <div className="flex items-center gap-3 min-w-0">
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={isMobileMenuOpen ? 'dark-yellow' : 'dark'}
+            size="icon"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white border border-white/10 transition flex items-center justify-center cursor-pointer shadow-xs shrink-0"
+            className="lg:hidden shrink-0"
             aria-label="Toggle navigation menu"
             title="Navigation Menu"
           >
             {isMobileMenuOpen ? (
-              <X className="w-5 h-5 text-[#fbf050]" />
+              <CloseIcon className="w-5 h-5" />
             ) : (
-              <Menu className="w-5 h-5 text-white" />
+              <BarChartBoxIcon className="w-5 h-5" />
             )}
-          </button>
+          </CleanSlateButton>
 
           <div className="min-w-0">
             <div className="lg:hidden flex items-center gap-2 mb-1">
@@ -176,70 +180,72 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right: Action Controls & Notifications */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {onNewTransaction && (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="sm"
+              leftIcon={PlusIcon}
               onClick={onNewTransaction}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#46e3a5] text-xs font-bold border border-[#46e3a5] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
               title="Add a manual ledger transaction"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>New Transaction</span>
-            </button>
+            </CleanSlateButton>
           )}
 
           {onUploadReceipt && (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="sm"
+              leftIcon={UploadIcon}
               onClick={onUploadReceipt}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1d1a27] hover:bg-[#2d283c] text-[#46e3a5] text-xs font-bold border border-[#46e3a5] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
               title="Upload or scan a statutory receipt"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Upload Receipt</span>
-            </button>
+            </CleanSlateButton>
           )}
 
           {onSyncBankAccounts && (
-            <button
+            <CleanSlateButton
+              variant="dark-periwinkle"
+              size="sm"
               onClick={onSyncBankAccounts}
               disabled={isSyncing}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition border border-white/10 cursor-pointer active:scale-95"
               title="Sync connected bank accounts now via API"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#b6b3ff]' : 'text-slate-300'}`} />
-              <span className="hidden sm:inline font-normal">{isSyncing ? 'Syncing...' : 'Sync bank'}</span>
-            </button>
+              <SyncIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync bank'}</span>
+            </CleanSlateButton>
           )}
 
           {/* LIT Dispatch Indicator */}
-          <button
+          <CleanSlateButton
+            variant="dark"
+            size="sm"
             onClick={onOpenEmailLog}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white text-xs font-medium border border-white/10 transition group cursor-pointer active:scale-95"
             title="View emails dispatched to your Licensed Insolvency Trustee"
           >
-            <MailCheck className="w-4 h-4 text-[#b6b3ff]" />
-            <span className="hidden sm:inline text-slate-300">LIT:</span>
-            <span className="text-white font-normal truncate max-w-[100px] sm:max-w-[140px]">
+            <MailIcon className="w-4 h-4 text-[#AEBBFD]" />
+            <span className="hidden sm:inline text-slate-300 font-normal">LIT:</span>
+            <span className="text-white truncate max-w-[100px] sm:max-w-[140px]">
               {profile.litName?.split(',')[0] || 'Trustee'}
             </span>
             {unreadDispatchesCount > 0 && (
-              <span className="bg-[#fbf050] text-[#242031] text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-[#F9F45D] text-[#3B3B3B] text-[10px] font-black px-1.5 py-0.5 rounded-md border border-[#010101]">
                 {unreadDispatchesCount}
               </span>
             )}
-          </button>
+          </CleanSlateButton>
 
-          {/* Quick Actions Dropdown Menu matching dropdown_29fce253.png */}
+          {/* Quick Actions Dropdown Menu */}
           <DropdownMenu
             trigger={
-              <button 
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#2e293f] hover:bg-[#38324d] text-white text-xs font-semibold border border-white/10 transition cursor-pointer active:scale-95 shadow-xs"
+              <CleanSlateButton
+                variant="periwinkle"
+                size="sm"
+                rightIcon={ChevronDownIcon}
                 title="Quick Actions Menu"
               >
                 <span>Actions</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#b6b3ff]" />
-              </button>
+              </CleanSlateButton>
             }
             items={dropdownMenuItems}
             align="right"
@@ -275,51 +281,49 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Navigation Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentTab === item.id;
                 return (
-                  <button
+                  <CleanSlateButton
                     key={item.id}
+                    variant={isActive ? 'periwinkle' : 'dark'}
+                    size="sm"
+                    fullWidth
                     onClick={() => handleSelectMobileTab(item.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-medium transition cursor-pointer ${
-                      isActive
-                        ? 'bg-[#b6b3ff] text-[#242031] font-bold shadow-xs'
-                        : 'text-slate-200 hover:bg-white/10 hover:text-white'
-                    }`}
+                    className="!justify-between !py-2.5"
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#242031]' : 'text-[#b6b3ff]'}`} />
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
                     </div>
-                    {isActive ? (
-                      <span className="w-2 h-2 rounded-full bg-[#242031]" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                    )}
-                  </button>
+                    <ChevronRightIcon className="w-3.5 h-3.5 opacity-70" />
+                  </CleanSlateButton>
                 );
               })}
             </div>
 
             {/* Bottom LIT Status bar */}
-            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                 <span className="text-slate-300 truncate">
                   Trustee: {profile.litName || 'Sarah Jenkins, LIT'}
                 </span>
               </div>
-              <button
+              <CleanSlateButton
+                variant="dark-yellow"
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   onOpenEmailLog();
                 }}
-                className="text-[11px] text-[#fbf050] underline font-semibold hover:text-white transition shrink-0 ml-2"
+                className="shrink-0"
               >
-                Trustee Log &rarr;
-              </button>
+                Trustee Log
+              </CleanSlateButton>
             </div>
 
           </div>

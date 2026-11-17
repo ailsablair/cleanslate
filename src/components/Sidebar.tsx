@@ -1,18 +1,18 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Building2, 
-  Receipt as ReceiptIcon, 
-  Shapes, 
-  UserCircle2, 
-  Headphones,
-  MailCheck,
-  Award,
-  Bot,
-  LogOut,
-  ShieldCheck
-} from 'lucide-react';
+import {
+  HomeIcon,
+  ClipboardIcon,
+  BankIcon,
+  CopyIcon,
+  ShapesIcon,
+  InfoCircleIcon,
+  MailIcon,
+  TrophyIcon,
+  SparklesIcon,
+  LockIcon,
+  ShieldCheckeredIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile } from '../types';
 import { BrandLogo } from './BrandLogo';
 
@@ -47,12 +47,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenCompliance
 }) => {
   const navItems = [
-    { id: 'dashboard' as NavTab, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: FileText },
-    { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: Award },
-    { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: Building2 },
-    { id: 'receipts' as NavTab, label: 'Receipts', icon: ReceiptIcon },
-    { id: 'categorize' as NavTab, label: 'Categorize', icon: Shapes }
+    { id: 'dashboard' as NavTab, label: 'Dashboard', icon: HomeIcon },
+    { id: 'monthly-reports' as NavTab, label: 'Monthly Report(s)', icon: ClipboardIcon },
+    { id: 'discharge-pathway' as NavTab, label: 'Pathway to Discharge', icon: TrophyIcon },
+    { id: 'bank-accounts' as NavTab, label: 'Bank Account(s)', icon: BankIcon },
+    { id: 'receipts' as NavTab, label: 'Receipts', icon: CopyIcon },
+    { id: 'categorize' as NavTab, label: 'Categorize', icon: ShapesIcon }
   ];
 
   return (
@@ -80,21 +80,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="text-[10px] font-bold tracking-wider text-slate-400 uppercase px-3 mb-2.5">
             MAIN MENU
           </div>
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => onSelectTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? 'bg-[#b6b3ff] text-[#242031] shadow-xs font-bold'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#AEBBFD] text-[#3B3B3B] font-bold border-[1.5px] border-[#010101] shadow-[2px_3px_0px_#010101]'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5 font-medium border-[1.5px] border-transparent'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#242031]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#3B3B3B]' : 'text-slate-400'}`} />
                   <span className={`truncate ${isActive ? 'font-bold' : 'font-normal'}`}>{item.label}</span>
                 </button>
               );
@@ -112,29 +113,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <nav className="space-y-1.5">
             <button
+              type="button"
               onClick={() => onSelectTab('support')}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                 currentTab === 'support'
-                  ? 'bg-[#b6b3ff] text-[#242031] shadow-sm font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#AEBBFD] text-[#3B3B3B] font-bold border-[1.5px] border-[#010101] shadow-[2px_3px_0px_#010101]'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5 font-medium border-[1.5px] border-transparent'
               }`}
             >
-              <Headphones className={`w-5 h-5 shrink-0 ${currentTab === 'support' ? 'text-[#242031]' : 'text-slate-400'}`} />
+              <InfoCircleIcon className={`w-4 h-4 shrink-0 ${currentTab === 'support' ? 'text-[#3B3B3B]' : 'text-slate-400'}`} />
               <span>Support</span>
             </button>
 
             <button
+              type="button"
               onClick={() => onSelectTab('litbot')}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-150 cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                 currentTab === 'litbot'
-                  ? 'bg-[#b6b3ff] text-[#242031] shadow-sm font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#AEBBFD] text-[#3B3B3B] font-bold border-[1.5px] border-[#010101] shadow-[2px_3px_0px_#010101]'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5 font-medium border-[1.5px] border-transparent'
               }`}
             >
-              <Bot className={`w-5 h-5 shrink-0 ${currentTab === 'litbot' ? 'text-[#242031]' : 'text-[#fbf050]'}`} />
+              <SparklesIcon className={`w-4 h-4 shrink-0 ${currentTab === 'litbot' ? 'text-[#3B3B3B]' : 'text-[#F9F45D]'}`} />
               <div className="flex items-center justify-between w-full">
                 <span>LITbot</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#fbf050] text-[#1d1a27]">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#F9F45D] text-[#3B3B3B] border border-[#010101]">
                   AI
                 </span>
               </div>
@@ -146,12 +149,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer: Trustee Direct Link & Log Out */}
       <div className="shrink-0 pt-4 border-t border-white/10 space-y-3">
         <button
+          type="button"
           onClick={onOpenEmailLog}
-          className="w-full text-left bg-[#1d1a28] hover:bg-[#1a1724] border border-white/5 rounded-xl p-3 transition-colors group"
+          className="w-full text-left bg-[#1d1a28] hover:bg-[#1a1724] border border-white/10 rounded-xl p-3 transition-colors group cursor-pointer"
         >
           <div className="flex items-center justify-between mb-1 gap-2">
-            <span className="text-[10px] font-semibold tracking-wider text-[#b6b3ff] uppercase flex items-center gap-1.5 truncate">
-              <MailCheck className="w-3.5 h-3.5 text-[#b6b3ff] shrink-0" />
+            <span className="text-[10px] font-semibold tracking-wider text-[#AEBBFD] uppercase flex items-center gap-1.5 truncate">
+              <MailIcon className="w-3.5 h-3.5 text-[#AEBBFD] shrink-0" />
               <span className="truncate whitespace-nowrap">Your Advocate</span>
             </span>
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20 shrink-0" />
@@ -171,27 +175,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* Security & Log Out controls */}
-        <div className="flex items-center gap-1.5 pt-1">
+        <div className="flex items-center gap-2 pt-1">
           {onOpenCompliance && (
-            <button
+            <CleanSlateButton
+              variant="dark-periwinkle"
+              size="xs"
+              leftIcon={ShieldCheckeredIcon}
               onClick={onOpenCompliance}
-              className="flex-1 py-2 px-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[11px] font-semibold text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="flex-1"
               title="View Canadian PIPEDA & OSB Compliance Safeguards"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>PIPEDA</span>
-            </button>
+            </CleanSlateButton>
           )}
 
           {onLogout && (
-            <button
+            <CleanSlateButton
+              variant="dark"
+              size="xs"
+              leftIcon={LockIcon}
               onClick={onLogout}
-              className="py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl text-[11px] font-bold text-rose-300 hover:text-rose-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
               title="Log out of CleanSlate"
             >
-              <LogOut className="w-3.5 h-3.5 text-rose-400" />
               <span>Log Out</span>
-            </button>
+            </CleanSlateButton>
           )}
         </div>
       </div>

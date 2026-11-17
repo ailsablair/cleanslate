@@ -1,19 +1,20 @@
-import React, { useState, useRef } from 'react';
-import { 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  ChevronRight, 
-  RefreshCw, 
-  Plus, 
-  CheckCircle2, 
-  AlertCircle,
-  Building2,
-  ExternalLink,
-  Upload,
-  Paperclip,
-  FileText,
-  ShieldCheck
-} from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  TrendUpIcon,
+  TrendDownIcon,
+  ChevronRightIcon,
+  SyncIcon,
+  CheckIcon,
+  ExclamationCircleIcon,
+  BankIcon,
+  ExternalLinkIcon,
+  UploadIcon,
+  LinkIcon,
+  ClipboardIcon,
+  ShieldCheckeredIcon,
+  CloseIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { BankAccount, Transaction, MonthlyReport, UserProfile, Receipt } from '../types';
 import { BudgetSummary } from './BudgetSummary';
 import { FinancialInsightCard } from './FinancialInsightCard';
@@ -118,14 +119,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               You're on track! Reports are due on the <span className="font-bold underline decoration-[#101010]/35">15th of every month</span>. Completing them on time is important for early discharge.
             </p>
           </div>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="dark"
+            size="md"
+            rightIcon={ChevronRightIcon}
             onClick={onNavigateToReports}
-            className="shrink-0 bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold px-5 py-2.5 rounded-xl border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-1.5 self-start sm:self-center cursor-pointer whitespace-nowrap"
+            className="shrink-0 self-start sm:self-center"
           >
-            <span>Complete</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+            Complete
+          </CleanSlateButton>
         </div>
       </div>
 
@@ -148,7 +150,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   MONTHLY REPORTS
                 </span>
                 <div className="w-7 h-7 rounded-full bg-[#b4b1fc]/25 flex items-center justify-center text-[#101010] group-hover:bg-[#b4b1fc]/45 transition shrink-0">
-                  <ArrowUpRight className="w-4 h-4 stroke-[2.2]" />
+                  <TrendUpIcon className="w-4 h-4" />
                 </div>
               </div>
 
@@ -182,7 +184,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   AVERAGE SPEND
                 </span>
                 <div className="w-7 h-7 rounded-full bg-[#b4b1fc]/25 flex items-center justify-center text-[#101010] group-hover:bg-[#b4b1fc]/45 transition shrink-0">
-                  <ArrowDownRight className="w-4 h-4 stroke-[2.2]" />
+                  <TrendDownIcon className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-auto pt-3 space-y-1.5">
@@ -208,7 +210,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   CURRENT PAYMENT
                 </span>
                 <div className="w-7 h-7 rounded-full bg-[#46e3a5]/30 flex items-center justify-center text-[#102a1f] transition shrink-0">
-                  <CheckCircle2 className="w-4 h-4 stroke-[2.2]" />
+                  <CheckIcon className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-auto pt-3 space-y-1.5">
@@ -240,19 +242,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#8c93fc]/25">
           <div className="flex items-center gap-2.5">
-            <FileText className="w-5 h-5 text-[#8c93fc] shrink-0" />
+            <ClipboardIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
             <h3 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
               LATEST TRANSACTIONS
             </h3>
           </div>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="white"
+            size="xs"
+            rightIcon={ChevronRightIcon}
             onClick={onNavigateToCategorize}
-            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
-            <span>Open Categorizer</span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8c93fc]" />
-          </button>
+            Open Categorizer
+          </CleanSlateButton>
         </div>
 
         <div className="overflow-x-auto">
@@ -304,12 +306,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <td className="py-4 px-4 whitespace-nowrap">
                       {isAttached ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
-                          <CheckCircle2 className="w-3 h-3 shrink-0" />
+                          <CheckIcon className="w-3 h-3 shrink-0" />
                           <span>Receipt attached</span>
                         </span>
                       ) : txProofInfo.required ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fbf050] text-[#1d1a27] border border-black/15 text-[11px] font-semibold">
-                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <ExclamationCircleIcon className="w-3 h-3 shrink-0" />
                           <span>{txProofInfo.type === 'prescription' ? 'Prescription needed' : 'Receipt needed'}</span>
                         </span>
                       ) : (
@@ -322,7 +324,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {formatCurrency(tx.amount)}
                     </td>
                     <td className="py-4 pl-2 text-right text-[#6e6b7b] group-hover:text-[#101010] transition">
-                      <ChevronRight className="w-4 h-4 ml-auto" />
+                      <ChevronRightIcon className="w-4 h-4 ml-auto" />
                     </td>
                   </tr>
                 );
@@ -334,27 +336,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* 6. Connected Bank Accounts */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
+        <div className="flex items-center justify-between px-1 gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-[#8c93fc]" />
+            <BankIcon className="w-4 h-4 text-[#8c93fc]" />
             <span className="text-xs font-extrabold uppercase tracking-wider text-white">
               CONNECTED BANK ACCOUNTS
             </span>
             {isSyncing && (
               <span className="text-[11px] font-semibold text-[#b6b3ff] flex items-center gap-1">
-                <RefreshCw className="w-3 h-3 animate-spin" />
+                <SyncIcon className="w-3 h-3 animate-spin" />
                 Fetching live balances...
               </span>
             )}
           </div>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="dark-periwinkle"
+            size="xs"
+            rightIcon={ChevronRightIcon}
             onClick={onNavigateToBankAccounts}
-            className="text-xs font-semibold text-[#b6b3ff] hover:text-white transition flex items-center gap-1 cursor-pointer hover:underline"
           >
-            <span>Manage &amp; Add Accounts</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+            Manage &amp; Add Accounts
+          </CleanSlateButton>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -383,9 +385,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </span>
                 <div className="w-7 h-7 rounded-full bg-white border border-[#d8d9f8] group-hover:border-[#101010] flex items-center justify-center text-[#101010] transition shrink-0">
                   {account.trendDirection === 'up' ? (
-                    <ArrowUpRight className="w-4 h-4 stroke-[2.2] text-emerald-700" />
+                    <TrendUpIcon className="w-4 h-4 text-emerald-700" />
                   ) : (
-                    <ArrowDownRight className="w-4 h-4 stroke-[2.2] text-rose-600" />
+                    <TrendDownIcon className="w-4 h-4 text-rose-600" />
                   )}
                 </div>
               </div>
@@ -414,14 +416,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
                   TRANSACTION DETAILS
                 </div>
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="icon"
                   onClick={() => setSelectedTx(null)}
-                  className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 text-xs font-bold cursor-pointer transition"
                   aria-label="Close transaction details"
                 >
-                  ✕
-                </button>
+                  <CloseIcon className="w-3.5 h-3.5" />
+                </CleanSlateButton>
               </div>
 
               {/* Vendor & Amount */}
@@ -464,7 +466,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="bg-emerald-50 border border-emerald-300 p-4 rounded-2xl space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 text-emerald-900 text-xs font-bold">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <ShieldCheckeredIcon className="w-4 h-4 text-emerald-700 shrink-0" />
                         <span>Receipt Proof Attached &amp; Verified</span>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[10px] font-bold">
@@ -473,7 +475,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
                     <div className="flex items-center justify-between text-xs text-[#101010] bg-white p-2.5 rounded-xl border border-emerald-200">
                       <div className="flex items-center gap-2 truncate">
-                        <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                        <ClipboardIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                         <span className="font-mono text-[11px] truncate">
                           {linkedReceipt?.fileName || selectedTx.receiptFileName || 'Receipt_Document.pdf'}
                         </span>
@@ -485,7 +487,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           className="text-[11px] text-[#5b56d6] font-semibold hover:underline flex items-center gap-0.5 shrink-0 ml-2"
                         >
                           <span>View</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <ExternalLinkIcon className="w-3 h-3" />
                         </a>
                       )}
                     </div>
@@ -496,7 +498,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ) : proofInfo.required ? (
                   <div className="bg-[#fbf9f5] border border-[#101010] p-4 rounded-2xl space-y-2">
                     <div className="flex items-center gap-2 text-[#101010] text-xs font-extrabold">
-                      <AlertCircle className="w-4 h-4 text-[#b45309] shrink-0" />
+                      <ExclamationCircleIcon className="w-4 h-4 text-[#b45309] shrink-0" />
                       <span>Statutory Requirement: Proof Upload Needed</span>
                     </div>
                     <div className="text-xs text-[#4b4856] leading-relaxed">
@@ -507,7 +509,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ) : (
                   <div className="bg-[#fbf9f5] border border-[#d8d9f8] p-3.5 rounded-2xl text-xs space-y-1">
                     <div className="flex items-center gap-2 text-[#101010] font-bold">
-                      <Paperclip className="w-3.5 h-3.5 text-[#8c93fc]" />
+                      <LinkIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                       <span>Receipt Proof (Optional)</span>
                     </div>
                     <p className="text-[11px] text-[#4b4856] leading-tight">
@@ -520,53 +522,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Upload Success Feedback */}
               {uploadSuccessToast && (
                 <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span className="truncate">{uploadSuccessToast}</span>
                 </div>
               )}
 
               {/* Two-Button Action Layout */}
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant={!hasReceiptAttached && proofInfo.required ? 'yellow' : 'white'}
+                  size="md"
+                  fullWidth
+                  leftIcon={hasReceiptAttached ? LinkIcon : UploadIcon}
                   onClick={() => setIsUploadConfirmOpen(true)}
-                  className={`py-2.5 px-4 rounded-xl text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
-                    hasReceiptAttached
-                      ? 'bg-white hover:bg-slate-50 text-[#101010]'
-                      : proofInfo.required
-                      ? 'bg-[#F9F45D] hover:brightness-105 text-[#1d1a27]'
-                      : 'bg-white hover:bg-slate-50 text-[#101010]'
-                  }`}
                   title={proofInfo.required ? 'Receipt / prescription upload mandatory for this transaction' : 'Upload proof receipt'}
                 >
-                  {hasReceiptAttached ? (
-                    <>
-                      <Paperclip className="w-3.5 h-3.5 text-[#8c93fc]" />
-                      <span>Replace Receipt</span>
-                    </>
-                  ) : proofInfo.required ? (
-                    <>
-                      <Upload className="w-3.5 h-3.5 stroke-[2.2]" />
-                      <span>Upload Receipt (Required)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5 text-[#8c93fc]" />
-                      <span>Upload Receipt Proof</span>
-                    </>
-                  )}
-                </button>
+                  {hasReceiptAttached
+                    ? 'Replace Receipt'
+                    : proofInfo.required
+                    ? 'Upload Receipt (Required)'
+                    : 'Upload Receipt Proof'}
+                </CleanSlateButton>
 
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="dark-yellow"
+                  size="md"
+                  fullWidth
                   onClick={() => {
                     setSelectedTx(null);
                     onNavigateToCategorize();
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                 >
-                  <span>Re-categorize in AI Tool</span>
-                </button>
+                  Re-categorize in AI Tool
+                </CleanSlateButton>
               </div>
             </div>
           </div>

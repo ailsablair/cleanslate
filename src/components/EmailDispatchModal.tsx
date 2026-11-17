@@ -1,5 +1,11 @@
 import React from 'react';
-import { MailCheck, CheckCircle2, Clock, X, ExternalLink, Copy, Check } from 'lucide-react';
+import {
+  MailIcon,
+  CloseIcon,
+  CopyIcon,
+  CheckIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { EmailDispatch } from '../types';
 import { getMailtoUrl } from '../lib/formatters';
 
@@ -51,8 +57,8 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
         {/* Modal Header */}
         <div className="p-6 border-b border-[#b4b1fc]/35 flex items-center justify-between bg-[#fbf9f5]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#b6b3ff] border border-[#101010] flex items-center justify-center text-[#101010] shrink-0">
-              <MailCheck className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#AEBBFD] border border-[#010101] flex items-center justify-center text-[#3B3B3B] shrink-0">
+              <MailIcon className="w-4 h-4" />
             </div>
             <div>
               <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#101010]">
@@ -64,14 +70,15 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
             </div>
           </div>
 
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="white"
+            size="icon"
             onClick={onClose}
             aria-label="Close email outbox modal"
-            className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
+            className="!p-1.5"
           >
-            <X className="w-4 h-4 stroke-[2]" />
-          </button>
+            <CloseIcon className="w-4 h-4" />
+          </CleanSlateButton>
         </div>
 
         {/* Modal Content: 2 Columns */}
@@ -144,14 +151,14 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#6e6b7b]">
                       Dispatched Statutory Body
                     </span>
-                    <button
-                      type="button"
+                    <CleanSlateButton
+                      variant={copied ? 'status-success' : 'white'}
+                      size="xs"
+                      leftIcon={copied ? CheckIcon : CopyIcon}
                       onClick={handleCopyBody}
-                      className="text-[11px] font-bold text-[#101010] hover:text-[#5b52d6] flex items-center gap-1 transition cursor-pointer"
                     >
-                      {copied ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
                       <span>{copied ? 'Copied' : 'Copy Email Text'}</span>
-                    </button>
+                    </CleanSlateButton>
                   </div>
 
                   <pre className="p-4 rounded-2xl bg-[#1d1a27] text-slate-200 text-[11px] font-mono leading-relaxed whitespace-pre-wrap select-text border-[1.5px] border-[#101010] max-h-80 overflow-y-auto">
@@ -160,7 +167,7 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
                 </div>
 
                 <div className="p-3 rounded-xl bg-[#46e3a5]/20 border border-[#46e3a5] text-[#102a1f] text-xs flex items-center gap-2 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>Verified delivery to {current.recipientEmail}. Audit trail logged in Firestore.</span>
                 </div>
               </>
@@ -174,13 +181,14 @@ export const EmailDispatchModal: React.FC<EmailDispatchModalProps> = ({
 
         {/* Modal Footer */}
         <div className="p-4 bg-[#fbf9f5] border-t border-[#b4b1fc]/35 flex justify-end">
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="white"
+            size="md"
+            leftIcon={CloseIcon}
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
           >
             Close Outbox
-          </button>
+          </CleanSlateButton>
         </div>
       </div>
     </div>

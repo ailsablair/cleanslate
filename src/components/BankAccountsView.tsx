@@ -1,23 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Building2,
-  RefreshCw,
-  Plus,
-  Trash2,
-  Pencil,
-  CheckCircle2,
-  ArrowUpRight,
-  ArrowDownRight,
-  ShieldCheck,
-  ExternalLink,
-  Upload,
-  FileSpreadsheet,
-  AlertTriangle,
-  ArrowLeft,
-  ChevronRight,
-  Loader2,
-  Lock
-} from 'lucide-react';
+  BankIcon,
+  SyncIcon,
+  PlusIcon,
+  TrashIcon,
+  PencilIcon,
+  CheckIcon,
+  TrendUpIcon,
+  TrendDownIcon,
+  ShieldCheckeredIcon,
+  ExternalLinkIcon,
+  UploadIcon,
+  ClipboardIcon,
+  WarningTriangleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  LockIcon,
+  CloseIcon,
+  CancelIcon,
+  SaveIcon,
+  ArrowRightIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { usePlaidLink } from 'react-plaid-link';
 import { BankAccount, Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
@@ -486,27 +490,28 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
           }`}
         >
           <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <CheckIcon className="w-4 h-4 shrink-0" />
             <span>{statusBanner.message}</span>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {onNavigateToCategorize && statusBanner.type === 'success' && (
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={onNavigateToCategorize}
-                className="underline font-bold hover:opacity-80 cursor-pointer whitespace-nowrap"
               >
-                Review in Categorize &rarr;
-              </button>
+                Review in Categorize
+              </CleanSlateButton>
             )}
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="icon"
               onClick={() => setStatusBanner(null)}
-              className="font-bold hover:opacity-70 cursor-pointer"
               aria-label="Dismiss notification"
             >
-              ✕
-            </button>
+              <CloseIcon className="w-3.5 h-3.5" />
+            </CleanSlateButton>
           </div>
         </div>
       )}
@@ -516,7 +521,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 pb-5 border-b border-[#8c93fc]/25">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <Building2 className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <BankIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 BANK ACCOUNTS &amp; STATEMENT FEEDS
               </h2>
@@ -527,27 +532,25 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark-periwinkle"
+              size="md"
+              leftIcon={SyncIcon}
               onClick={onSyncAll}
               disabled={isSyncing}
-              className="px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-semibold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer whitespace-nowrap"
               title="Refresh balances and transactions from connected accounts"
             >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#b4b1fc]' : 'text-white'}`}
-              />
-              <span>{isSyncing ? 'Syncing Feeds...' : 'Sync All Feeds'}</span>
-            </button>
+              {isSyncing ? 'Syncing Feeds...' : 'Sync All Feeds'}
+            </CleanSlateButton>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={PlusIcon}
               onClick={() => openLinkAccountModal('recommended')}
-              className="px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Link Account</span>
-            </button>
+              Link Account
+            </CleanSlateButton>
           </div>
         </div>
 
@@ -575,7 +578,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             <div className="mt-auto pt-3 space-y-1.5">
               <div>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
-                  <CheckCircle2 className="w-3 h-3 stroke-[2.25]" />
+                  <CheckIcon className="w-3 h-3" />
                   <span>{plaidCount > 0 ? 'Plaid Live Sync' : 'Active Ledger'}</span>
                 </span>
               </div>
@@ -592,7 +595,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             <div className="mt-auto pt-3 space-y-1.5">
               <div className="text-lg sm:text-xl font-extrabold text-[#101010] flex items-center gap-2">
                 <span>256-Bit Read-Only</span>
-                <ShieldCheck className="w-4 h-4 text-[#46e3a5] fill-[#46e3a5]/20 shrink-0" />
+                <ShieldCheckeredIcon className="w-4 h-4 text-[#46e3a5] shrink-0" />
               </div>
               <span className="text-[11px] text-[#4b4856] block">
                 Encrypted bank OAuth via Plaid
@@ -615,23 +618,25 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                 <span className="text-xs font-semibold text-[#4b4856] truncate">
                   {account.institution} · {account.accountType}
                 </span>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <CleanSlateButton
+                    variant="white"
+                    size="icon"
                     onClick={() => setEditingAccount(account)}
-                    className="p-1.5 rounded-lg text-[#4b4856] hover:text-[#101010] hover:bg-white border border-transparent hover:border-[#d8d9f8] transition cursor-pointer"
                     title="Edit Name & Balance"
+                    aria-label={`Edit ${account.name}`}
                   >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
+                    <PencilIcon className="w-3.5 h-3.5" />
+                  </CleanSlateButton>
+                  <CleanSlateButton
+                    variant="status-error"
+                    size="icon"
                     onClick={() => onDeleteAccount(account.id)}
-                    className="p-1.5 rounded-lg text-[#4b4856] hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                     title="Disconnect Account"
+                    aria-label={`Disconnect ${account.name}`}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    <TrashIcon className="w-3.5 h-3.5" />
+                  </CleanSlateButton>
                 </div>
               </div>
 
@@ -650,9 +655,9 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                 </div>
                 <div className="w-7 h-7 rounded-full bg-[#fbf9f5] border border-[#d8d9f8] flex items-center justify-center shrink-0">
                   {account.trendDirection === 'up' ? (
-                    <ArrowUpRight className="w-4 h-4 text-emerald-700 stroke-[2.2]" />
+                    <TrendUpIcon className="w-4 h-4 text-emerald-700" />
                   ) : (
-                    <ArrowDownRight className="w-4 h-4 text-rose-600 stroke-[2.2]" />
+                    <TrendDownIcon className="w-4 h-4 text-rose-600" />
                   )}
                 </div>
               </div>
@@ -665,14 +670,15 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                     Plaid Auto-Sync
                   </span>
                 ) : account.connectionType === 'statement-export' ? (
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="white"
+                    size="xs"
+                    leftIcon={UploadIcon}
                     onClick={() => openLinkAccountModal('fallback-statement', account.id)}
-                    className="text-[#4b4856] hover:text-[#101010] underline font-semibold whitespace-nowrap cursor-pointer"
                     title="Upload an updated CSV/OFX/QFX/PDF export from your bank"
                   >
                     Update Statement
-                  </button>
+                  </CleanSlateButton>
                 ) : (
                   <span className="text-[#6e6b7b] whitespace-nowrap">Ledger Feed</span>
                 )}
@@ -702,14 +708,14 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   Keep balances and Form 65 transactions up to date for your trustee.
                 </p>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="icon"
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 text-xs font-bold cursor-pointer transition"
                 aria-label="Close link account modal"
               >
-                ✕
-              </button>
+                <CloseIcon className="w-3.5 h-3.5" />
+              </CleanSlateButton>
             </div>
 
             {/* MODE 1: RECOMMENDED (PLAID ONLINE BANKING REDIRECT) */}
@@ -720,7 +726,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                        <ShieldCheck className="w-4 h-4 shrink-0" />
+                        <ShieldCheckeredIcon className="w-4 h-4 shrink-0" />
                         <span>Recommended · Automatic Sync</span>
                       </div>
                       <h4 className="text-base font-extrabold text-[#101010]">
@@ -735,19 +741,19 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#4b4856]">
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <CheckIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                       <span>Automatic balance updates</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <CheckIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                       <span>Auto-pulls monthly transactions</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-[#8c93fc] shrink-0" />
+                      <LockIcon className="w-3.5 h-3.5 text-[#8c93fc] shrink-0" />
                       <span>Bank-level read-only OAuth</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <CheckIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                       <span>Free Sandbox / 10-Account Trial</span>
                     </div>
                   </div>
@@ -755,7 +761,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                   {plaidStatus && !plaidStatus.configured && (
                     <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-[11px] leading-relaxed space-y-1">
                       <div className="font-bold flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                        <WarningTriangleIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                         <span>Plaid Server Credentials Required</span>
                       </div>
                       <p>
@@ -770,63 +776,53 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                     </div>
                   )}
 
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="yellow"
+                    size="lg"
+                    fullWidth
+                    leftIcon={isCreatingLinkToken || isExchangingToken ? SyncIcon : ExternalLinkIcon}
                     onClick={handleLaunchPlaid}
                     disabled={isCreatingLinkToken || isExchangingToken}
-                    className="w-full py-3 px-4 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-extrabold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                   >
-                    {isCreatingLinkToken || isExchangingToken ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>
-                          {isExchangingToken
-                            ? 'Importing Accounts & Transactions...'
-                            : 'Opening Secure Bank Login...'}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <ExternalLink className="w-4 h-4 stroke-[2.25]" />
-                        <span>Continue to Bank Login (Plaid)</span>
-                      </>
-                    )}
-                  </button>
+                    {isExchangingToken
+                      ? 'Importing Accounts & Transactions...'
+                      : isCreatingLinkToken
+                      ? 'Opening Secure Bank Login...'
+                      : 'Continue to Bank Login (Plaid)'}
+                  </CleanSlateButton>
                 </div>
 
                 {/* Secondary Fallback Option — Explicitly Not Recommended */}
-                <div className="pt-2 border-t border-slate-200 space-y-2.5">
+                <div className="pt-2 border-t border-slate-200 space-y-3">
                   <div className="flex items-center justify-between text-[11px] text-[#6e6b7b] font-semibold uppercase tracking-wider">
                     <span>Fallback Option · Not Recommended</span>
                     <span>Manual Updates Only</span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setLinkMode('fallback-statement')}
-                    className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-300 transition flex items-center justify-between gap-3 cursor-pointer"
-                  >
-                    <div className="space-y-1 min-w-0">
-                      <div className="text-xs font-bold text-[#101010] flex items-center gap-2">
-                        <FileSpreadsheet className="w-4 h-4 text-[#6e6b7b] shrink-0" />
-                        <span>User-Initiated Statement Export (100% Free Forever)</span>
-                      </div>
-                      <p className="text-[11px] text-[#6e6b7b] leading-snug">
-                        Only use if your institution isn&apos;t on Plaid or you prefer manual file exports. Download CSV, OFX, QFX, or PDF from your bank&apos;s site and upload it here.
-                      </p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-[#6e6b7b] shrink-0" />
-                  </button>
-
-                  <div className="text-center pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setLinkMode('fallback-manual')}
-                      className="text-[11px] text-[#6e6b7b] hover:text-[#101010] underline cursor-pointer"
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-300 space-y-3">
+                    <p className="text-[11px] text-[#6e6b7b] leading-snug">
+                      Only use if your institution isn&apos;t on Plaid or you prefer manual file exports. Download CSV, OFX, QFX, or PDF from your bank&apos;s site and upload it here.
+                    </p>
+                    <CleanSlateButton
+                      variant="white"
+                      size="md"
+                      fullWidth
+                      leftIcon={ClipboardIcon}
+                      rightIcon={ChevronRightIcon}
+                      onClick={() => setLinkMode('fallback-statement')}
                     >
-                      Or add an account balance manually without transactions
-                    </button>
+                      User-Initiated Statement Export (100% Free)
+                    </CleanSlateButton>
                   </div>
+
+                  <CleanSlateButton
+                    variant="white"
+                    size="xs"
+                    fullWidth
+                    onClick={() => setLinkMode('fallback-manual')}
+                  >
+                    Or Add Account Balance Manually
+                  </CleanSlateButton>
                 </div>
               </div>
             )}
@@ -835,14 +831,14 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             {linkMode === 'fallback-statement' && (
               <form onSubmit={handleConfirmStatementImport} className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="white"
+                    size="xs"
+                    leftIcon={ChevronLeftIcon}
                     onClick={() => setLinkMode('recommended')}
-                    className="text-xs font-bold text-[#4b4856] hover:text-[#101010] flex items-center gap-1 cursor-pointer"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Recommended (Plaid)</span>
-                  </button>
+                    Back to Recommended (Plaid)
+                  </CleanSlateButton>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                     Fallback · Not Recommended
                   </span>
@@ -863,29 +859,23 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
                 {/* Destination Account Toggle */}
                 {bankAccounts.length > 0 && (
-                  <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200">
-                    <button
-                      type="button"
+                  <div className="grid grid-cols-2 gap-2">
+                    <CleanSlateButton
+                      variant={statementTargetMode === 'new' ? 'dark' : 'white'}
+                      size="xs"
+                      fullWidth
                       onClick={() => setStatementTargetMode('new')}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
-                        statementTargetMode === 'new'
-                          ? 'bg-white text-[#101010] shadow-xs border border-slate-300'
-                          : 'text-[#6e6b7b] hover:text-[#101010]'
-                      }`}
                     >
                       New Linked Account
-                    </button>
-                    <button
-                      type="button"
+                    </CleanSlateButton>
+                    <CleanSlateButton
+                      variant={statementTargetMode === 'existing' ? 'dark' : 'white'}
+                      size="xs"
+                      fullWidth
                       onClick={() => setStatementTargetMode('existing')}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
-                        statementTargetMode === 'existing'
-                          ? 'bg-white text-[#101010] shadow-xs border border-slate-300'
-                          : 'text-[#6e6b7b] hover:text-[#101010]'
-                      }`}
                     >
                       Update Existing Account
-                    </button>
+                    </CleanSlateButton>
                   </div>
                 )}
 
@@ -944,22 +934,28 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                     onChange={handleStatementFileSelect}
                     className="hidden"
                   />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isParsingStatement}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => !isParsingStatement && fileInputRef.current?.click()}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && !isParsingStatement) {
+                        e.preventDefault();
+                        fileInputRef.current?.click();
+                      }
+                    }}
                     className="w-full py-5 px-4 rounded-2xl border-2 border-dashed border-[#8c93fc] bg-[#fbf9f5] hover:bg-[#f4f1ff] transition flex flex-col items-center justify-center gap-2 text-center cursor-pointer"
                   >
                     {isParsingStatement ? (
                       <>
-                        <Loader2 className="w-5 h-5 text-[#6366f1] animate-spin" />
+                        <SyncIcon className="w-5 h-5 text-[#6366f1] animate-spin" />
                         <span className="text-xs font-bold text-[#101010]">
                           Parsing {statementFileName}...
                         </span>
                       </>
                     ) : (
                       <>
-                        <Upload className="w-5 h-5 text-[#6366f1]" />
+                        <UploadIcon className="w-5 h-5 text-[#6366f1]" />
                         <span className="text-xs font-bold text-[#101010]">
                           {statementFileName
                             ? `Selected: ${statementFileName} (Click to replace)`
@@ -970,7 +966,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                         </span>
                       </>
                     )}
-                  </button>
+                  </div>
                 </div>
 
                 {statementError && (
@@ -1006,20 +1002,24 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                 )}
 
                 <div className="pt-2 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="white"
+                    size="md"
+                    leftIcon={CancelIcon}
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </CleanSlateButton>
+                  <CleanSlateButton
                     type="submit"
+                    variant="dark-yellow"
+                    size="md"
+                    leftIcon={UploadIcon}
                     disabled={!parsedPreview || parsedPreview.transactions.length === 0}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                    className="flex-1"
                   >
                     Import Statement &amp; Link Account
-                  </button>
+                  </CleanSlateButton>
                 </div>
               </form>
             )}
@@ -1028,14 +1028,14 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             {linkMode === 'fallback-manual' && (
               <form onSubmit={handleCreateManual} className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="white"
+                    size="xs"
+                    leftIcon={ChevronLeftIcon}
                     onClick={() => setLinkMode('recommended')}
-                    className="text-xs font-bold text-[#4b4856] hover:text-[#101010] flex items-center gap-1 cursor-pointer"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Back to Recommended (Plaid)</span>
-                  </button>
+                    Back to Recommended (Plaid)
+                  </CleanSlateButton>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#6e6b7b]">
                     Manual Entry
                   </span>
@@ -1083,19 +1083,23 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                 </div>
 
                 <div className="pt-2 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant="white"
+                    size="md"
+                    leftIcon={CancelIcon}
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </CleanSlateButton>
+                  <CleanSlateButton
                     type="submit"
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
+                    variant="dark-yellow"
+                    size="md"
+                    leftIcon={SaveIcon}
+                    className="flex-1"
                   >
                     Save Manual Account
-                  </button>
+                  </CleanSlateButton>
                 </div>
               </form>
             )}
@@ -1117,13 +1121,14 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
               <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#101010]">
                 EDIT ACCOUNT DETAILS
               </h3>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="icon"
                 onClick={() => setEditingAccount(null)}
-                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 text-xs font-bold cursor-pointer transition"
+                aria-label="Close edit account modal"
               >
-                ✕
-              </button>
+                <CloseIcon className="w-3.5 h-3.5" />
+              </CleanSlateButton>
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-4">
@@ -1150,19 +1155,23 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
               />
 
               <div className="pt-2 flex items-center justify-end gap-3">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="md"
+                  leftIcon={CancelIcon}
                   onClick={() => setEditingAccount(null)}
-                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
                 >
                   Cancel
-                </button>
-                <button
+                </CleanSlateButton>
+                <CleanSlateButton
                   type="submit"
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
+                  variant="dark-yellow"
+                  size="md"
+                  leftIcon={SaveIcon}
+                  className="flex-1"
                 >
                   Save Changes
-                </button>
+                </CleanSlateButton>
               </div>
             </form>
           </div>

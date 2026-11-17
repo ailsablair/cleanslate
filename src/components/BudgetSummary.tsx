@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheckeredIcon } from './ui/CleanSlateIcons';
 import { MonthlyReport, UserProfile } from '../types';
 
 interface BudgetSummaryProps {
@@ -155,7 +155,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#8c93fc] shrink-0" />
+            <ShieldCheckeredIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
             <h2 className="text-sm sm:text-base font-extrabold tracking-wide text-[#101010] uppercase">
               BANKRUPTCY STATUS
             </h2>
@@ -168,7 +168,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
         {/* Top Right Mint Badge */}
         <div className="shrink-0 self-start sm:self-auto">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#46e3a5] text-[#102a1f] border border-[#101010] text-xs font-bold">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#102a1f]" />
+            <ShieldCheckeredIcon className="w-3.5 h-3.5 text-[#102a1f]" />
             <span>BIA Form 65</span>
           </span>
         </div>

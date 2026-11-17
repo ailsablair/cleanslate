@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  ShieldCheck, 
-  ArrowRight, 
-  CheckCircle2, 
-  Award, 
-  Building, 
-  FileText, 
-  DollarSign, 
-  Check, 
-  ChevronRight 
-} from 'lucide-react';
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ChevronLeftIcon,
+  CloseIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile, LIT } from '../types';
 import { FloatingInput } from './FloatingInput';
-import { FloatingSelect } from './FloatingSelect';
 import { BrandLogo } from './BrandLogo';
 
 interface OnboardingWizardProps {
@@ -83,12 +77,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           </div>
 
           {onSkip && (
-            <button
+            <CleanSlateButton
+              variant="dark"
+              size="xs"
+              rightIcon={CloseIcon}
               onClick={onSkip}
-              className="text-xs text-slate-400 hover:text-white transition font-medium underline"
             >
               Skip Setup
-            </button>
+            </CleanSlateButton>
           )}
         </div>
 
@@ -181,7 +177,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         <div className="font-bold text-white text-xs flex items-center gap-2">
                           <span>{lit.name}</span>
                           {isSelected && (
-                            <span className="px-2 py-0.5 rounded-md bg-[#b6b3ff] text-[#242031] text-[10px] font-black">
+                            <span className="px-2 py-0.5 rounded-md bg-[#AEBBFD] text-[#3B3B3B] text-[10px] font-black">
                               Assigned
                             </span>
                           )}
@@ -192,16 +188,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl transition ${
-                          isSelected
-                            ? 'bg-[#b6b3ff] text-[#242031]'
-                            : 'bg-white/10 hover:bg-white/20 text-white'
-                        }`}
+                      <CleanSlateButton
+                        variant={isSelected ? 'periwinkle' : 'dark'}
+                        size="xs"
+                        leftIcon={isSelected ? CheckIcon : undefined}
+                        className="shrink-0"
                       >
                         {isSelected ? 'Selected' : 'Select'}
-                      </button>
+                      </CleanSlateButton>
                     </div>
                   );
                 })}
@@ -255,9 +249,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       }`}
                     >
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
-                        isSelected ? 'border-[#fbf050] bg-[#fbf050] text-[#242031]' : 'border-slate-500'
+                        isSelected ? 'border-[#010101] bg-[#F9F45D] text-[#3B3B3B]' : 'border-slate-500'
                       }`}>
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {isSelected && <CheckIcon className="w-3.5 h-3.5" />}
                       </div>
 
                       <div>
@@ -275,53 +269,36 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         {/* Wizard Footer Navigation */}
         <div className="p-6 border-t border-white/10 bg-[#1d1a27] flex items-center justify-between">
           {step > 1 ? (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark"
+              size="md"
+              leftIcon={ChevronLeftIcon}
               onClick={() => setStep((step - 1) as any)}
-              className="px-5 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 text-white text-xs font-bold transition"
             >
-              &larr; Back
-            </button>
+              Back
+            </CleanSlateButton>
           ) : (
             <div />
           )}
 
           {step < 3 ? (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              rightIcon={ArrowRightIcon}
               onClick={() => setStep((step + 1) as any)}
-              style={{
-                background: 'var(--colour-dark-highlight, #F9F45D)',
-                boxShadow: '3px 4px 0px black',
-                borderRadius: 10,
-                color: 'var(--colour-dark-accent, #3E4A4F)',
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '13px',
-                fontWeight: '800',
-              }}
-              className="px-6 py-2.5 transition-all flex items-center gap-2 hover:brightness-105 active:translate-x-[2px] active:translate-y-[2px] cursor-pointer"
             >
-              <span>Next Step</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              Next Step
+            </CleanSlateButton>
           ) : (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="lg"
+              leftIcon={CheckIcon}
               onClick={handleFinish}
-              style={{
-                background: 'var(--colour-dark-highlight, #F9F45D)',
-                boxShadow: '4px 6px 0px black',
-                borderRadius: 10,
-                color: 'var(--colour-dark-accent, #3E4A4F)',
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '13px',
-                fontWeight: '800',
-              }}
-              className="px-8 py-3 transition-all flex items-center gap-2 hover:brightness-105 active:translate-x-[2px] active:translate-y-[3px] cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-              <span>Launch My Estate Portal</span>
-            </button>
+              Launch My Estate Portal
+            </CleanSlateButton>
           )}
         </div>
       </div>

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  Receipt as ReceiptIcon,
-  Upload,
-  Trash2,
-  CheckCircle2,
-  Camera,
-  ShieldCheck,
-  Download,
-  History,
-  Save,
-  Sparkles,
-  X
-} from 'lucide-react';
+  ClipboardIcon,
+  UploadIcon,
+  TrashIcon,
+  CheckIcon,
+  CameraIcon,
+  ShieldCheckeredIcon,
+  DownloadIcon,
+  HistoryIcon,
+  SaveIcon,
+  SparklesIcon,
+  CloseIcon,
+  HelpCircleIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { Receipt, UserProfile, MonthlyReport } from '../types';
 import { CameraReceiptModal } from './CameraReceiptModal';
 import { UploadConfirmationModal } from './UploadConfirmationModal';
@@ -283,26 +285,27 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
       {toastMessage && (
         <div className="p-3.5 bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold rounded-2xl flex items-center justify-between gap-2 shadow-xs animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+            <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0" />
             <span>{toastMessage}</span>
           </div>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="status-success"
+            size="icon"
             onClick={() => setToastMessage(null)}
-            className="text-emerald-700 hover:text-emerald-900 p-1 cursor-pointer"
+            aria-label="Dismiss notification"
           >
-            <X className="w-3.5 h-3.5" />
-          </button>
+            <CloseIcon className="w-3.5 h-3.5" />
+          </CleanSlateButton>
         </div>
       )}
 
-      {/* EMPTY STATE — Matches receipts-empty-state_01116c90.png */}
+      {/* EMPTY STATE */}
       {receipts.length === 0 ? (
         <div className="bg-[#fbf9f5] text-[#101010] rounded-3xl p-6 sm:p-8 border border-[#1a1822] shadow-[5px_6px_0px_#000000] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2.5">
-                <ReceiptIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
+                <ClipboardIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
                 <h2 className="text-sm sm:text-base font-extrabold tracking-wide uppercase text-[#101010]">
                   RECEIPTS &amp; PRESCRIPTIONS
                 </h2>
@@ -312,17 +315,15 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
               </p>
             </div>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={CameraIcon}
               onClick={() => setIsCameraOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 shrink-0 self-start cursor-pointer whitespace-nowrap"
+              className="shrink-0 self-start"
             >
-              <Camera className="w-3.5 h-3.5 text-[#1d1a27]" />
-              <span>
-                <span className="font-extrabold">Take Photo</span>{' '}
-                <span className="font-normal">(AI Scan)</span>
-              </span>
-            </button>
+              Take Photo (AI Scan)
+            </CleanSlateButton>
           </div>
 
           <div
@@ -338,7 +339,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             }`}
           >
             <div className="border border-dashed border-[#242031]/55 rounded-xl py-14 sm:py-16 flex flex-col items-center justify-center gap-2.5 hover:bg-white/15 transition">
-              <Upload className="w-5 h-5 text-[#1d1a27]" />
+              <UploadIcon className="w-5 h-5 text-[#1d1a27]" />
               <span className="text-xs sm:text-sm font-bold text-[#101010]">
                 {isParsingUpload ? 'Parsing Receipt with AI...' : 'Upload Receipt'}
               </span>
@@ -346,7 +347,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
           </div>
         </div>
       ) : (
-        /* POPULATED STATE — Matches receipts-new_85f48e55.png */
+        /* POPULATED STATE */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Left Column: PAST UPLOADS + Upload Receipt Dropzone */}
           <div className="lg:col-span-4 flex flex-col gap-5">
@@ -354,21 +355,21 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             <div className="bg-white text-[#101010] rounded-3xl border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000] overflow-hidden flex flex-col flex-1">
               <div className="px-5 pt-5 pb-3.5 flex items-center justify-between gap-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <History className="w-4 h-4 text-[#8c93fc] shrink-0" />
+                  <HistoryIcon className="w-4 h-4 text-[#8c93fc] shrink-0" />
                   <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#101010]">
                     PAST UPLOADS
                   </h2>
                 </div>
 
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="yellow"
+                  size="xs"
+                  leftIcon={CameraIcon}
                   onClick={() => setIsCameraOpen(true)}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] border border-black shadow-[2px_2px_0px_#000000] text-[11px] font-bold flex items-center gap-1 cursor-pointer transition whitespace-nowrap"
                   title="Take photo of receipt with AI scan"
                 >
-                  <Camera className="w-3 h-3" />
-                  <span>AI Scan</span>
-                </button>
+                  AI Scan
+                </CleanSlateButton>
               </div>
 
               <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto flex-1">
@@ -379,10 +380,17 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                   const uploadTimestamp = rec.uploadedAtLabel || rec.date;
 
                   return (
-                    <button
+                    <div
                       key={rec.id}
-                      type="button"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedReceiptId(rec.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedReceiptId(rec.id);
+                        }
+                      }}
                       className={`w-full text-left px-5 py-3.5 flex items-start justify-between gap-3 transition relative cursor-pointer ${
                         isActive ? 'bg-[#f7f4eb]' : 'bg-white hover:bg-slate-50/80'
                       }`}
@@ -404,30 +412,30 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                       <span className="text-[10px] text-[#767676] shrink-0 text-right max-w-[115px] truncate pt-0.5">
                         {displayCat}
                       </span>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
 
               {/* Compact Compliance & Audit Footer */}
-              <div className="px-5 py-3 bg-[#fbf9f5] border-t border-slate-200/80 flex items-center justify-between gap-2 text-[11px]">
-                <button
-                  type="button"
+              <div className="px-4 py-3 bg-[#fbf9f5] border-t border-slate-200/80 flex items-center justify-between gap-2 flex-wrap">
+                <CleanSlateButton
+                  variant="white"
+                  size="xs"
+                  leftIcon={ShieldCheckeredIcon}
                   onClick={() => setIsComplianceModalOpen(true)}
-                  className="text-[#4b4856] hover:text-[#101010] font-semibold flex items-center gap-1 cursor-pointer transition"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>PIPEDA Safeguards</span>
-                </button>
-                <button
-                  type="button"
+                  PIPEDA Safeguards
+                </CleanSlateButton>
+                <CleanSlateButton
+                  variant="periwinkle"
+                  size="xs"
+                  leftIcon={DownloadIcon}
                   onClick={handleExportAuditPacket}
                   disabled={isExportingAudit}
-                  className="text-[#5b56d6] hover:underline font-semibold flex items-center gap-1 cursor-pointer disabled:opacity-60"
                 >
-                  <Download className="w-3 h-3" />
-                  <span>{isExportingAudit ? 'Exporting...' : 'Audit Packet PDF'}</span>
-                </button>
+                  {isExportingAudit ? 'Exporting...' : 'Audit Packet PDF'}
+                </CleanSlateButton>
               </div>
             </div>
 
@@ -445,7 +453,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
               }`}
             >
               <div className="border border-dashed border-[#242031]/55 rounded-2xl py-8 px-4 flex flex-col items-center justify-center gap-2 hover:bg-white/15 transition">
-                <Upload className="w-5 h-5 text-[#1d1a27]" />
+                <UploadIcon className="w-5 h-5 text-[#1d1a27]" />
                 <span className="text-xs sm:text-sm font-bold text-[#101010]">
                   {isParsingUpload ? 'Analyzing Receipt...' : 'Upload Receipt'}
                 </span>
@@ -477,7 +485,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                   <div className="w-full max-w-[340px] border border-[#2d2d2d]/45 bg-white px-6 py-6 shadow-xs font-mono text-xs text-[#101010] space-y-3">
                     <div className="text-center space-y-1">
                       <div className="w-9 h-9 rounded-full bg-[#101010] text-white flex items-center justify-center mx-auto mb-2">
-                        <ReceiptIcon className="w-4 h-4" />
+                        <ClipboardIcon className="w-4 h-4" />
                       </div>
                       <div className="font-extrabold text-sm uppercase tracking-wide">
                         {formVendor || deriveVendorFromTitle(selectedReceipt)}
@@ -532,7 +540,7 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                 >
                   <p className="text-xs font-medium text-[#101010] flex items-center gap-2">
                     {isParsingUpload && (
-                      <Sparkles className="w-3.5 h-3.5 text-[#5b56d6] animate-spin shrink-0" />
+                      <SparklesIcon className="w-3.5 h-3.5 text-[#5b56d6] animate-spin shrink-0" />
                     )}
                     <span>
                       CleanSlate AI automatically pulls information from your uploaded receipt. You may need to edit some of the information below.
@@ -605,18 +613,19 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
                     </div>
 
                     <div className="relative shrink-0">
-                      <button
-                        type="button"
+                      <CleanSlateButton
+                        variant="periwinkle"
+                        size="icon"
                         onMouseEnter={() => setShowNotesHelp(true)}
                         onMouseLeave={() => setShowNotesHelp(false)}
                         onFocus={() => setShowNotesHelp(true)}
                         onBlur={() => setShowNotesHelp(false)}
-                        className="w-6 h-6 rounded-full bg-[#9da2ea] hover:bg-[#8b91e5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs transition active:scale-95 cursor-help select-none"
+                        className="cursor-help"
                         aria-label="Help information for Notes"
                         title="Store details, Rx prescription notes, or trustee context"
                       >
-                        ?
-                      </button>
+                        <HelpCircleIcon className="w-4 h-4" />
+                      </CleanSlateButton>
                       {showNotesHelp && (
                         <div className="absolute right-0 bottom-full mb-2 z-50 w-64 p-2.5 rounded-xl bg-[#1d1a27] text-white text-xs shadow-xl border border-white/10 animate-in fade-in leading-relaxed pointer-events-none">
                           <div className="font-semibold text-[#b6b3ff] mb-0.5">Notes</div>
@@ -631,22 +640,23 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
 
                   {/* Action Row */}
                   <div className="flex items-center justify-between gap-3 pt-1">
-                    <button
-                      type="button"
+                    <CleanSlateButton
+                      variant="status-error"
+                      size="sm"
+                      leftIcon={TrashIcon}
                       onClick={() => onDeleteReceipt(selectedReceipt.id)}
-                      className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition flex items-center gap-1.5 cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete Receipt</span>
-                    </button>
+                      Delete Receipt
+                    </CleanSlateButton>
 
-                    <button
+                    <CleanSlateButton
                       type="submit"
-                      className="px-4 py-2 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer"
+                      variant="yellow"
+                      size="md"
+                      leftIcon={SaveIcon}
                     >
-                      <Save className="w-3.5 h-3.5" />
-                      <span>Save Details</span>
-                    </button>
+                      Save Details
+                    </CleanSlateButton>
                   </div>
                 </form>
               </div>
@@ -677,18 +687,19 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <ShieldCheckeredIcon className="w-5 h-5 text-emerald-400" />
                 <h3 className="text-sm font-bold uppercase tracking-wider text-white">
                   Statutory Privacy &amp; Health Compliance
                 </h3>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="dark"
+                size="icon"
                 onClick={() => setIsComplianceModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
+                aria-label="Close safeguards modal"
               >
-                ✕
-              </button>
+                <CloseIcon className="w-3.5 h-3.5" />
+              </CleanSlateButton>
             </div>
 
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
@@ -715,13 +726,14 @@ export const ReceiptsView: React.FC<ReceiptsViewProps> = ({
             </div>
 
             <div className="pt-2">
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="dark-periwinkle"
+                size="md"
+                fullWidth
                 onClick={() => setIsComplianceModalOpen(false)}
-                className="w-full py-2.5 rounded-xl bg-[#b6b3ff] text-[#242031] font-bold text-xs hover:bg-white transition cursor-pointer"
               >
                 Understood &amp; Close
-              </button>
+              </CleanSlateButton>
             </div>
           </div>
         </div>

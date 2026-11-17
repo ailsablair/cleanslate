@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LucideIcon, ChevronDown } from 'lucide-react';
+import type { CleanSlateIconComponent } from './ui/CleanSlateIcons';
 
 export interface DropdownMenuItem {
   id: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: CleanSlateIconComponent;
   onClick: () => void;
   hasDividerAbove?: boolean;
   danger?: boolean;

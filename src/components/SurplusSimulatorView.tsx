@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  Calculator, 
-  HelpCircle, 
-  TrendingUp, 
-  ArrowRight, 
-  ShieldCheck, 
-  Sparkles, 
-  Car, 
-  Briefcase, 
-  HeartPulse, 
-  Users, 
-  DollarSign, 
-  Send, 
-  Bot, 
-  CheckCircle2, 
-  AlertCircle,
-  RotateCcw
-} from 'lucide-react';
+import {
+  BarChartBoxIcon,
+  TrendUpIcon,
+  ArrowRightIcon,
+  ShieldCheckeredIcon,
+  SparklesIcon,
+  IdBadgeIcon,
+  ShieldIcon,
+  SendIcon,
+  MagicWandIcon,
+  RefreshIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { FloatingInput } from './FloatingInput';
@@ -186,7 +181,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#8c93fc]/25">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <Calculator className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <BarChartBoxIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 Virtual LIT &amp; Surplus Income Projection Simulator
               </h2>
@@ -197,86 +192,74 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="md"
+              leftIcon={RefreshIcon}
               onClick={() => {
                 setExtraIncome(500);
                 setExtraDeductions(0);
                 setHouseholdSize(profile.householdSize || 2);
               }}
-              className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#4b4856]" />
-              <span>Reset Values</span>
-            </button>
+              Reset Values
+            </CleanSlateButton>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark"
+              size="md"
+              leftIcon={ShieldCheckeredIcon}
               onClick={onNavigateToPathway}
-              className="px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-semibold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <ShieldCheck className="w-4 h-4 text-[#b6b3ff]" />
-              <span>View Pathway to Discharge</span>
-            </button>
+              View Pathway to Discharge
+            </CleanSlateButton>
           </div>
         </div>
 
-        {/* Quick Scenario Preset Pills */}
+        {/* Quick Scenario Presets */}
         <div className="pt-4 flex items-center gap-2.5 overflow-x-auto text-xs pb-1.5 select-none">
           <span className="text-[11px] font-bold uppercase text-[#6e6b7b] shrink-0">
             Test Preset Scenarios:
           </span>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={extraIncome === 500 && extraDeductions === 0 ? 'dark' : 'white'}
+            size="xs"
+            leftIcon={IdBadgeIcon}
             onClick={() => applyPreset('Overtime Shift (10-15 hrs)', 500, 0, '10-15 hrs of monthly overtime pay')}
-            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-              extraIncome === 500 && extraDeductions === 0
-                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-            }`}
+            className="shrink-0"
           >
-            <Briefcase className="w-3.5 h-3.5" />
-            <span>+$500 Overtime Shift</span>
-          </button>
+            +$500 Overtime Shift
+          </CleanSlateButton>
 
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={extraIncome === 0 && extraDeductions === 380 ? 'dark' : 'white'}
+            size="xs"
+            leftIcon={TrendUpIcon}
             onClick={() => applyPreset('Work Commuter Vehicle', 0, 380, 'Monthly fuel, maintenance & insurance for job commuting')}
-            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-              extraIncome === 0 && extraDeductions === 380
-                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-            }`}
+            className="shrink-0"
           >
-            <Car className="w-3.5 h-3.5" />
-            <span>New Work Vehicle (-$380/mo)</span>
-          </button>
+            New Work Vehicle (-$380/mo)
+          </CleanSlateButton>
 
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={extraIncome === 0 && extraDeductions === 180 ? 'dark' : 'white'}
+            size="xs"
+            leftIcon={ShieldIcon}
             onClick={() => applyPreset('Medical Prescription Hike', 0, 180, 'Prescriptions and medical therapy condition expenses')}
-            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-              extraIncome === 0 && extraDeductions === 180
-                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-            }`}
+            className="shrink-0"
           >
-            <HeartPulse className="w-3.5 h-3.5" />
-            <span>Medical Prescriptions (-$180/mo)</span>
-          </button>
+            Medical Prescriptions (-$180/mo)
+          </CleanSlateButton>
 
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={extraIncome === 1500 && extraDeductions === 0 ? 'dark' : 'white'}
+            size="xs"
+            leftIcon={SparklesIcon}
             onClick={() => applyPreset('Annual Performance Bonus', 1500, 0, 'One-time or recurring performance incentive')}
-            className={`px-3.5 py-1.5 rounded-full transition-all shrink-0 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-              extraIncome === 1500 && extraDeductions === 0
-                ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-            }`}
+            className="shrink-0"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>+$1,500 Bonus</span>
-          </button>
+            +$1,500 Bonus
+          </CleanSlateButton>
         </div>
       </div>
 
@@ -304,18 +287,15 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {[1, 2, 3, 4, 5, 6].map(num => (
-                <button
+                <CleanSlateButton
                   key={num}
-                  type="button"
+                  variant={householdSize === num ? 'dark' : 'white'}
+                  size="xs"
+                  fullWidth
                   onClick={() => setHouseholdSize(num)}
-                  className={`py-2 px-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                    householdSize === num
-                      ? 'bg-[#2d2a37] text-white border-[#101010] shadow-[2px_3px_0px_#000000]'
-                      : 'bg-white text-[#101010] border-[#d8d9f8] hover:border-[#8c93fc]'
-                  }`}
                 >
                   {num} {num === 1 ? 'Person' : 'People'}
-                </button>
+                </CleanSlateButton>
               ))}
             </div>
           </div>
@@ -475,7 +455,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
 
             {/* Impact on Discharge Timeline */}
             <div className="pt-2 border-t border-white/10 flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-[#b6b3ff] shrink-0 mt-0.5" />
+              <ShieldCheckeredIcon className="w-5 h-5 text-[#b6b3ff] shrink-0 mt-0.5" />
               <div>
                 <span className="text-xs font-bold text-white block mb-0.5">
                   Discharge Track: {isSurplusOver200 ? '21-Month Track (Surplus > $200.00/mo)' : '9-Month Track (Standard)'}
@@ -492,14 +472,15 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           </div>
 
           {/* Action button to sync simulated scenario */}
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="yellow"
+            size="lg"
+            fullWidth
+            rightIcon={ArrowRightIcon}
             onClick={onNavigateToReports}
-            className="w-full py-3.5 px-5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Proceed to Form 65 Monthly Report</span>
-            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-          </button>
+            Proceed to Form 65 Monthly Report
+          </CleanSlateButton>
 
         </div>
       </div>
@@ -509,7 +490,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-[#8c93fc]/25 gap-3 flex-wrap">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#2d2a37] border border-[#101010] flex items-center justify-center text-[#b6b3ff] shrink-0">
-              <Bot className="w-4 h-4" />
+              <MagicWandIcon className="w-4 h-4" />
             </div>
             <div>
               <h3 className="text-sm font-extrabold text-[#101010] uppercase tracking-wide">
@@ -569,7 +550,7 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
           {isAskingBot && (
             <div className="flex justify-start">
               <div className="rounded-2xl p-3 bg-white border border-[#d8d9f8] text-xs text-[#4b4856] flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#8c93fc] animate-spin" />
+                <SparklesIcon className="w-3.5 h-3.5 text-[#8c93fc] animate-spin" />
                 <span>LITbot is preparing a clear step-by-step answer...</span>
               </div>
             </div>
@@ -588,15 +569,16 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
               "What is the difference between Medical Condition Expenses and Prescriptions?",
               "Does my spouse's income count towards my payment?"
             ].map((s, idx) => (
-              <button
+              <CleanSlateButton
                 key={idx}
-                type="button"
+                variant="periwinkle"
+                size="xs"
                 onClick={() => handleAskQuestion(s)}
                 disabled={isAskingBot}
-                className="px-3 py-1 rounded-full bg-white hover:bg-slate-50 border border-[#d8d9f8] hover:border-[#8c93fc] text-[#101010] text-[11px] font-medium transition cursor-pointer disabled:opacity-50"
+                className="!whitespace-normal text-left"
               >
                 {s}
-              </button>
+              </CleanSlateButton>
             ))}
           </div>
 
@@ -608,15 +590,15 @@ export const SurplusSimulatorView: React.FC<SurplusSimulatorViewProps> = ({
               onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
               wrapperClassName="flex-1"
             />
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark"
+              size="lg"
+              rightIcon={SendIcon}
               onClick={() => handleAskQuestion()}
               disabled={isAskingBot || !inputQuestion.trim()}
-              className="px-5 py-3 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50"
             >
-              <span>Ask LITbot</span>
-              <Send className="w-3.5 h-3.5 text-[#b6b3ff]" />
-            </button>
+              Ask LITbot
+            </CleanSlateButton>
           </div>
         </div>
 

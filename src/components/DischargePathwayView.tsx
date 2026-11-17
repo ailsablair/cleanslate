@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
-  ShieldCheck,
-  CheckCircle2,
-  Check,
-  Download,
-  Calculator,
-  Route
-} from 'lucide-react';
+  ShieldCheckeredIcon,
+  CheckIcon,
+  DownloadIcon,
+  BarChartBoxIcon,
+  AutoGraphIcon,
+  ArrowRightIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile, MonthlyReport, Receipt } from '../types';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
 
@@ -206,7 +207,7 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <Route className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <AutoGraphIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 PATHWAY TO DISCHARGE
               </h2>
@@ -217,32 +218,32 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark"
+              size="md"
+              leftIcon={DownloadIcon}
               onClick={handleExportAuditDossier}
               disabled={isExportingAudit}
-              className="px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white text-xs font-semibold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap disabled:opacity-70"
               title="Compile all reports, receipts & signed Form 65 declarations into a single OSB audit PDF"
             >
-              <Download className={`w-3.5 h-3.5 text-white ${isExportingAudit ? 'animate-bounce' : ''}`} />
-              <span>{isExportingAudit ? 'Generating Packet...' : 'Download Audit Packet'}</span>
-            </button>
+              {isExportingAudit ? 'Generating Packet...' : 'Download Audit Packet'}
+            </CleanSlateButton>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={BarChartBoxIcon}
               onClick={onNavigateToSimulator}
-              className="px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border border-black shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap"
             >
-              <Calculator className="w-3.5 h-3.5 text-[#1d1a27]" />
-              <span>Surplus Simulator</span>
-            </button>
+              Surplus Simulator
+            </CleanSlateButton>
           </div>
         </div>
 
         {/* Audit Packet Toast */}
         {exportSuccessMessage && (
           <div className="mb-5 p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+            <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0" />
             <span className="font-semibold">{exportSuccessMessage}</span>
           </div>
         )}
@@ -257,7 +258,7 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
             <div className="mt-auto pt-4 space-y-2.5">
               <div>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.25]" />
+                  <CheckIcon className="w-3.5 h-3.5" />
                   <span>On Track</span>
                 </span>
               </div>
@@ -359,7 +360,7 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
                       : 'bg-white border-[1.5px] border-[#52525b] hover:border-[#101010] text-transparent'
                   }`}
                 >
-                  <Check className="w-4 h-4 stroke-[2.75]" />
+                  <CheckIcon className="w-4 h-4" />
                 </div>
 
                 {/* Milestone Details */}
@@ -384,16 +385,17 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
                     </span>
 
                     {milestone.id === 'form65-filings' && (
-                      <button
-                        type="button"
+                      <CleanSlateButton
+                        variant="periwinkle"
+                        size="xs"
+                        rightIcon={ArrowRightIcon}
                         onClick={(e) => {
                           e.stopPropagation();
                           onNavigateToReports();
                         }}
-                        className="text-[11px] font-semibold text-[#5b56d6] hover:underline cursor-pointer"
                       >
-                        Go to Monthly Report(s) &rarr;
-                      </button>
+                        Go to Monthly Report(s)
+                      </CleanSlateButton>
                     )}
                   </div>
                 </div>
@@ -406,7 +408,7 @@ export const DischargePathwayView: React.FC<DischargePathwayViewProps> = ({
         <div className="mt-6 p-5 rounded-2xl bg-[#1d1a27] text-white space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#b6b3ff]" />
+              <ShieldCheckeredIcon className="w-4 h-4 text-[#b6b3ff]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#b6b3ff]">
                 What Happens at Month 21?
               </span>

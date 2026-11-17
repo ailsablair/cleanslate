@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
-import { 
-  Calendar, 
-  Hourglass, 
-  Paperclip, 
-  HelpCircle, 
-  ChevronRight, 
-  ChevronLeft, 
-  CheckCircle2, 
-  AlertTriangle,
-  Upload,
-  FileCheck,
-  Send,
-  ExternalLink,
-  ShieldAlert,
-  Download,
-  FileText,
-  Check,
-  Sparkles,
-  MoreVertical,
-  PanelLeftClose,
-  PanelLeftOpen,
-  UserCircle2
-} from 'lucide-react';
+import {
+  CalendarIcon,
+  HistoryIcon,
+  LinkIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  CheckIcon,
+  UploadIcon,
+  SendIcon,
+  ShieldCheckeredIcon,
+  DownloadIcon,
+  ClipboardIcon,
+  SparklesIcon,
+  BarChartBoxIcon,
+  UserCircleIcon,
+  CloseIcon,
+  CancelIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { generateMonthlyReportPDF } from '../lib/pdfReportGenerator';
 import { generateLITAuditPacketPDF } from '../lib/pdfAuditPacketGenerator';
@@ -231,21 +227,20 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             <div className="bg-white text-[#101010] rounded-3xl p-6 border-[1.5px] border-[#101010] shadow-[5px_6px_0px_#000000]">
               <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-[#b4b1fc]/35">
                 <div className="flex items-center gap-2">
-                  <Hourglass className="w-4 h-4 text-[#8c93fc]" />
+                  <HistoryIcon className="w-4 h-4 text-[#8c93fc]" />
                   <h3 className="text-sm font-extrabold tracking-wide uppercase text-[#101010]">
                     MONTHLY HISTORY
                   </h3>
                 </div>
-                {/* Collapsible Close Button [ ◧ ] */}
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="icon"
                   onClick={() => setIsHistoryOpen(false)}
-                  className="p-1.5 rounded-xl bg-white hover:bg-slate-100 text-[#101010] border border-[#101010] shadow-[2px_2px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
                   title="Collapse Monthly History to expand form area"
                   aria-label="Collapse Monthly History"
                 >
-                  <PanelLeftClose className="w-4 h-4" />
-                </button>
+                  <ChevronLeftIcon className="w-4 h-4" />
+                </CleanSlateButton>
               </div>
 
               {/* Monthly History List matching PAST UPLOADS in Receipts */}
@@ -302,14 +297,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
 
               <div className="mt-5 pt-4 border-t border-[#b4b1fc]/35">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="md"
+                  fullWidth
+                  rightIcon={ChevronRightIcon}
                   onClick={() => {}}
-                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span>See All (12 Months)</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+                  See All (12 Months)
+                </CleanSlateButton>
               </div>
             </div>
 
@@ -333,25 +329,26 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#8c93fc]/25">
             <div className="flex items-center gap-2.5 flex-wrap">
               {!isHistoryOpen && (
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="xs"
+                  leftIcon={ChevronRightIcon}
                   onClick={() => setIsHistoryOpen(true)}
-                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer mr-1"
                   title="Show Monthly History"
+                  className="mr-1"
                 >
-                  <PanelLeftOpen className="w-3.5 h-3.5" />
-                  <span>Monthly History</span>
-                </button>
+                  Monthly History
+                </CleanSlateButton>
               )}
               <div className="w-8 h-8 rounded-xl bg-[#b4b1fc] border border-[#101010] flex items-center justify-center text-[#101010] shrink-0">
-                <Calendar className="w-4 h-4" />
+                <CalendarIcon className="w-4 h-4" />
               </div>
               <h2 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-[#101010]">
                 {activeReport.month} {activeReport.year}
               </h2>
               {activeReport.status === 'Submitted' && (
                 <span className="ml-2 inline-flex items-center gap-1 bg-[#46e3a5] text-[#102a1f] border border-[#101010]/20 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                  <CheckCircle2 className="w-3 h-3" />
+                  <CheckIcon className="w-3 h-3" />
                   Filed to LIT
                 </span>
               )}
@@ -360,32 +357,32 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             {/* Sleek "More Actions" Dropdown Button */}
             <DropdownMenu
               trigger={
-                <button
-                  type="button"
-                  className="w-9 h-9 rounded-xl bg-[#46e3a5] hover:brightness-105 text-[#101010] border-[1.5px] border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none flex items-center justify-center transition-all cursor-pointer shrink-0"
+                <CleanSlateButton
+                  variant="periwinkle"
+                  size="icon"
                   title="More actions"
                   aria-label="More actions"
                 >
-                  <MoreVertical className="w-5 h-5 stroke-[2.5]" />
-                </button>
+                  <BarChartBoxIcon className="w-4 h-4" />
+                </CleanSlateButton>
               }
               items={[
                 {
                   id: 'download-report',
                   label: isGeneratingPdf ? 'Generating PDF...' : 'Download Report',
-                  icon: Download,
+                  icon: DownloadIcon,
                   onClick: handleDownloadReport
                 },
                 {
                   id: 'export-audit',
                   label: isExportingAuditPacket ? 'Exporting Dossier...' : 'Export Audit Packet',
-                  icon: FileText,
+                  icon: ClipboardIcon,
                   onClick: handleExportAuditPacket
                 },
                 {
                   id: 'update-profile',
                   label: 'Update Profile',
-                  icon: UserCircle2,
+                  icon: UserCircleIcon,
                   hasDividerAbove: true,
                   onClick: onNavigateToProfile
                 }
@@ -396,7 +393,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
           {pdfSuccessToast && (
             <div className="p-3 bg-[#46e3a5]/20 border border-[#46e3a5] text-[#102a1f] text-xs font-semibold rounded-2xl flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+              <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>{pdfSuccessToast}</span>
             </div>
           )}
@@ -405,7 +402,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           <div className="bg-[#1d1a27] text-white rounded-2xl p-5 sm:p-6 border-[1.5px] border-[#101010] space-y-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-[#F9F45D] text-[#1d1a27] border border-[#101010] flex items-center justify-center font-extrabold shrink-0 mt-0.5">
-                <Sparkles className="w-5 h-5 stroke-[2.5]" />
+                <SparklesIcon className="w-5 h-5" />
               </div>
               <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -422,14 +419,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               </div>
             </div>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              fullWidth
+              leftIcon={UploadIcon}
               onClick={() => setIsStatementModalOpen(true)}
-              className="w-full bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs py-3 px-4 rounded-xl border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
             >
-              <Upload className="w-4 h-4 stroke-[2.5]" />
-              <span>Upload Statement (Jan 1-30)</span>
-            </button>
+              Upload Statement (Jan 1-30)
+            </CleanSlateButton>
           </div>
 
           {/* Debtor Overview Strip */}
@@ -446,7 +444,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             </div>
           </div>
 
-          {/* Wizard Step Navigation Pills matching CategorizeView */}
+          {/* Wizard Step Navigation */}
           <div className="flex items-center justify-between overflow-x-auto pb-1.5 text-xs gap-2.5 select-none">
             {[
               { num: 1, label: '1. Household Income' },
@@ -455,18 +453,14 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               { num: 4, label: '4. Living & Transit' },
               { num: 5, label: '5. Summary & Filing' }
             ].map(step => (
-              <button
+              <CleanSlateButton
                 key={step.num}
-                type="button"
+                variant={currentStep === step.num ? 'dark' : 'white'}
+                size="xs"
                 onClick={() => setCurrentStep(step.num)}
-                className={`px-4 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
-                  currentStep === step.num
-                    ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                    : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-                }`}
               >
                 {step.label}
-              </button>
+              </CleanSlateButton>
             ))}
           </div>
 
@@ -588,19 +582,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                           />
                         </div>
 
-                        {/* Attach button matching input design */}
-                        <button
-                          type="button"
+                        <CleanSlateButton
+                          variant={hasAttachment ? 'status-success' : 'white'}
+                          size="sm"
+                          leftIcon={hasAttachment ? CheckIcon : LinkIcon}
                           onClick={() => setAttachingCategory(row.key)}
-                          className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer min-h-[48px] whitespace-nowrap ${
-                            hasAttachment
-                              ? 'bg-[#46e3a5] text-[#102a1f] border-[1.5px] border-[#101010] shadow-[2px_3px_0px_#000000]'
-                              : 'bg-white border border-[#2d2a37] text-[#101010] hover:bg-slate-50 shadow-[2px_3px_0px_#a5a7fb]'
-                          }`}
+                          className="min-h-[48px] shrink-0"
                         >
-                          <Paperclip className="w-3.5 h-3.5" />
-                          <span>{hasAttachment ? 'Attached' : 'Attach'}</span>
-                        </button>
+                          {hasAttachment ? 'Attached' : 'Attach'}
+                        </CleanSlateButton>
                       </div>
                     </div>
                   );
@@ -900,7 +890,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 </div>
 
                 <div className="pt-2 text-[11px] text-slate-400 flex items-start gap-2">
-                  <ShieldAlert className="w-4 h-4 text-[#b6b3ff] shrink-0 mt-0.5" />
+                  <ShieldCheckeredIcon className="w-4 h-4 text-[#b6b3ff] shrink-0 mt-0.5" />
                   <span>
                     When submitted, this Form 65 report and all linked receipt proofs will be automatically transmitted to <strong className="text-white">{profile.litName} (<a href={getMailtoUrl(profile.litEmail, `Form 65 Filing - ${activeReport.month} ${activeReport.year}`)} className="text-[#b6b3ff] underline hover:text-white transition" title="Email LIT">{profile.litEmail}</a>)</strong> at {profile.litFirm} for official filing in your bankruptcy estate.
                   </span>
@@ -909,29 +899,29 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
               {/* Action Buttons: Download PDF & Submit Monthly Report */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="dark"
+                  size="lg"
+                  leftIcon={DownloadIcon}
                   onClick={handleDownloadReport}
                   disabled={isGeneratingPdf}
-                  className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white font-semibold text-xs tracking-wide transition-all border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-70 whitespace-nowrap"
+                  className="w-full sm:w-auto shrink-0"
                 >
-                  <Download className={`w-4 h-4 text-white ${isGeneratingPdf ? 'animate-bounce' : ''}`} />
-                  <span>{isGeneratingPdf ? 'Generating PDF...' : 'Download Form 65 PDF'}</span>
-                </button>
+                  {isGeneratingPdf ? 'Generating PDF...' : 'Download Form 65 PDF'}
+                </CleanSlateButton>
 
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="yellow"
+                  size="lg"
+                  leftIcon={SendIcon}
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="flex-1 w-full py-3.5 px-5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                  className="flex-1 w-full"
                 >
-                  <Send className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-pulse' : ''}`} />
-                  <span>
-                    {isSubmitting
-                      ? 'Generating Form 65 & Dispatching to LIT...'
-                      : `Submit ${activeReport.month} Report & Email to Trustee (${profile.litName?.split(',')[0] || 'LIT'})`}
-                  </span>
-                </button>
+                  {isSubmitting
+                    ? 'Generating Form 65 & Dispatching to LIT...'
+                    : `Submit ${activeReport.month} Report & Email to Trustee (${profile.litName?.split(',')[0] || 'LIT'})`}
+                </CleanSlateButton>
               </div>
             </div>
           )}
@@ -939,25 +929,25 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           {/* Navigation Buttons at Bottom */}
           <div className="flex items-center justify-between pt-4 border-t border-[#8c93fc]/25">
             {currentStep > 1 ? (
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="md"
+                leftIcon={ChevronLeftIcon}
                 onClick={() => setCurrentStep(prev => prev - 1)}
-                className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Prev. Section</span>
-              </button>
+                Prev. Section
+              </CleanSlateButton>
             ) : <div />}
 
             {currentStep < 5 && (
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="yellow"
+                size="md"
+                rightIcon={ChevronRightIcon}
                 onClick={() => setCurrentStep(prev => prev + 1)}
-                className="px-5 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap"
               >
-                <span>Next Section</span>
-                <ChevronRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
+                Next Section
+              </CleanSlateButton>
             )}
           </div>
         </div>
@@ -982,14 +972,14 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   Category: <span className="font-semibold text-[#101010]">{attachingCategory}</span>
                 </div>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="icon"
                 onClick={() => setAttachingCategory(null)}
                 aria-label="Close attach proof modal"
-                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
               >
-                ✕
-              </button>
+                <CloseIcon className="w-3.5 h-3.5" />
+              </CleanSlateButton>
             </div>
 
             <p className="text-xs text-[#4b4856] leading-relaxed">
@@ -1027,15 +1017,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             </div>
 
             <div className="pt-3 flex items-center justify-end gap-3 border-t border-[#b4b1fc]/35">
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="md"
+                leftIcon={CancelIcon}
                 onClick={() => setAttachingCategory(null)}
-                className="py-2.5 px-5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] text-xs font-bold transition-all cursor-pointer"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </CleanSlateButton>
+              <CleanSlateButton
+                variant="dark-yellow"
+                size="md"
+                leftIcon={LinkIcon}
+                className="flex-1"
                 onClick={() => {
                   if (attachingCategory) {
                     const currentAttachments = activeReport.nonDiscretionary.attachments || {};
@@ -1054,10 +1048,9 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   }
                   setAttachingCategory(null);
                 }}
-                className="flex-1 py-2.5 px-5 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white font-bold text-xs border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
               >
                 Link Selected Proof to Form 65
-              </button>
+              </CleanSlateButton>
             </div>
           </div>
         </div>
@@ -1067,7 +1060,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       {pdfSuccessToast && (
         <div className="fixed bottom-6 left-6 max-w-sm bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-2xl p-4 shadow-[5px_6px_0px_#000000] z-50 flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
           <div className="w-8 h-8 rounded-xl bg-[#46e3a5] border border-[#101010] text-[#101010] flex items-center justify-center shrink-0">
-            <Check className="w-4 h-4 stroke-[3]" />
+            <CheckIcon className="w-4 h-4" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-[11px] font-extrabold uppercase text-[#101010] tracking-wider">PDF Report Downloaded</div>

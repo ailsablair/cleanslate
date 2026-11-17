@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Check, 
-  Sparkles, 
-  Zap, 
-  ShieldCheck, 
-  Award, 
-  X, 
-  CreditCard, 
-  Bot, 
-  RefreshCw, 
-  MailCheck, 
-  FileText 
-} from 'lucide-react';
+import {
+  CheckIcon,
+  ShieldCheckeredIcon,
+  CloseIcon,
+  BoltIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { BrandLogo } from './BrandLogo';
 
 interface SubscriptionPaywallModalProps {
@@ -106,32 +100,35 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
             </h2>
           </div>
 
-          <button
+          <CleanSlateButton
+            variant="dark"
+            size="icon"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition"
+            aria-label="Close subscription modal"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <CloseIcon className="w-4 h-4" />
+          </CleanSlateButton>
         </div>
 
         {/* Billing Toggle */}
-        <div className="p-6 bg-[#1d1a27] border-b border-white/10 flex items-center justify-center gap-4">
-          <span className={`text-xs font-bold ${billingCycle === 'monthly' ? 'text-white' : 'text-slate-400'}`}>
-            Monthly Billing
-          </span>
-          <button
-            type="button"
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
-            className="w-12 h-6 rounded-full bg-[#b6b3ff]/30 border border-[#b6b3ff] p-0.5 transition cursor-pointer relative"
+        <div className="p-5 bg-[#1d1a27] border-b border-white/10 flex items-center justify-center gap-3 flex-wrap">
+          <CleanSlateButton
+            variant={billingCycle === 'monthly' ? 'periwinkle' : 'dark'}
+            size="sm"
+            onClick={() => setBillingCycle('monthly')}
           >
-            <div className={`w-5 h-5 rounded-full bg-[#fbf050] transition-transform ${billingCycle === 'annual' ? 'translate-x-6' : 'translate-x-0'}`} />
-          </button>
-          <span className={`text-xs font-bold flex items-center gap-1.5 ${billingCycle === 'annual' ? 'text-white' : 'text-slate-400'}`}>
-            Annual Billing
-            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold">
+            Monthly Billing
+          </CleanSlateButton>
+          <CleanSlateButton
+            variant={billingCycle === 'annual' ? 'periwinkle' : 'dark'}
+            size="sm"
+            onClick={() => setBillingCycle('annual')}
+          >
+            <span>Annual Billing</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-700 font-extrabold">
               Save 20%
             </span>
-          </span>
+          </CleanSlateButton>
         </div>
 
         {/* Pricing Cards */}
@@ -148,14 +145,14 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#fbf050] text-[#242031] text-[10px] font-black uppercase tracking-wider shadow-md">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#F9F45D] text-[#3B3B3B] border border-[#010101] text-[10px] font-black uppercase tracking-wider shadow-md">
                     {plan.badge}
                   </div>
                 )}
 
                 <div className="space-y-4">
                   <div>
-                    <div className="text-xs font-bold text-[#b6b3ff] uppercase tracking-wider">
+                    <div className="text-xs font-bold text-[#AEBBFD] uppercase tracking-wider">
                       {plan.name}
                     </div>
                     <div className="mt-2 flex items-baseline gap-1">
@@ -175,7 +172,7 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
                     </div>
                     {plan.features.map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-200">
-                        <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <CheckIcon className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -183,31 +180,24 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
                 </div>
 
                 <div className="pt-6">
-                  <button
-                    type="button"
+                  <CleanSlateButton
+                    variant={
+                      plan.highlighted
+                        ? 'yellow'
+                        : isCurrent
+                        ? 'dark-periwinkle'
+                        : 'white'
+                    }
+                    size="md"
+                    fullWidth
+                    leftIcon={isCurrent ? CheckIcon : plan.highlighted ? BoltIcon : undefined}
                     onClick={() => {
                       onSelectTier(plan.id);
                       onClose();
                     }}
-                    style={plan.highlighted ? {
-                      background: 'var(--colour-dark-highlight, #F9F45D)',
-                      boxShadow: '3px 4px 0px black',
-                      borderRadius: 12,
-                      color: 'var(--colour-dark-accent, #3E4A4F)',
-                      fontFamily: "'Google Sans Flex', sans-serif",
-                      fontSize: '13px',
-                      fontWeight: '800',
-                    } : undefined}
-                    className={`w-full py-3 px-4 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
-                      plan.highlighted
-                        ? 'hover:brightness-105 active:translate-x-[2px] active:translate-y-[2px]'
-                        : isCurrent
-                        ? 'bg-white/10 text-white border border-white/20'
-                        : 'bg-white text-slate-900 hover:bg-slate-100'
-                    }`}
                   >
                     <span>{isCurrent ? 'Active Plan' : plan.cta}</span>
-                  </button>
+                  </CleanSlateButton>
                 </div>
               </div>
             );
@@ -216,7 +206,7 @@ export const SubscriptionPaywallModal: React.FC<SubscriptionPaywallModalProps> =
 
         {/* Footer Guarantee */}
         <div className="p-4 bg-[#1a1724] border-t border-white/10 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <ShieldCheckeredIcon className="w-4 h-4 text-emerald-400" />
           <span>Cancel anytime in your profile settings · 100% PIPEDA compliant Canadian encryption guarantee</span>
         </div>
       </div>

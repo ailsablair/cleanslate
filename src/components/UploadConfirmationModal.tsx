@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Upload, Camera, Save, X, FileText, Sparkles } from 'lucide-react';
+import {
+  UploadIcon,
+  CameraIcon,
+  SaveIcon,
+  CloseIcon,
+  ClipboardIcon,
+  SparklesIcon,
+  HelpCircleIcon,
+  CancelIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { Receipt } from '../types';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect, SelectOption } from './FloatingSelect';
@@ -216,38 +226,41 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
                 Attach a receipt, prescription, or purchase order to ensure all necessary information is uploaded ready for the Licensed Insolvency Trustee (LIT).
               </p>
             </div>
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="icon"
               onClick={onClose}
               aria-label="Close upload confirmation modal"
-              className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer shrink-0"
+              className="!p-1.5 shrink-0"
             >
-              <X className="w-4 h-4 stroke-[2]" />
-            </button>
+              <CloseIcon className="w-4 h-4" />
+            </CleanSlateButton>
           </div>
 
           {/* Primary Upload / Camera Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              fullWidth
+              leftIcon={UploadIcon}
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 text-xs font-bold cursor-pointer whitespace-nowrap"
             >
-              <Upload className="w-4 h-4 stroke-[2.2]" />
               <span>Upload Photo or Document</span>
-            </button>
+            </CleanSlateButton>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="dark-yellow"
+              size="md"
+              fullWidth
+              leftIcon={CameraIcon}
               onClick={() => setIsCameraOpen(true)}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-[#46e3a5] border-[1.5px] border-[#46e3a5] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 text-xs cursor-pointer whitespace-nowrap"
             >
-              <Camera className="w-4 h-4 text-[#46e3a5]" />
               <span>
                 <span className="font-bold">Take Photo</span>{' '}
                 <span className="font-normal opacity-90">(AI Scan)</span>
               </span>
-            </button>
+            </CleanSlateButton>
           </div>
 
           {/* Attached File / AI Parse Status Strip */}
@@ -255,26 +268,27 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
             <div className="px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 {isParsingFile ? (
-                  <Sparkles className="w-4 h-4 text-[#5b56d6] animate-spin shrink-0" />
+                  <SparklesIcon className="w-4 h-4 text-[#5b56d6] animate-spin shrink-0" />
                 ) : (
-                  <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <ClipboardIcon className="w-4 h-4 text-emerald-700 shrink-0" />
                 )}
                 <span className="font-semibold truncate">
                   {isParsingFile ? `Scanning "${fileName}" with CleanSlate AI...` : fileName}
                 </span>
               </div>
               {!isParsingFile && (
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="xs"
                   onClick={() => {
                     setFileName('');
                     setFileUrl(undefined);
                   }}
-                  className="text-emerald-700 hover:text-emerald-950 p-0.5 cursor-pointer shrink-0"
+                  className="!p-1 shrink-0"
                   title="Remove attached file"
                 >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                  <CloseIcon className="w-3.5 h-3.5" />
+                </CleanSlateButton>
               )}
             </div>
           )}
@@ -284,18 +298,14 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
             {DOC_TYPE_OPTIONS.map((typeOption) => {
               const isActive = documentType === typeOption;
               return (
-                <button
+                <CleanSlateButton
                   key={typeOption}
-                  type="button"
+                  variant={isActive ? 'dark' : 'white'}
+                  size="xs"
                   onClick={() => handleDocumentTypeSelect(typeOption)}
-                  className={`px-4 py-1.5 rounded-full text-xs transition cursor-pointer whitespace-nowrap ${
-                    isActive
-                      ? 'bg-[#242031] text-white font-bold border border-[#242031]'
-                      : 'bg-white hover:bg-slate-50 text-[#101010] font-semibold border border-[#767676]'
-                  }`}
                 >
                   {typeOption}
-                </button>
+                </CleanSlateButton>
               );
             })}
           </div>
@@ -367,18 +377,19 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
               </div>
 
               <div className="relative shrink-0">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="periwinkle"
+                  size="icon"
                   onMouseEnter={() => setShowNotesHelp(true)}
                   onMouseLeave={() => setShowNotesHelp(false)}
                   onFocus={() => setShowNotesHelp(true)}
                   onBlur={() => setShowNotesHelp(false)}
-                  className="w-6 h-6 rounded-full bg-[#9da2ea] hover:bg-[#8b91e5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs transition active:scale-95 cursor-help select-none"
+                  className="!p-1.5 cursor-help"
                   aria-label="Help information for Notes"
                   title="Add Rx numbers, store details, or trustee explanation"
                 >
-                  ?
-                </button>
+                  <HelpCircleIcon className="w-4 h-4" />
+                </CleanSlateButton>
                 {showNotesHelp && (
                   <div className="absolute right-0 bottom-full mb-2 z-50 w-64 p-2.5 rounded-xl bg-[#1d1a27] text-white text-xs shadow-xl border border-white/10 animate-in fade-in leading-relaxed pointer-events-none">
                     <div className="font-semibold text-[#b6b3ff] mb-0.5">Notes</div>
@@ -393,20 +404,22 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
 
             {/* Footer Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="md"
+                leftIcon={CancelIcon}
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
               >
                 Cancel
-              </button>
-              <button
+              </CleanSlateButton>
+              <CleanSlateButton
+                variant="dark-yellow"
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#242031] hover:bg-[#2f2a40] text-white text-xs font-bold border-[1.5px] border-[#F9F45D] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-2 cursor-pointer"
+                size="md"
+                leftIcon={SaveIcon}
               >
-                <Save className="w-3.5 h-3.5 text-[#F9F45D]" />
-                <span>Save to Vault</span>
-              </button>
+                Save to Vault
+              </CleanSlateButton>
             </div>
           </form>
         </div>

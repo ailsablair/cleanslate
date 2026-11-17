@@ -9,27 +9,28 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Target, 
-  Award, 
-  Plus, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
-  Info, 
-  SlidersHorizontal,
-  DollarSign,
-  Calendar,
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Building,
-  Check,
-  Trash2
-} from 'lucide-react';
-import { MonthlyReport, UserProfile, FinancialGoal, Form65CategoryBenchmark } from '../types';
+import {
+  TrendUpIcon,
+  TrendDownIcon,
+  AutoGraphIcon,
+  TrophyIcon,
+  PlusIcon,
+  CheckIcon,
+  HistoryIcon,
+  InfoCircleIcon,
+  FilterIcon,
+  CalendarIcon,
+  SparklesIcon,
+  ShieldCheckeredIcon,
+  BankIcon,
+  TrashIcon,
+  CloseIcon,
+  CancelIcon,
+  SaveIcon,
+  ArrowRightIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
+import { MonthlyReport, UserProfile, FinancialGoal } from '../types';
 import { 
   computeMonthlySpendingTrends, 
   computeCategoryBenchmarks, 
@@ -209,7 +210,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <TrendingUp className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <TrendUpIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h1 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 Spending Trends &amp; Bankruptcy Discharge Goals
               </h1>
@@ -220,22 +221,22 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={PlusIcon}
               onClick={() => setIsAddGoalModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              <span>Set Discharge Goal</span>
-            </button>
-            <button
-              type="button"
+              Set Discharge Goal
+            </CleanSlateButton>
+            <CleanSlateButton
+              variant="dark"
+              size="md"
+              leftIcon={CalendarIcon}
               onClick={onNavigateToReports}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#2d2a37] hover:bg-[#3a3646] text-white font-semibold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
             >
-              <Calendar className="w-3.5 h-3.5 text-[#b6b3ff]" />
-              <span>View Form 65</span>
-            </button>
+              View Form 65
+            </CleanSlateButton>
           </div>
         </div>
       </div>
@@ -252,7 +253,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#8c93fc]/25">
           <div>
             <div className="flex items-center gap-2.5">
-              <TrendingUp className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <TrendUpIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 Historical Spending &amp; Behaviour Change Trends
               </h2>
@@ -262,25 +263,21 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
             </p>
           </div>
 
-          {/* Segmented Timeframe Selector Pills matching CategorizeView */}
+          {/* Segmented Timeframe Selector */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {[
               { id: '3m', label: 'Past 3 Months' },
               { id: '6m', label: 'Past 6 Months' },
               { id: 'all', label: 'All 9 Months' }
             ].map((item) => (
-              <button
+              <CleanSlateButton
                 key={item.id}
-                type="button"
+                variant={timeframe === item.id ? 'dark' : 'white'}
+                size="xs"
                 onClick={() => setTimeframe(item.id as '3m' | '6m' | 'all')}
-                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
-                  timeframe === item.id
-                    ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                    : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-                }`}
               >
                 {item.label}
-              </button>
+              </CleanSlateButton>
             ))}
           </div>
         </div>
@@ -288,57 +285,41 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         {/* Metric Line Toggles */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="text-[#6e6b7b] font-bold mr-1 flex items-center gap-1 uppercase text-[11px]">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#8c93fc]" />
+            <FilterIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
             Display Lines:
           </span>
-          <button
-            type="button"
+          <CleanSlateButton
+            variant={showTotal ? 'dark' : 'white'}
+            size="xs"
             onClick={() => setShowTotal(!showTotal)}
-            className={`px-3 py-1 rounded-full border transition flex items-center gap-2 cursor-pointer ${
-              showTotal
-                ? 'bg-[#2d2a37] border-[#101010] text-white font-bold shadow-[2px_2px_0px_#000000]'
-                : 'bg-white border-[#d8d9f8] text-[#6e6b7b]'
-            }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[#b6b3ff]" />
-            Total Spend
-          </button>
-          <button
-            type="button"
+            <span>Total Spend</span>
+          </CleanSlateButton>
+          <CleanSlateButton
+            variant={showDiscretionary ? 'dark' : 'white'}
+            size="xs"
             onClick={() => setShowDiscretionary(!showDiscretionary)}
-            className={`px-3 py-1 rounded-full border transition flex items-center gap-2 cursor-pointer ${
-              showDiscretionary
-                ? 'bg-[#2d2a37] border-[#101010] text-white font-bold shadow-[2px_2px_0px_#000000]'
-                : 'bg-white border-[#d8d9f8] text-[#6e6b7b]'
-            }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[#f472b6]" />
-            Discretionary Spend
-          </button>
-          <button
-            type="button"
+            <span>Discretionary Spend</span>
+          </CleanSlateButton>
+          <CleanSlateButton
+            variant={showNonDiscretionary ? 'dark' : 'white'}
+            size="xs"
             onClick={() => setShowNonDiscretionary(!showNonDiscretionary)}
-            className={`px-3 py-1 rounded-full border transition flex items-center gap-2 cursor-pointer ${
-              showNonDiscretionary
-                ? 'bg-[#2d2a37] border-[#101010] text-white font-bold shadow-[2px_2px_0px_#000000]'
-                : 'bg-white border-[#d8d9f8] text-[#6e6b7b]'
-            }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]" />
-            Non-Discretionary
-          </button>
-          <button
-            type="button"
+            <span>Non-Discretionary</span>
+          </CleanSlateButton>
+          <CleanSlateButton
+            variant={showSavings ? 'dark' : 'white'}
+            size="xs"
             onClick={() => setShowSavings(!showSavings)}
-            className={`px-3 py-1 rounded-full border transition flex items-center gap-2 cursor-pointer ${
-              showSavings
-                ? 'bg-[#2d2a37] border-[#101010] text-white font-bold shadow-[2px_2px_0px_#000000]'
-                : 'bg-white border-[#d8d9f8] text-[#6e6b7b]'
-            }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[#46e3a5]" />
-            Net Surplus / Savings
-          </button>
+            <span>Net Surplus / Savings</span>
+          </CleanSlateButton>
         </div>
 
         {/* High-Contrast Dark Plot Panel inside Cream Card */}
@@ -482,7 +463,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         {/* Behavioural Insight Advice Box */}
         <div className="bg-white border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-2xl p-4 sm:p-5 flex items-start gap-3.5">
           <div className="w-8 h-8 rounded-xl bg-[#b6b3ff]/25 text-[#5b52d6] border border-[#b6b3ff] flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4" />
+            <SparklesIcon className="w-4 h-4" />
           </div>
           <div className="text-xs">
             <div className="font-extrabold text-[#101010] mb-0.5">
@@ -500,7 +481,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#8c93fc]/25">
           <div>
             <div className="flex items-center gap-2.5">
-              <Building className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <BankIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 Form 65 Category Spending vs. Peer Income Benchmarks
               </h2>
@@ -510,21 +491,17 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
             </p>
           </div>
 
-          {/* Group Filter Tabs matching CategorizeView */}
+          {/* Group Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {(['All', 'Housing & Utilities', 'Day-to-Day & Personal', 'Non-Discretionary'] as const).map((tab) => (
-              <button
+              <CleanSlateButton
                 key={tab}
-                type="button"
+                variant={benchmarkFilter === tab ? 'dark' : 'white'}
+                size="xs"
                 onClick={() => setBenchmarkFilter(tab)}
-                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
-                  benchmarkFilter === tab
-                    ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                    : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-                }`}
               >
                 {tab}
-              </button>
+              </CleanSlateButton>
             ))}
           </div>
         </div>
@@ -564,12 +541,12 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                     }`}>
                       {isFrugal ? (
                         <>
-                          <TrendingDown className="w-3 h-3" />
+                          <TrendDownIcon className="w-3 h-3" />
                           {Math.abs(bench.variancePercent)}% Below Peer Avg
                         </>
                       ) : isElevated ? (
                         <>
-                          <TrendingUp className="w-3 h-3" />
+                          <TrendUpIcon className="w-3 h-3" />
                           +{bench.variancePercent}% Above Peer Avg
                         </>
                       ) : (
@@ -620,7 +597,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                 </div>
 
                 <div className="mt-3 pt-2 text-[11px] text-[#4b4856] flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 shrink-0 text-[#8c93fc]" />
+                  <InfoCircleIcon className="w-3.5 h-3.5 shrink-0 text-[#8c93fc]" />
                   <span>{bench.recommendation}</span>
                 </div>
               </div>
@@ -631,7 +608,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         {/* Form 65 Benchmark Note */}
         <div className="p-4 rounded-2xl bg-white border border-[#d8d9f8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#4b4856]">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#8c93fc] shrink-0" />
+            <ShieldCheckeredIcon className="w-4 h-4 text-[#8c93fc] shrink-0" />
             <span>
               OSB Statutory Standard: Non-discretionary medical condition expenses and child care reduce surplus income calculation directly dollar-for-dollar.
             </span>
@@ -647,7 +624,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#8c93fc]/25">
           <div>
             <div className="flex items-center gap-2.5">
-              <Award className="w-5 h-5 text-[#8c93fc] shrink-0" />
+              <TrophyIcon className="w-5 h-5 text-[#8c93fc] shrink-0" />
               <h2 className="text-sm sm:text-base font-extrabold text-[#101010] tracking-wide uppercase">
                 Bankruptcy Discharge Milestones &amp; Financial Goals
               </h2>
@@ -658,14 +635,14 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={PlusIcon}
               onClick={() => setIsAddGoalModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Custom Goal</span>
-            </button>
+              Add Custom Goal
+            </CleanSlateButton>
           </div>
         </div>
 
@@ -688,20 +665,22 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#101010]">
                     Month 3 Milestone
                   </span>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <CheckIcon className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div className="font-extrabold text-[#101010] text-sm">Budgeting &amp; 1st Counselling</div>
                 <div className="text-xs text-[#4b4856] mt-1 leading-relaxed">
                   Complete 1st mandatory financial counseling session with Trustee Sarah Jenkins &amp; contain lifestyle spend.
                 </div>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant={goalHorizonFilter === '3' ? 'periwinkle' : 'white'}
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={() => setGoalHorizonFilter(goalHorizonFilter === '3' ? 'all' : '3')}
-                className="mt-3 text-xs font-bold text-[#5b52d6] hover:underline flex items-center gap-1 cursor-pointer"
+                className="mt-3 self-start"
               >
-                {goalHorizonFilter === '3' ? 'Show All Goals' : 'Filter 3-Month Goals →'}
-              </button>
+                {goalHorizonFilter === '3' ? 'Show All Goals' : 'Filter 3-Month'}
+              </CleanSlateButton>
             </div>
 
             {/* Step 2: 6-Month */}
@@ -715,20 +694,22 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#101010]">
                     Month 6 Milestone
                   </span>
-                  <Clock className="w-4 h-4 text-amber-600" />
+                  <HistoryIcon className="w-4 h-4 text-amber-600" />
                 </div>
                 <div className="font-extrabold text-[#101010] text-sm">Midway Review &amp; Buffer</div>
                 <div className="text-xs text-[#4b4856] mt-1 leading-relaxed">
                   Accumulate $800 - $1,000 emergency savings cushion in NEO Savings; zero overdue Form 65 reports.
                 </div>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant={goalHorizonFilter === '6' ? 'periwinkle' : 'white'}
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={() => setGoalHorizonFilter(goalHorizonFilter === '6' ? 'all' : '6')}
-                className="mt-3 text-xs font-bold text-[#5b52d6] hover:underline flex items-center gap-1 cursor-pointer"
+                className="mt-3 self-start"
               >
-                {goalHorizonFilter === '6' ? 'Show All Goals' : 'Filter 6-Month Goals →'}
-              </button>
+                {goalHorizonFilter === '6' ? 'Show All Goals' : 'Filter 6-Month'}
+              </CleanSlateButton>
             </div>
 
             {/* Step 3: 9-Month Discharge Target */}
@@ -742,20 +723,22 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#fbf050] text-[#101010] border border-[#101010]/20">
                     Month 9 Discharge
                   </span>
-                  <Target className="w-4 h-4 text-[#101010]" />
+                  <AutoGraphIcon className="w-4 h-4 text-[#101010]" />
                 </div>
                 <div className="font-extrabold text-[#101010] text-sm">Certificate of Discharge</div>
                 <div className="text-xs text-[#4b4856] mt-1 leading-relaxed">
                   Complete 2nd financial counseling session, resolve surplus income balance, receive legal release of debts.
                 </div>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant={goalHorizonFilter === '9' ? 'periwinkle' : 'white'}
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={() => setGoalHorizonFilter(goalHorizonFilter === '9' ? 'all' : '9')}
-                className="mt-3 text-xs font-bold text-[#5b52d6] hover:underline flex items-center gap-1 cursor-pointer"
+                className="mt-3 self-start"
               >
-                {goalHorizonFilter === '9' ? 'Show All Goals' : 'Filter 9-Month Goals →'}
-              </button>
+                {goalHorizonFilter === '9' ? 'Show All Goals' : 'Filter 9-Month'}
+              </CleanSlateButton>
             </div>
 
             {/* Step 4: 12-Month+ Credit Rebuilding */}
@@ -769,40 +752,38 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f]">
                     Month 12+ Rebuild
                   </span>
-                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                  <ShieldCheckeredIcon className="w-4 h-4 text-emerald-700" />
                 </div>
                 <div className="font-extrabold text-[#101010] text-sm">Credit Score Rehabilitation</div>
                 <div className="text-xs text-[#4b4856] mt-1 leading-relaxed">
                   Acquire secured credit card ($500 limit), pay 100% on time, restore credit bureau score above 650.
                 </div>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant={goalHorizonFilter === '12' ? 'periwinkle' : 'white'}
+                size="xs"
+                rightIcon={ArrowRightIcon}
                 onClick={() => setGoalHorizonFilter(goalHorizonFilter === '12' ? 'all' : '12')}
-                className="mt-3 text-xs font-bold text-[#5b52d6] hover:underline flex items-center gap-1 cursor-pointer"
+                className="mt-3 self-start"
               >
-                {goalHorizonFilter === '12' ? 'Show All Goals' : 'Filter 12-Month Goals →'}
-              </button>
+                {goalHorizonFilter === '12' ? 'Show All Goals' : 'Filter 12-Month'}
+              </CleanSlateButton>
             </div>
           </div>
         </div>
 
-        {/* Goal Filter Pills */}
+        {/* Goal Filter Tabs */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#8c93fc]/25">
           <span className="text-xs text-[#6e6b7b] font-bold mr-1">Time Horizon:</span>
           {(['all', '3', '6', '9', '12'] as const).map((h) => (
-            <button
+            <CleanSlateButton
               key={h}
-              type="button"
+              variant={goalHorizonFilter === h ? 'dark' : 'white'}
+              size="xs"
               onClick={() => setGoalHorizonFilter(h)}
-              className={`px-3.5 py-1.5 rounded-full text-xs transition-all cursor-pointer whitespace-nowrap ${
-                goalHorizonFilter === h
-                  ? 'bg-[#2d2a37] text-white font-bold border border-[#101010] shadow-[2px_3px_0px_#000000]'
-                  : 'bg-[#e9e8ec] text-[#101010] hover:bg-[#dfdde4] font-semibold border border-[#767676]/50'
-              }`}
             >
               {h === 'all' ? 'All Horizons' : `${h} Months`}
-            </button>
+            </CleanSlateButton>
           ))}
         </div>
 
@@ -830,26 +811,24 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                     </span>
 
                     <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
+                      <CleanSlateButton
+                        variant={isCompleted ? 'status-success' : 'white'}
+                        size="icon"
                         onClick={() => handleToggleGoalCompletion(goal)}
-                        className={`w-7 h-7 rounded-lg border-[1.5px] flex items-center justify-center transition cursor-pointer ${
-                          isCompleted
-                            ? 'bg-[#46e3a5] border-[#101010] text-[#101010]'
-                            : 'bg-white border-[#767676] hover:border-[#101010] text-transparent hover:text-[#6e6b7b]'
-                        }`}
                         title={isCompleted ? 'Mark incomplete' : 'Mark completed'}
+                        aria-label={isCompleted ? `Mark ${goal.title} incomplete` : `Mark ${goal.title} completed`}
                       >
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </button>
-                      <button
-                        type="button"
+                        <CheckIcon className="w-3.5 h-3.5" />
+                      </CleanSlateButton>
+                      <CleanSlateButton
+                        variant="status-error"
+                        size="icon"
                         onClick={() => onDeleteGoal(goal.id)}
-                        className="text-[#6e6b7b] hover:text-rose-600 p-1 transition cursor-pointer"
                         title="Delete Goal"
+                        aria-label={`Delete goal ${goal.title}`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                        <TrashIcon className="w-3.5 h-3.5" />
+                      </CleanSlateButton>
                     </div>
                   </div>
 
@@ -887,7 +866,7 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
 
                 <div className="pt-3 border-t border-[#d8d9f8]/70 mt-2 flex items-center justify-between text-[11px] text-[#6e6b7b] tabular-nums">
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-[#8c93fc]" />
+                    <CalendarIcon className="w-3 h-3 text-[#8c93fc]" />
                     Target: {goal.targetDate}
                   </span>
                   <span className={`font-bold ${
@@ -922,14 +901,14 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
                   Set a measurable milestone across 3, 6, 9, or 12 months until bankruptcy discharge.
                 </p>
               </div>
-              <button
-                type="button"
+              <CleanSlateButton
+                variant="white"
+                size="icon"
                 onClick={() => setIsAddGoalModalOpen(false)}
                 aria-label="Close goal modal"
-                className="p-1.5 rounded-xl text-[#4b4856] hover:text-[#101010] hover:bg-slate-100 transition cursor-pointer"
               >
-                &times;
-              </button>
+                <CloseIcon className="w-3.5 h-3.5" />
+              </CleanSlateButton>
             </div>
 
             <form onSubmit={handleCreateGoal} className="space-y-4 text-xs">
@@ -1016,19 +995,22 @@ export const SpendingTrendsView: React.FC<SpendingTrendsViewProps> = ({
               />
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#b4b1fc]/35">
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="white"
+                  size="md"
+                  leftIcon={CancelIcon}
                   onClick={() => setIsAddGoalModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] text-[#101010] font-bold text-xs transition-all cursor-pointer"
                 >
                   Cancel
-                </button>
-                <button
+                </CleanSlateButton>
+                <CleanSlateButton
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all cursor-pointer"
+                  variant="yellow"
+                  size="md"
+                  leftIcon={SaveIcon}
                 >
                   Save Goal
-                </button>
+                </CleanSlateButton>
               </div>
             </form>
           </div>

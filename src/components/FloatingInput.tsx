@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { HelpCircleIcon } from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 
 interface FloatingInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'placeholder'> {
   label: string;
@@ -78,22 +80,23 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
         </label>
       </div>
 
-      {/* Optional Help Question-Mark Badge Matching Design Mockup */}
+      {/* Optional Help Question-Mark Badge Matching CleanSlate System */}
       {hasHelpIcon && (
         <div className="relative shrink-0">
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="periwinkle"
+            size="icon"
             onClick={onHelpClick}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
             onFocus={() => setShowTooltip(true)}
             onBlur={() => setShowTooltip(false)}
-            className="w-6 h-6 rounded-full bg-[#9da2ea] hover:bg-[#8b91e5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs transition active:scale-95 cursor-help select-none"
+            className="!p-1.5 cursor-help"
             aria-label={`Help information for ${label}`}
             title={helpText || 'Help information'}
           >
-            ?
-          </button>
+            <HelpCircleIcon className="w-4 h-4" />
+          </CleanSlateButton>
           {helpText && showTooltip && (
             <div className="absolute right-0 bottom-full mb-2 z-50 w-64 p-2.5 rounded-xl bg-[#1d1a27] text-white text-xs shadow-xl border border-white/10 animate-in fade-in leading-relaxed pointer-events-none">
               <div className="font-semibold text-[#b6b3ff] mb-0.5">{label}</div>

@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Bot,
-  Send,
-  Paperclip,
-  Sparkles,
-  Trash2,
-  FileText,
-  Image as ImageIcon,
-  ShieldCheck,
-  FileCheck,
-  X
-} from 'lucide-react';
+  MagicWandIcon,
+  SendIcon,
+  LinkIcon,
+  SparklesIcon,
+  TrashIcon,
+  ClipboardIcon,
+  CameraIcon,
+  ShieldCheckeredIcon,
+  CloseIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { UserProfile, MonthlyReport, Receipt } from '../types';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 
@@ -316,7 +316,7 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <div className="w-11 h-11 rounded-2xl bg-[#b6b3ff] border border-[#101010] text-[#101010] flex items-center justify-center font-bold shrink-0">
-              <Bot className="w-6 h-6 stroke-[2.2]" />
+              <MagicWandIcon className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -336,24 +336,24 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
 
           {/* Actions */}
           <div className="flex items-center gap-3 shrink-0 self-start lg:self-center flex-wrap">
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="md"
+              leftIcon={TrashIcon}
               onClick={handleClearHistory}
-              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#101010] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               title="Clear current chat log"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Reset Chat</span>
-            </button>
+              Reset Chat
+            </CleanSlateButton>
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="yellow"
+              size="md"
+              leftIcon={ClipboardIcon}
               onClick={onNavigateToReports}
-              className="px-4 py-2.5 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] text-xs font-bold border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <FileCheck className="w-3.5 h-3.5" />
-              <span>Form 65 Wizard</span>
-            </button>
+              Form 65 Wizard
+            </CleanSlateButton>
           </div>
         </div>
       </div>
@@ -363,19 +363,20 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
         {/* Quick Statutory Prompt Chips */}
         <div className="pb-4 border-b border-[#8c93fc]/25 flex items-center gap-2 overflow-x-auto select-none">
           <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#6e6b7b] shrink-0 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#8c93fc]" />
+            <SparklesIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
             Try Asking:
           </span>
           {agentIceBreakers.map((promptText, i) => (
-            <button
+            <CleanSlateButton
               key={i}
-              type="button"
+              variant="periwinkle"
+              size="xs"
               onClick={() => handleQuickPrompt(promptText)}
               disabled={isSending}
-              className="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-[#101010] text-xs font-medium whitespace-nowrap transition border border-[#d8d9f8] hover:border-[#101010] cursor-pointer shrink-0 disabled:opacity-50"
+              className="shrink-0"
             >
               {promptText}
-            </button>
+            </CleanSlateButton>
           ))}
         </div>
 
@@ -398,7 +399,7 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
                   {isUser ? (
                     <span className="text-xs font-extrabold">{profile.firstName ? profile.firstName[0] : 'U'}</span>
                   ) : (
-                    <Bot className="w-5 h-5 stroke-[2.3]" />
+                    <MagicWandIcon className="w-5 h-5" />
                   )}
                 </div>
 
@@ -429,9 +430,9 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
                           className="flex items-center gap-2 p-2 rounded-xl bg-white/10 border border-white/20 text-xs font-semibold text-white"
                         >
                           {att.fileType === 'image' ? (
-                            <ImageIcon className="w-4 h-4 shrink-0 text-[#F9F45D]" />
+                            <CameraIcon className="w-4 h-4 shrink-0 text-[#F9F45D]" />
                           ) : (
-                            <FileText className="w-4 h-4 shrink-0 text-[#b6b3ff]" />
+                            <ClipboardIcon className="w-4 h-4 shrink-0 text-[#b6b3ff]" />
                           )}
                           <span className="truncate max-w-[150px]">{att.fileName}</span>
                         </div>
@@ -453,7 +454,7 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
                   {/* Statutory Trust Disclaimer for Bot Messages */}
                   {!isUser && (
                     <div className="pt-2 border-t border-[#d8d9f8]/70 flex items-center gap-1.5 text-[10.5px] text-[#6e6b7b]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <ShieldCheckeredIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                       <span>Transmitted under Canadian BIA &amp; OSB Trustee Audit Standards</span>
                     </div>
                   )}
@@ -466,10 +467,10 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
           {isSending && (
             <div className="flex gap-3 max-w-xl mr-auto animate-in fade-in">
               <div className="w-9 h-9 rounded-2xl bg-[#F9F45D] border border-[#101010] text-[#101010] flex items-center justify-center font-bold shrink-0">
-                <Bot className="w-5 h-5 animate-spin" />
+                <MagicWandIcon className="w-5 h-5 animate-spin" />
               </div>
               <div className="bg-white text-[#101010] border border-[#2d2a37] shadow-[3px_4px_0px_#a5a7fb] rounded-3xl rounded-tl-xs p-4 flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-[#8c93fc] animate-pulse" />
+                <SparklesIcon className="w-4 h-4 text-[#8c93fc] animate-pulse" />
                 <span className="text-xs font-semibold text-[#4b4856]">
                   LITbot is checking BIA statutory guidance for your answer...
                 </span>
@@ -490,18 +491,20 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white text-[#101010] text-xs border border-[#101010] shrink-0"
               >
                 {att.fileType === 'image' ? (
-                  <ImageIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
+                  <CameraIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                 ) : (
-                  <FileText className="w-3.5 h-3.5 text-[#8c93fc]" />
+                  <ClipboardIcon className="w-3.5 h-3.5 text-[#8c93fc]" />
                 )}
                 <span className="truncate max-w-[140px] font-mono text-[11px]">{att.fileName}</span>
-                <button
-                  type="button"
+                <CleanSlateButton
+                  variant="status-error"
+                  size="icon"
                   onClick={() => removeAttachment(att.id)}
-                  className="hover:text-rose-600 p-0.5 cursor-pointer"
+                  aria-label="Remove attachment"
+                  className="p-1 rounded-lg"
                 >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                  <CloseIcon className="w-3 h-3" />
+                </CleanSlateButton>
               </div>
             ))}
           </div>
@@ -525,14 +528,16 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
               className="hidden"
             />
 
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="icon"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-xl bg-white hover:bg-slate-50 text-[#101010] transition-all border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] shrink-0 cursor-pointer"
               title="Attach document, receipt, paystub, or image for LITbot analysis"
+              aria-label="Attach document"
+              className="p-3 shrink-0"
             >
-              <Paperclip className="w-5 h-5 text-[#101010]" />
-            </button>
+              <LinkIcon className="w-5 h-5" />
+            </CleanSlateButton>
 
             <div className="flex-1 min-w-0">
               <input
@@ -545,14 +550,16 @@ Bankruptcy paperwork and Form 65 terms can feel confusing or overwhelming—**yo
               />
             </div>
 
-            <button
+            <CleanSlateButton
               type="submit"
+              variant="yellow"
+              size="lg"
+              leftIcon={SendIcon}
               disabled={isSending || (!inputText.trim() && attachments.length === 0)}
-              className="px-5 py-3 rounded-xl bg-[#F9F45D] hover:brightness-105 text-[#1d1a27] font-bold text-xs border-[1.5px] border-[#101010] shadow-[3px_4px_0px_#000000] active:translate-x-[1px] active:translate-y-[2px] active:shadow-[1px_2px_0px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 whitespace-nowrap"
+              className="shrink-0"
             >
-              <Send className="w-4 h-4 stroke-[2.5]" />
-              <span className="hidden sm:inline font-bold">Ask LITbot</span>
-            </button>
+              <span className="hidden sm:inline">Ask LITbot</span>
+            </CleanSlateButton>
           </form>
         </div>
       </div>

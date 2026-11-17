@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDownIcon, CheckIcon, HelpCircleIcon } from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 
 export interface SelectOption {
   value: string;
@@ -132,7 +133,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
             isOpen ? 'rotate-180 text-[#8c93fc]' : ''
           }`}
         >
-          <ChevronDown className="w-4 h-4 stroke-[2]" />
+          <ChevronDownIcon className="w-4 h-4" />
         </div>
 
         {/* Custom Popover Dropdown Card */}
@@ -178,7 +179,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
                         {opt.displayLabel || opt.label}
                       </span>
                       {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-[#8c93fc] stroke-[2.5] shrink-0" />
+                        <CheckIcon className="w-3.5 h-3.5 text-[#8c93fc] shrink-0" />
                       )}
                     </div>
                   </React.Fragment>
@@ -191,19 +192,20 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
 
       {hasHelpIcon && (
         <div className="relative shrink-0">
-          <button
-            type="button"
+          <CleanSlateButton
+            variant="periwinkle"
+            size="icon"
             onClick={onHelpClick}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
             onFocus={() => setShowTooltip(true)}
             onBlur={() => setShowTooltip(false)}
-            className="w-6 h-6 rounded-full bg-[#9da2ea] hover:bg-[#8b91e5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs transition active:scale-95 cursor-help select-none"
+            className="!p-1.5 cursor-help"
             aria-label={`Help information for ${label}`}
             title={helpText || 'Help information'}
           >
-            ?
-          </button>
+            <HelpCircleIcon className="w-4 h-4" />
+          </CleanSlateButton>
           {helpText && showTooltip && (
             <div className="absolute right-0 bottom-full mb-2 z-50 w-64 p-2.5 rounded-xl bg-[#1d1a27] text-white text-xs shadow-xl border border-white/10 animate-in fade-in leading-relaxed pointer-events-none">
               <div className="font-semibold text-[#b6b3ff] mb-0.5">{label}</div>

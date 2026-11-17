@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Lightbulb, 
-  RefreshCw, 
-  CheckCircle2, 
-  Shapes
-} from 'lucide-react';
+import {
+  SparklesIcon,
+  LightbulbIcon,
+  RefreshIcon,
+  CheckIcon,
+  ShapesIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { MonthlyReport, UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 
@@ -118,7 +119,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <div className="w-9 h-9 rounded-xl bg-[#28223d] border border-white/10 flex items-center justify-center text-white shrink-0 mt-0.5">
-              <Sparkles className="w-4.5 h-4.5 text-[#b4b1fc]" />
+              <SparklesIcon className="w-4 h-4 text-[#b4b1fc]" />
             </div>
             <div className="space-y-1">
               <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wider uppercase">
@@ -130,14 +131,17 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
             </div>
           </div>
 
-          <button
+          <CleanSlateButton
+            variant="dark"
+            size="icon"
             onClick={fetchInsight}
             disabled={loading}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer active:scale-95 shrink-0"
             title="Refresh financial insights"
+            aria-label="Refresh financial insights"
+            className="shrink-0"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#9da2ea]' : ''}`} />
-          </button>
+            <RefreshIcon className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#AEBBFD]' : ''}`} />
+          </CleanSlateButton>
         </div>
 
         {/* Hairline Divider */}
@@ -146,7 +150,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
         {/* Top Category Section */}
         <div className="space-y-1 pt-0.5">
           <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#fbf050]">
-            <Shapes className="w-4.5 h-4.5 shrink-0 text-[#fbf050]" />
+            <ShapesIcon className="w-4 h-4 shrink-0 text-[#fbf050]" />
             <span>Top Category:</span>
           </div>
           <div className="text-sm sm:text-base text-white font-medium flex items-baseline gap-2 flex-wrap">
@@ -155,7 +159,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
           </div>
         </div>
 
-        {/* Middle Card: Saving Strategy (Matching payment-tracker.png) */}
+        {/* Middle Card: Saving Strategy */}
         {insight && (
           <div className="space-y-3 pt-1">
             <div className="bg-[#312b43] border border-white/5 rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-3.5">
@@ -168,7 +172,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
 
               {/* Saving Strategy Title Line */}
               <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                <Lightbulb className="w-5 h-5 text-[#fbf050] shrink-0" />
+                <LightbulbIcon className="w-5 h-5 text-[#fbf050] shrink-0" />
                 <span className="text-sm sm:text-base font-bold text-[#fbf050]">
                   Saving strategy:
                 </span>
@@ -185,7 +189,7 @@ export const FinancialInsightCard: React.FC<FinancialInsightCardProps> = ({
 
             {/* Bottom Card: Surplus Protection Banner */}
             <div className="bg-[#246b53] rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-white shadow-xs">
-              <CheckCircle2 className="w-5 h-5 text-white shrink-0 mt-0.5" />
+              <CheckIcon className="w-5 h-5 text-white shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm text-white font-normal leading-relaxed">
                 {insight.impact}
               </p>

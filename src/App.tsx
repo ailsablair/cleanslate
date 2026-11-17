@@ -56,7 +56,7 @@ import {
 import { subscribeToAuthChanges, logoutUser } from './lib/authService';
 import { db } from './lib/firebase';
 import { doc, getDoc, setDoc, getDocFromServer } from 'firebase/firestore';
-import { MailCheck, CheckCircle2 } from 'lucide-react';
+import { MailIcon } from './components/ui/CleanSlateIcons';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>(() => {
@@ -647,8 +647,8 @@ export default function App() {
           }}
           className="fixed bottom-6 right-6 max-w-md bg-[#1d1a27] text-white border-2 border-[#b6b3ff] rounded-2xl p-4 shadow-2xl z-50 cursor-pointer animate-in slide-in-from-bottom duration-300 flex items-start gap-3.5 hover:bg-[#282436] transition"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#b6b3ff] text-[#242031] flex items-center justify-center shrink-0">
-            <MailCheck className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-[#AEBBFD] text-[#3B3B3B] border border-[#010101] flex items-center justify-center shrink-0">
+            <MailIcon className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">

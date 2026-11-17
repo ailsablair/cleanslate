@@ -1,15 +1,12 @@
 import React from 'react';
-import { 
-  ShieldCheck, 
-  CheckCircle2, 
-  Calendar, 
-  Sparkles, 
-  ChevronRight, 
-  Clock, 
-  DollarSign, 
-  Info,
-  Award
-} from 'lucide-react';
+import {
+  CheckIcon,
+  SparklesIcon,
+  ChevronRightIcon,
+  HistoryIcon,
+  TrophyIcon
+} from './ui/CleanSlateIcons';
+import { CleanSlateButton } from './ui/CleanSlateButton';
 import { MonthlyReport, UserProfile } from '../types';
 import { formatCurrency } from '../lib/formatters';
 
@@ -70,7 +67,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#8c93fc]/25">
         <div className="flex items-start gap-2.5">
-          <Award className="w-5 h-5 text-[#8c93fc] shrink-0 mt-0.5" />
+          <TrophyIcon className="w-5 h-5 text-[#8c93fc] shrink-0 mt-0.5" />
           <div>
             <h3 className="text-sm sm:text-base font-extrabold text-[#101010] uppercase tracking-wide">
               Bankruptcy Discharge Progress
@@ -86,14 +83,14 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
             {remainingMonths === 0 ? 'Eligible for Discharge' : `${remainingMonths} Payments Remaining`}
           </span>
           {onNavigateToReports && (
-            <button
-              type="button"
+            <CleanSlateButton
+              variant="white"
+              size="xs"
+              rightIcon={ChevronRightIcon}
               onClick={onNavigateToReports}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-[#101010] shadow-[2px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none text-[#101010] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap"
             >
-              <span>View Reports</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+              View Reports
+            </CleanSlateButton>
           )}
         </div>
       </div>
@@ -185,10 +182,10 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
                 </span>
                 {isDone ? (
                   <span className="w-5 h-5 rounded-md bg-[#46e3a5] border border-[#101010] flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3 h-3 text-[#101010] stroke-[2.5]" />
+                    <CheckIcon className="w-3 h-3 text-[#101010]" />
                   </span>
                 ) : (
-                  <Clock className="w-4 h-4 text-[#6e6b7b] shrink-0" />
+                  <HistoryIcon className="w-4 h-4 text-[#6e6b7b] shrink-0" />
                 )}
               </div>
               <div className="font-bold text-[#101010] text-xs truncate">{m.label}</div>
@@ -200,7 +197,7 @@ export const DebtProgress: React.FC<DebtProgressProps> = ({
 
       {/* Plain Language Summary Card */}
       <div className="bg-[#1d1a27] text-white border-[1.5px] border-[#101010] rounded-2xl p-4 sm:p-5 flex items-start gap-3">
-        <Sparkles className="w-4 h-4 text-[#F9F45D] shrink-0 mt-0.5" />
+        <SparklesIcon className="w-4 h-4 text-[#F9F45D] shrink-0 mt-0.5" />
         <div className="text-xs space-y-1">
           <span className="font-bold text-white block">
             What this means in plain language:
