@@ -14,6 +14,7 @@ import { MonthlyReport, UserProfile, Receipt, Transaction } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { getFallbackLitBotResponse } from '../lib/litbotFallback';
 import { parseCsvStatement, parseOfxStatement } from '../lib/statementParser';
+import { parsePdfStatementInBrowser } from '../lib/pdfStatementParser';
 
 interface LitBotReportAssistantProps {
   activeReport: MonthlyReport;
@@ -425,43 +426,71 @@ export const LitBotReportAssistant: React.FC<LitBotReportAssistantProps> = ({
           throw new Error(parsed.warnings[0] || `No transactions were found in this ${ext.toUpperCase()} file.`);
         }
       } else if (ext === 'pdf' || file.type === 'application/pdf' || file.type.startsWith('image/')) {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result || ''));
-          reader.onerror = () => reject(new Error('Could not read the selected file.'));
-          reader.readAsDataURL(file);
-        });
+        const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+        let usedBrowserPdfParser = false;
 
-        const res = await fetch('/api/bank/parse-statement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileBase64: base64,
-            mimeType: file.type || 'application/pdf',
-            userId
-          })
-        });
+        try {
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = () => reject(new Error('Could not read the selected file.'));
+            reader.readAsDataURL(file);
+          });
 
-        if (!res.ok) {
-          const errPayload = await res.json().catch(() => null);
-          if (res.status === 404) {
+          const res = await fetch('/api/bank/parse-statement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileBase64: base64,
+              mimeType: file.type || 'application/pdf',
+              userId
+            })
+          });
+
+          if (res.status === 404 || res.status === 405 || res.status === 503) {
+            if (isPdf) {
+              usedBrowserPdfParser = true;
+            } else {
+              throw new Error(
+                'Image statement OCR requires the live CleanSlate backend server. On static hosting, please upload a PDF bank statement.'
+              );
+            }
+          } else if (!res.ok) {
+            const errPayload = await res.json().catch(() => null);
             throw new Error(
-              'AI PDF statement parsing requires the CleanSlate backend server (/api/bank/parse-statement is not available on static hosting).'
+              errPayload?.error ||
+                `AI PDF statement parsing failed (HTTP ${res.status}). Please verify GEMINI_API_KEY in Settings > Secrets and try again.`
+            );
+          } else {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.transactions) && data.transactions.length > 0) {
+              parsedTransactions = data.transactions;
+            } else if (isPdf && (data.code === 'NO_AI_KEY' || !data.success)) {
+              usedBrowserPdfParser = true;
+            } else {
+              throw new Error(
+                data.error || 'Could not extract transactions from this statement. Please ensure it is a readable bank or credit card PDF.'
+              );
+            }
+          }
+        } catch (apiErr: any) {
+          if (isPdf && !usedBrowserPdfParser && /Failed to fetch|NetworkError|Load failed/i.test(String(apiErr?.message || ''))) {
+            usedBrowserPdfParser = true;
+          } else if (!usedBrowserPdfParser) {
+            throw apiErr;
+          }
+        }
+
+        if (usedBrowserPdfParser && isPdf) {
+          const localPdf = await parsePdfStatementInBrowser(file, userId);
+          if (localPdf.transactions.length === 0) {
+            throw new Error(
+              localPdf.warnings[0] ||
+                'Could not extract transactions from this PDF statement. Please ensure it is a digital bank or credit card statement PDF.'
             );
           }
-          throw new Error(
-            errPayload?.error ||
-              `AI PDF statement parsing failed (HTTP ${res.status}). Please verify GEMINI_API_KEY in Settings > Secrets and try again.`
-          );
+          parsedTransactions = localPdf.transactions;
         }
-
-        const data = await res.json();
-        if (!data.success || !Array.isArray(data.transactions) || data.transactions.length === 0) {
-          throw new Error(
-            data.error || 'Could not extract transactions from this PDF statement. Please ensure it is a readable bank or credit card PDF.'
-          );
-        }
-        parsedTransactions = data.transactions;
       } else {
         throw new Error('Unsupported file format. Please choose a PDF bank statement or image file.');
       }

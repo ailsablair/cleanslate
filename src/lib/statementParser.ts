@@ -20,10 +20,13 @@ export function inferForm65FromDescription(
 ): { category: string; form65Category: string; isCategorized: boolean } {
   const desc = description.toLowerCase();
 
-  // Income / deposits (negative in Plaid, or positive deposit in CSV/OFX)
+  // Income / deposits (positive deposit in CSV/OFX/PDF)
   if (signedAmount > 0) {
-    if (/payroll|salary|direct deposit|pay\b|wages|adp|ceridian/.test(desc)) {
+    if (/payroll|salary|direct deposit|pay\b|wages|adp|ceridian|workday|gusto|intuit/.test(desc)) {
       return { category: 'Income', form65Category: 'Employment Income', isCategorized: true };
+    }
+    if (/cpp\b|oas\b|pension|rrif|annuity|retire/.test(desc)) {
+      return { category: 'Income', form65Category: 'Pension/Annuities', isCategorized: true };
     }
     if (/ei\b|employment insurance|service canada/.test(desc)) {
       return { category: 'Government Benefits', form65Category: 'Employment Insurance Benefits', isCategorized: true };
@@ -31,56 +34,92 @@ export function inferForm65FromDescription(
     if (/ccb|child tax|canada child/.test(desc)) {
       return { category: 'Government Benefits', form65Category: 'Child Tax Benefit', isCategorized: true };
     }
-    if (/social assistance|welfare|disability|odsp|pwd|aish/.test(desc)) {
+    if (/social assistance|welfare|disability|odsp|pwd|aish|ontario works|bc income/.test(desc)) {
       return { category: 'Government Benefits', form65Category: 'Social Assistance', isCategorized: true };
     }
-    if (/transfer|e-transfer|tfr\b|internal/.test(desc)) {
+    if (/self[- ]?employ|freelance|invoice|consulting|stripe|square/.test(desc)) {
+      return { category: 'Income', form65Category: 'Self-Employment Income', isCategorized: true };
+    }
+    if (/transfer|e-transfer|etransfer|tfr\b|internal/.test(desc)) {
       return { category: 'Internal Transfer', form65Category: 'Other Net Income', isCategorized: false };
     }
-    return { category: 'Income', form65Category: 'Other Net Income', isCategorized: false };
+    return { category: 'Income', form65Category: 'Other Net Income', isCategorized: true };
   }
 
   // Expenses / outflows
-  if (/shoppers drug|rexall|pharmasave|pharmacy|london drugs|prescription|rx\b/.test(desc)) {
+  if (/shoppers drug|rexall|pharmasave|pharmacy|london drugs|prescription|rx\b|jean coutu|pharmaprix/.test(desc)) {
     return { category: 'Healthcare', form65Category: 'Prescriptions', isCategorized: true };
   }
   if (/dental|dentist|orthodont/.test(desc)) {
     return { category: 'Healthcare', form65Category: 'Dental', isCategorized: true };
   }
-  if (/clinic|medical|physio|optometr|dr\.\s|hospital/.test(desc)) {
+  if (/clinic|medical|physio|optometr|chiro|dr\.\s|hospital|lifelabs|dynacare/.test(desc)) {
     return { category: 'Healthcare', form65Category: 'Medical Condition Expenses', isCategorized: true };
   }
-  if (/loblaws|no frills|superstore|metro\b|sobeys|safeway|save-on|freshco|walmart|costco|whole foods|grocery|farm boy|iga\b/.test(desc)) {
-    return { category: 'Food & Grocery', form65Category: 'Food/Grocery', isCategorized: true };
-  }
-  if (/mcdonald|tim hortons|starbucks|subway|skip ?the ?dishes|uber ?eats|doordash|restaurant|cafe|pizza|sushi|dining/.test(desc)) {
-    return { category: 'Food & Dining', form65Category: 'Dining/Lunches/Restaurants', isCategorized: true };
-  }
-  if (/hydro|bc hydro|hydro one|hydro-quebec|toronto hydro|epcor|enmax/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Hydro', isCategorized: true };
-  }
-  if (/fortis|enbridge|union gas|natural gas/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Heating/Gas/Oil', isCategorized: true };
-  }
-  if (/telus|rogers|bell\b|fido|koodo|virgin|freedom mobile|shaw|videotron/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Telephone', isCategorized: true };
-  }
-  if (/rent|lease|property|landlord|acn properties|apartments|mortgage/.test(desc)) {
-    return { category: 'Housing', form65Category: 'Rent/Mortgage', isCategorized: true };
-  }
-  if (/shell|esso|petro-canada|petro canada|chevron|pioneer|ultramar|circle k|mechanic|midas|jiffy lube|canadian tire/.test(desc)) {
-    return { category: 'Transportation', form65Category: 'Repair/Maintenance/Gas', isCategorized: true };
-  }
-  if (/ttc\b|translink|presto|stm\b|oc transpo|bc transit|go transit|uber\b|lyft\b/.test(desc)) {
-    return { category: 'Transportation', form65Category: 'Public Transportation', isCategorized: true };
-  }
-  if (/daycare|childcare|child care|ymca|montessori/.test(desc)) {
+  if (/daycare|childcare|child care|ymca|montessori|after[- ]?school/.test(desc)) {
     return { category: 'Child Care', form65Category: 'Child Care', isCategorized: true };
   }
-  if (/icbc|intact|aviva|sonnet|td insurance|desjardins ins|belair|manulife|sun life|sunlife/.test(desc)) {
-    return { category: 'Insurance', form65Category: 'Vehicle', isCategorized: false };
+  if (/loblaws|no frills|superstore|metro\b|sobeys|safeway|save-on|freshco|walmart|costco|whole foods|grocery|farm boy|iga\b|maxi\b|provigo|food basics|longo|t&t|instacart/.test(desc)) {
+    return { category: 'Food & Grocery', form65Category: 'Food/Grocery', isCategorized: true };
   }
-  if (/transfer|e-transfer|tfr\b|payment thank you|visa payment|mastercard payment/.test(desc)) {
+  if (/mcdonald|tim hortons|starbucks|subway|skip ?the ?dishes|uber ?eats|doordash|restaurant|cafe|pizza|sushi|dining|wendy|burger|a&w|kfc|popeyes|chipotle|earls|cactus|moxie|bistro|pub\b|bar\b/.test(desc)) {
+    return { category: 'Food & Dining', form65Category: 'Dining/Lunches/Restaurants', isCategorized: true };
+  }
+  if (/lcbo|beer store|bc liquor|saq\b|wine|liquor|brewery|alcohol/.test(desc)) {
+    return { category: 'Personal', form65Category: 'Alcohol & Beverages', isCategorized: true };
+  }
+  if (/smoke|tobacco|vape|cigarette|cannabis|dispensary/.test(desc)) {
+    return { category: 'Personal', form65Category: 'Smoking & Tobacco', isCategorized: true };
+  }
+  if (/hydro|bc hydro|hydro one|hydro-quebec|toronto hydro|epcor|enmax|alectra|nspower|nb power/.test(desc)) {
+    return { category: 'Utilities', form65Category: 'Hydro', isCategorized: true };
+  }
+  if (/fortis|enbridge|union gas|natural gas|heating|saskenergy|atco/.test(desc)) {
+    return { category: 'Utilities', form65Category: 'Heating/Gas/Oil', isCategorized: true };
+  }
+  if (/city of .*water|water utility|epcor water/.test(desc)) {
+    return { category: 'Utilities', form65Category: 'Water', isCategorized: true };
+  }
+  if (/telus|rogers|bell\b|fido|koodo|virgin|freedom mobile|shaw|videotron|public mobile|chatr|koodo/.test(desc)) {
+    if (/internet|tv|cable|fib[er]/.test(desc)) {
+      return { category: 'Utilities', form65Category: 'Cable', isCategorized: true };
+    }
+    return { category: 'Utilities', form65Category: 'Telephone', isCategorized: true };
+  }
+  if (/condo|strata|property tax|municipal tax/.test(desc)) {
+    return { category: 'Housing', form65Category: 'Property Taxes & Condo Fees', isCategorized: true };
+  }
+  if (/rent|lease|landlord|acn properties|apartments|mortgage/.test(desc)) {
+    return { category: 'Housing', form65Category: 'Rent/Mortgage', isCategorized: true };
+  }
+  if (/ikea|ashley|leon'?s|brick\b|wayfair|furniture/.test(desc)) {
+    return { category: 'Housing', form65Category: 'Furniture', isCategorized: true };
+  }
+  if (/shell|esso|petro[- ]?canada|petrocan|chevron|pioneer|ultramar|mobil\b|circle k|co-op gas|husky|mechanic|midas|jiffy lube|canadian tire|kal tire|mr\.?\s*lube/.test(desc)) {
+    return { category: 'Transportation', form65Category: 'Repair/Maintenance/Gas', isCategorized: true };
+  }
+  if (/ttc\b|translink|presto|stm\b|oc transpo|bc transit|go transit|uber\b|lyft\b|compass|bixi|via rail/.test(desc)) {
+    return { category: 'Transportation', form65Category: 'Public Transportation', isCategorized: true };
+  }
+  if (/icbc|intact|aviva|sonnet|td insurance|desjardins ins|belair|co-operators|wawanesa|mpi\b|sgi\b/.test(desc)) {
+    return { category: 'Insurance', form65Category: 'Vehicle', isCategorized: true };
+  }
+  if (/manulife|sun life|sunlife|canada life|great[- ]?west/.test(desc)) {
+    return { category: 'Insurance', form65Category: 'Life Insurance', isCategorized: true };
+  }
+  if (/winners|marshalls|old navy|gap\b|h&m|zara|uniqlo|mark'?s|sport chek|lululemon|hudson'?s bay|value village|clothing|apparel/.test(desc)) {
+    return { category: 'Clothing', form65Category: 'Clothing & Apparel', isCategorized: true };
+  }
+  if (/laundry|dry clean|coinamatic/.test(desc)) {
+    return { category: 'Living', form65Category: 'Laundry & Dry Cleaning', isCategorized: true };
+  }
+  if (/barber|salon|haircut|sephora|grooming|toiletries/.test(desc)) {
+    return { category: 'Personal', form65Category: 'Grooming & Personal Care', isCategorized: true };
+  }
+  if (/netflix|spotify|disney|cineplex|playstation|xbox|steam|apple\.com|google play|gym|goodlife|planet fitness|ymca/.test(desc)) {
+    return { category: 'Personal', form65Category: 'Hobbies & Recreation', isCategorized: true };
+  }
+  if (/transfer|e-transfer|etransfer|tfr\b|payment thank you|visa payment|mastercard payment|amex payment/.test(desc)) {
     return { category: 'Transfer / Internal', form65Category: 'Other Payments', isCategorized: false };
   }
 

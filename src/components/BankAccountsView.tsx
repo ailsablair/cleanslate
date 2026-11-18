@@ -30,6 +30,7 @@ import {
   parseOfxStatement,
   ParsedStatementResult
 } from '../lib/statementParser';
+import { parsePdfStatementInBrowser } from '../lib/pdfStatementParser';
 import { FloatingInput } from './FloatingInput';
 import { FloatingSelect } from './FloatingSelect';
 
@@ -310,49 +311,97 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
             parsed.warnings[0] || `No transactions found in this ${ext.toUpperCase()} export.`
           );
         }
-      } else if (ext === 'pdf' || file.type.startsWith('image/')) {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result || ''));
-          reader.onerror = () => reject(new Error('Could not read file.'));
-          reader.readAsDataURL(file);
-        });
+      } else if (ext === 'pdf' || file.type === 'application/pdf' || file.type.startsWith('image/')) {
+        const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+        let parsedResult: ParsedStatementResult | null = null;
+        let shouldTryBrowserPdf = false;
 
-        const res = await fetch('/api/bank/parse-statement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileBase64: base64,
-            mimeType: file.type || 'application/pdf',
-            userId
-          })
-        });
-        const data = await res.json();
-        if (!data.success) {
-          setStatementError(
-            data.error ||
-              'Could not extract transactions from this PDF statement. Please ensure it is a readable bank or credit card statement PDF.'
-          );
-        } else {
-          const parsed: ParsedStatementResult = {
-            format: 'pdf',
-            institution: data.institution,
-            accountName: data.accountName,
-            accountType: data.accountType,
-            accountMask: data.accountMask,
-            endingBalance: data.endingBalance,
-            transactions: (data.transactions || []).map((tx: Omit<Transaction, 'id'>) => ({
-              ...tx,
-              accountId: targetAccId
-            })),
-            warnings: []
-          };
-          setParsedPreview(parsed);
-          if (data.institution) setStatementInstitution(data.institution);
-          if (data.accountName) setStatementAccountName(data.accountName);
-          if (data.accountType) setStatementAccountType(data.accountType);
-          if (data.accountMask) setStatementMask(data.accountMask);
-          if (data.endingBalance !== undefined) setStatementBalance(String(data.endingBalance));
+        try {
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = () => reject(new Error('Could not read file.'));
+            reader.readAsDataURL(file);
+          });
+
+          const res = await fetch('/api/bank/parse-statement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileBase64: base64,
+              mimeType: file.type || 'application/pdf',
+              userId
+            })
+          });
+
+          if (res.status === 404 || res.status === 405 || res.status === 503) {
+            if (isPdf) {
+              shouldTryBrowserPdf = true;
+            } else {
+              setStatementError(
+                'Image statement OCR requires the live CleanSlate backend server. Please upload a PDF statement instead.'
+              );
+            }
+          } else if (!res.ok) {
+            const errPayload = await res.json().catch(() => null);
+            setStatementError(
+              errPayload?.error ||
+                `AI PDF statement parsing failed (HTTP ${res.status}). Please try again.`
+            );
+          } else {
+            const data = await res.json();
+            if (!data.success) {
+              if (isPdf) {
+                shouldTryBrowserPdf = true;
+              } else {
+                setStatementError(
+                  data.error ||
+                    'Could not extract transactions from this statement. Please ensure it is a readable bank or credit card statement PDF.'
+                );
+              }
+            } else {
+              parsedResult = {
+                format: 'pdf',
+                institution: data.institution,
+                accountName: data.accountName,
+                accountType: data.accountType,
+                accountMask: data.accountMask,
+                endingBalance: data.endingBalance,
+                transactions: (data.transactions || []).map((tx: Omit<Transaction, 'id'>) => ({
+                  ...tx,
+                  accountId: targetAccId
+                })),
+                warnings: []
+              };
+            }
+          }
+        } catch {
+          if (isPdf) {
+            shouldTryBrowserPdf = true;
+          } else {
+            setStatementError('Could not reach the statement parsing service.');
+          }
+        }
+
+        if (shouldTryBrowserPdf && isPdf) {
+          const localPdf = await parsePdfStatementInBrowser(file, userId, targetAccId);
+          if (localPdf.transactions.length === 0) {
+            setStatementError(
+              localPdf.warnings[0] ||
+                'Could not extract transactions from this PDF statement. Ensure it is a digital bank or credit card PDF.'
+            );
+          } else {
+            parsedResult = localPdf;
+          }
+        }
+
+        if (parsedResult) {
+          setParsedPreview(parsedResult);
+          if (parsedResult.institution) setStatementInstitution(parsedResult.institution);
+          if (parsedResult.accountName) setStatementAccountName(parsedResult.accountName);
+          if (parsedResult.accountType) setStatementAccountType(parsedResult.accountType);
+          if (parsedResult.accountMask) setStatementMask(parsedResult.accountMask);
+          if (parsedResult.endingBalance !== undefined) setStatementBalance(String(parsedResult.endingBalance));
         }
       } else {
         setStatementError(
