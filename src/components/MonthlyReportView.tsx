@@ -35,6 +35,7 @@ interface MonthlyReportViewProps {
   onUpdateReport: (updatedReport: MonthlyReport) => void;
   onSubmitReportToLIT: (report: MonthlyReport) => void;
   onNavigateToProfile: () => void;
+  onImportStatementTransactions?: (reportId: string, transactions: Array<Omit<Transaction, 'id'>>) => void;
 }
 
 export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
@@ -46,7 +47,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   transactions = [],
   onUpdateReport,
   onSubmitReportToLIT,
-  onNavigateToProfile
+  onNavigateToProfile,
+  onImportStatementTransactions
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
@@ -315,6 +317,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
               receipts={receipts}
               onUpdateReport={onUpdateReport}
               onAttachReceiptToCategory={handleAttachReceiptToCategory}
+              onImportStatementTransactions={onImportStatementTransactions}
               isStatementModalOpen={isStatementModalOpen}
               setIsStatementModalOpen={setIsStatementModalOpen}
             />

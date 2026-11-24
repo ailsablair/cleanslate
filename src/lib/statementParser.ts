@@ -11,119 +11,418 @@ export interface ParsedStatementResult {
   warnings: string[];
 }
 
+export interface InferredForm65Result {
+  category: string;
+  form65Category: string;
+  isCategorized: boolean;
+  confidenceScore: number;
+  needsConfirmation: boolean;
+  confirmationReason?: string;
+  requiresProof?: boolean;
+}
+
 /**
- * Infer a Canadian Form 65 category + general category from a bank description.
+ * Infer a Canadian Form 65 category + confidence from a bank description.
+ * Flags uncertain, ambiguous, or non-discretionary deduction candidates for the Confirm Queue
+ * so the debtor never misses earnings-retaining deductions or misreports income.
  */
 export function inferForm65FromDescription(
   description: string,
   signedAmount: number
-): { category: string; form65Category: string; isCategorized: boolean } {
+): InferredForm65Result {
   const desc = description.toLowerCase();
 
   // Income / deposits (positive deposit in CSV/OFX/PDF)
   if (signedAmount > 0) {
     if (/payroll|salary|direct deposit|pay\b|wages|adp|ceridian|workday|gusto|intuit/.test(desc)) {
-      return { category: 'Income', form65Category: 'Employment Income', isCategorized: true };
+      return {
+        category: 'Income',
+        form65Category: 'Employment Income',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
     if (/cpp\b|oas\b|pension|rrif|annuity|retire/.test(desc)) {
-      return { category: 'Income', form65Category: 'Pension/Annuities', isCategorized: true };
+      return {
+        category: 'Income',
+        form65Category: 'Pension/Annuities',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
     if (/ei\b|employment insurance|service canada/.test(desc)) {
-      return { category: 'Government Benefits', form65Category: 'Employment Insurance Benefits', isCategorized: true };
+      return {
+        category: 'Government Benefits',
+        form65Category: 'Employment Insurance Benefits',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
     if (/ccb|child tax|canada child/.test(desc)) {
-      return { category: 'Government Benefits', form65Category: 'Child Tax Benefit', isCategorized: true };
+      return {
+        category: 'Government Benefits',
+        form65Category: 'Child Tax Benefit',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
     if (/social assistance|welfare|disability|odsp|pwd|aish|ontario works|bc income/.test(desc)) {
-      return { category: 'Government Benefits', form65Category: 'Social Assistance', isCategorized: true };
+      return {
+        category: 'Government Benefits',
+        form65Category: 'Social Assistance',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
     if (/self[- ]?employ|freelance|invoice|consulting|stripe|square/.test(desc)) {
-      return { category: 'Income', form65Category: 'Self-Employment Income', isCategorized: true };
+      return {
+        category: 'Income',
+        form65Category: 'Self-Employment Income',
+        isCategorized: false,
+        confidenceScore: 70,
+        needsConfirmation: true,
+        confirmationReason:
+          'Verify net self-employment income after allowable business expenses so your surplus income isn’t overstated.'
+      };
     }
     if (/transfer|e-transfer|etransfer|tfr\b|internal/.test(desc)) {
-      return { category: 'Internal Transfer', form65Category: 'Other Net Income', isCategorized: false };
+      return {
+        category: 'Internal Transfer',
+        form65Category: 'Other Net Income',
+        isCategorized: false,
+        confidenceScore: 35,
+        needsConfirmation: true,
+        confirmationReason:
+          'Confirm whether this incoming transfer is new income or an internal move/reimbursement.'
+      };
     }
-    return { category: 'Income', form65Category: 'Other Net Income', isCategorized: true };
+    return {
+      category: 'Income',
+      form65Category: 'Other Net Income',
+      isCategorized: false,
+      confidenceScore: 50,
+      needsConfirmation: true,
+      confirmationReason:
+        'Unrecognized deposit — verify its source so exempt benefits or refunds don’t inflate surplus income.'
+    };
   }
 
   // Expenses / outflows
-  if (/shoppers drug|rexall|pharmasave|pharmacy|london drugs|prescription|rx\b|jean coutu|pharmaprix/.test(desc)) {
-    return { category: 'Healthcare', form65Category: 'Prescriptions', isCategorized: true };
+  if (/shoppers drug|rexall|pharmasave|pharmacy|london drugs|prescription|rx\b|jean coutu|pharmaprix|drug mart/.test(desc)) {
+    return {
+      category: 'Healthcare',
+      form65Category: 'Medical Condition Expenses',
+      isCategorized: false,
+      confidenceScore: 65,
+      needsConfirmation: true,
+      requiresProof: true,
+      confirmationReason:
+        'Pharmacy purchase: if backed by a prescription for a medical condition, claim under Family Non-Discretionary Expenses to retain more of your earnings.'
+    };
   }
   if (/dental|dentist|orthodont/.test(desc)) {
-    return { category: 'Healthcare', form65Category: 'Dental', isCategorized: true };
+    return {
+      category: 'Healthcare',
+      form65Category: 'Dental',
+      isCategorized: false,
+      confidenceScore: 80,
+      needsConfirmation: true,
+      requiresProof: true,
+      confirmationReason:
+        'Verify whether this dental care is a Non-Discretionary Medical Condition Expense or Non-Recoverable Dental and attach your receipt.'
+    };
   }
   if (/clinic|medical|physio|optometr|chiro|dr\.\s|hospital|lifelabs|dynacare/.test(desc)) {
-    return { category: 'Healthcare', form65Category: 'Medical Condition Expenses', isCategorized: true };
+    return {
+      category: 'Healthcare',
+      form65Category: 'Medical Condition Expenses',
+      isCategorized: false,
+      confidenceScore: 75,
+      needsConfirmation: true,
+      requiresProof: true,
+      confirmationReason:
+        'Medical visits supported by a prescription or physician note qualify as Non-Discretionary deductions under BIA Form 65.'
+    };
   }
   if (/daycare|childcare|child care|ymca|montessori|after[- ]?school/.test(desc)) {
-    return { category: 'Child Care', form65Category: 'Child Care', isCategorized: true };
+    return {
+      category: 'Child Care',
+      form65Category: 'Child Care',
+      isCategorized: false,
+      confidenceScore: 85,
+      needsConfirmation: true,
+      requiresProof: true,
+      confirmationReason:
+        'Confirm Child Care invoice — verified childcare is a full Non-Discretionary deduction that lowers your surplus payment.'
+    };
   }
-  if (/loblaws|no frills|superstore|metro\b|sobeys|safeway|save-on|freshco|walmart|costco|whole foods|grocery|farm boy|iga\b|maxi\b|provigo|food basics|longo|t&t|instacart/.test(desc)) {
-    return { category: 'Food & Grocery', form65Category: 'Food/Grocery', isCategorized: true };
+  if (/walmart|costco|amazon|dollarama|canadian tire/.test(desc)) {
+    const isAutoStore = /canadian tire/.test(desc);
+    return {
+      category: isAutoStore ? 'Transportation' : 'Food & Grocery',
+      form65Category: isAutoStore ? 'Repair/Maintenance/Gas' : 'Food/Grocery',
+      isCategorized: false,
+      confidenceScore: 55,
+      needsConfirmation: true,
+      confirmationReason:
+        'Mixed-merchandise retailer — confirm if this was Food/Grocery, Pharmacy/Medical, Work Gear, or Clothing.'
+    };
+  }
+  if (/loblaws|no frills|superstore|metro\b|sobeys|safeway|save-on|freshco|whole foods|grocery|farm boy|iga\b|maxi\b|provigo|food basics|longo|t&t/.test(desc)) {
+    return {
+      category: 'Food & Grocery',
+      form65Category: 'Food/Grocery',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
+  }
+  if (/instacart/.test(desc)) {
+    return {
+      category: 'Food & Grocery',
+      form65Category: 'Food/Grocery',
+      isCategorized: false,
+      confidenceScore: 70,
+      needsConfirmation: true,
+      confirmationReason:
+        'Confirm whether this Instacart order was Groceries (Food/Grocery) or prepared takeout (Dining/Restaurants).'
+    };
   }
   if (/mcdonald|tim hortons|starbucks|subway|skip ?the ?dishes|uber ?eats|doordash|restaurant|cafe|pizza|sushi|dining|wendy|burger|a&w|kfc|popeyes|chipotle|earls|cactus|moxie|bistro|pub\b|bar\b/.test(desc)) {
-    return { category: 'Food & Dining', form65Category: 'Dining/Lunches/Restaurants', isCategorized: true };
+    return {
+      category: 'Food & Dining',
+      form65Category: 'Dining/Lunches/Restaurants',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/lcbo|beer store|bc liquor|saq\b|wine|liquor|brewery|alcohol/.test(desc)) {
-    return { category: 'Personal', form65Category: 'Alcohol & Beverages', isCategorized: true };
+    return {
+      category: 'Personal',
+      form65Category: 'Alcohol',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/smoke|tobacco|vape|cigarette|cannabis|dispensary/.test(desc)) {
-    return { category: 'Personal', form65Category: 'Smoking & Tobacco', isCategorized: true };
+    return {
+      category: 'Personal',
+      form65Category: 'Smoking',
+      isCategorized: /cannabis|dispensary/.test(desc) ? false : true,
+      confidenceScore: /cannabis|dispensary/.test(desc) ? 65 : 100,
+      needsConfirmation: /cannabis|dispensary/.test(desc),
+      confirmationReason: /cannabis|dispensary/.test(desc)
+        ? 'If physician-authorized for a medical condition, claim under Non-Discretionary Medical Condition Expenses.'
+        : undefined
+    };
   }
   if (/hydro|bc hydro|hydro one|hydro-quebec|toronto hydro|epcor|enmax|alectra|nspower|nb power/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Hydro', isCategorized: true };
+    return {
+      category: 'Utilities',
+      form65Category: 'Hydro',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/fortis|enbridge|union gas|natural gas|heating|saskenergy|atco/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Heating/Gas/Oil', isCategorized: true };
+    return {
+      category: 'Utilities',
+      form65Category: 'Heating/Gas/Oil',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/city of .*water|water utility|epcor water/.test(desc)) {
-    return { category: 'Utilities', form65Category: 'Water', isCategorized: true };
+    return {
+      category: 'Utilities',
+      form65Category: 'Water',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
-  if (/telus|rogers|bell\b|fido|koodo|virgin|freedom mobile|shaw|videotron|public mobile|chatr|koodo/.test(desc)) {
+  if (/telus|rogers|bell\b|fido|koodo|virgin|freedom mobile|shaw|videotron|public mobile|chatr/.test(desc)) {
     if (/internet|tv|cable|fib[er]/.test(desc)) {
-      return { category: 'Utilities', form65Category: 'Cable', isCategorized: true };
+      return {
+        category: 'Utilities',
+        form65Category: 'Cable',
+        isCategorized: true,
+        confidenceScore: 100,
+        needsConfirmation: false
+      };
     }
-    return { category: 'Utilities', form65Category: 'Telephone', isCategorized: true };
+    return {
+      category: 'Utilities',
+      form65Category: 'Telephone',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/condo|strata|property tax|municipal tax/.test(desc)) {
-    return { category: 'Housing', form65Category: 'Property Taxes & Condo Fees', isCategorized: true };
+    return {
+      category: 'Housing',
+      form65Category: 'Property Taxes/Condo Fees',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/rent|lease|landlord|acn properties|apartments|mortgage/.test(desc)) {
-    return { category: 'Housing', form65Category: 'Rent/Mortgage', isCategorized: true };
+    return {
+      category: 'Housing',
+      form65Category: 'Rent/Mortgage',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/ikea|ashley|leon'?s|brick\b|wayfair|furniture/.test(desc)) {
-    return { category: 'Housing', form65Category: 'Furniture', isCategorized: true };
+    return {
+      category: 'Housing',
+      form65Category: 'Furniture',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
-  if (/shell|esso|petro[- ]?canada|petrocan|chevron|pioneer|ultramar|mobil\b|circle k|co-op gas|husky|mechanic|midas|jiffy lube|canadian tire|kal tire|mr\.?\s*lube/.test(desc)) {
-    return { category: 'Transportation', form65Category: 'Repair/Maintenance/Gas', isCategorized: true };
+  if (/mechanic|midas|jiffy lube|kal tire|mr\.?\s*lube|auto repair/.test(desc)) {
+    return {
+      category: 'Transportation',
+      form65Category: 'Repair/Maintenance/Gas',
+      isCategorized: false,
+      confidenceScore: 70,
+      needsConfirmation: true,
+      requiresProof: Math.abs(signedAmount) >= 500,
+      confirmationReason:
+        'Confirm if this vehicle repair is routine transportation or an essential Employment Expense required for work.'
+    };
+  }
+  if (/shell|esso|petro[- ]?canada|petrocan|chevron|pioneer|ultramar|mobil\b|circle k|co-op gas|husky/.test(desc)) {
+    return {
+      category: 'Transportation',
+      form65Category: 'Repair/Maintenance/Gas',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/ttc\b|translink|presto|stm\b|oc transpo|bc transit|go transit|uber\b|lyft\b|compass|bixi|via rail/.test(desc)) {
-    return { category: 'Transportation', form65Category: 'Public Transportation', isCategorized: true };
+    return {
+      category: 'Transportation',
+      form65Category: 'Public Transportation',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/icbc|intact|aviva|sonnet|td insurance|desjardins ins|belair|co-operators|wawanesa|mpi\b|sgi\b/.test(desc)) {
-    return { category: 'Insurance', form65Category: 'Vehicle', isCategorized: true };
+    return {
+      category: 'Insurance',
+      form65Category: 'Vehicle',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/manulife|sun life|sunlife|canada life|great[- ]?west/.test(desc)) {
-    return { category: 'Insurance', form65Category: 'Life Insurance', isCategorized: true };
+    return {
+      category: 'Insurance',
+      form65Category: 'Life Insurance',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
-  if (/winners|marshalls|old navy|gap\b|h&m|zara|uniqlo|mark'?s|sport chek|lululemon|hudson'?s bay|value village|clothing|apparel/.test(desc)) {
-    return { category: 'Clothing', form65Category: 'Clothing & Apparel', isCategorized: true };
+  if (/mark'?s|work wear|safety supply|union dues/.test(desc)) {
+    return {
+      category: 'Employment',
+      form65Category: 'Employment Expenses',
+      isCategorized: false,
+      confidenceScore: 70,
+      needsConfirmation: true,
+      requiresProof: true,
+      confirmationReason:
+        'Items required as a condition of employment qualify as Non-Discretionary Employment Expenses — attach receipt to retain more earnings.'
+    };
+  }
+  if (/winners|marshalls|old navy|gap\b|h&m|zara|uniqlo|sport chek|lululemon|hudson'?s bay|value village|clothing|apparel/.test(desc)) {
+    return {
+      category: 'Clothing',
+      form65Category: 'Clothing',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/laundry|dry clean|coinamatic/.test(desc)) {
-    return { category: 'Living', form65Category: 'Laundry & Dry Cleaning', isCategorized: true };
+    return {
+      category: 'Living',
+      form65Category: 'Laundry & Dry Cleaning',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
   if (/barber|salon|haircut|sephora|grooming|toiletries/.test(desc)) {
-    return { category: 'Personal', form65Category: 'Grooming & Personal Care', isCategorized: true };
+    return {
+      category: 'Personal',
+      form65Category: 'Grooming & Toiletries',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
   }
-  if (/netflix|spotify|disney|cineplex|playstation|xbox|steam|apple\.com|google play|gym|goodlife|planet fitness|ymca/.test(desc)) {
-    return { category: 'Personal', form65Category: 'Hobbies & Recreation', isCategorized: true };
+  if (/netflix|spotify|disney|cineplex|playstation|xbox|steam|apple\.com|google play|gym|goodlife|planet fitness/.test(desc)) {
+    return {
+      category: 'Personal',
+      form65Category: 'Entertainment/Sports',
+      isCategorized: true,
+      confidenceScore: 100,
+      needsConfirmation: false
+    };
+  }
+  if (/dropbox|adobe|microsoft|github|canva/.test(desc)) {
+    return {
+      category: 'Software & Subscriptions',
+      form65Category: 'Telephone',
+      isCategorized: false,
+      confidenceScore: 55,
+      needsConfirmation: true,
+      confirmationReason:
+        'Confirm if this software subscription is required for work (Employment Expenses) or personal utilities.'
+    };
   }
   if (/transfer|e-transfer|etransfer|tfr\b|payment thank you|visa payment|mastercard payment|amex payment/.test(desc)) {
-    return { category: 'Transfer / Internal', form65Category: 'Other Payments', isCategorized: false };
+    return {
+      category: 'Transfer / Internal',
+      form65Category: 'Other Payments',
+      isCategorized: false,
+      confidenceScore: 40,
+      needsConfirmation: true,
+      confirmationReason:
+        'Confirm whether this transfer was child/spousal support (Non-Discretionary), creditor payment, or an internal account transfer.'
+    };
   }
 
-  return { category: 'Uncategorized', form65Category: '', isCategorized: false };
+  return {
+    category: 'Uncategorized',
+    form65Category: '',
+    isCategorized: false,
+    confidenceScore: 0,
+    needsConfirmation: true,
+    confirmationReason:
+      'Unrecognized merchant — please confirm the exact Form 65 category so no allowable deduction is overlooked.'
+  };
 }
 
 function formatReadableDate(raw: string): string {
@@ -317,6 +616,10 @@ export function parseCsvStatement(
       category: inferred.category,
       form65Category: inferred.form65Category || undefined,
       isCategorized: inferred.isCategorized,
+      needsConfirmation: inferred.needsConfirmation,
+      confidenceScore: inferred.confidenceScore,
+      confirmationReason: inferred.confirmationReason,
+      requiresProof: inferred.requiresProof,
       status: 'cleared',
     });
   }
@@ -395,6 +698,10 @@ export function parseOfxStatement(
       category: inferred.category,
       form65Category: inferred.form65Category || undefined,
       isCategorized: inferred.isCategorized,
+      needsConfirmation: inferred.needsConfirmation,
+      confidenceScore: inferred.confidenceScore,
+      confirmationReason: inferred.confirmationReason,
+      requiresProof: inferred.requiresProof,
       status: 'cleared',
     });
   }

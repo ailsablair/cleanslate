@@ -367,6 +367,10 @@ export async function parsePdfStatementInBrowser(
         category: inferred.category,
         form65Category: inferred.form65Category || undefined,
         isCategorized: inferred.isCategorized,
+        needsConfirmation: inferred.needsConfirmation,
+        confidenceScore: inferred.confidenceScore,
+        confirmationReason: inferred.confirmationReason,
+        requiresProof: inferred.requiresProof,
         status: 'cleared',
       });
     }

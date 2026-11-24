@@ -57,6 +57,7 @@ import { subscribeToAuthChanges, logoutUser } from './lib/authService';
 import { db } from './lib/firebase';
 import { doc, getDoc, setDoc, getDocFromServer } from 'firebase/firestore';
 import { MailIcon } from './components/ui/CleanSlateIcons';
+import { applyTransactionsToMonthlyReport } from './lib/form65ReportUpdater';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>(() => {
@@ -72,6 +73,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isNewTxModalOpen, setIsNewTxModalOpen] = useState<boolean>(false);
   const [isUploadReceiptModalOpen, setIsUploadReceiptModalOpen] = useState<boolean>(false);
+  const [isConfirmQueueOpen, setIsConfirmQueueOpen] = useState<boolean>(false);
+  const [confirmQueueStartTxId, setConfirmQueueStartTxId] = useState<string | null>(null);
+  const [pendingReportByTxId, setPendingReportByTxId] = useState<Record<string, string>>({});
   
   // Core application states
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -327,6 +331,15 @@ export default function App() {
     });
   };
 
+  const triggerConfirmQueueForBatch = (batch: Transaction[]) => {
+    const firstUncertain = batch.find(t => !t.isCategorized || t.needsConfirmation);
+    if (firstUncertain) {
+      setConfirmQueueStartTxId(firstUncertain.id);
+      setCurrentTab('categorize');
+      setIsConfirmQueueOpen(true);
+    }
+  };
+
   const handlePlaidConnected = (newAccounts: BankAccount[], syncedTransactions: Transaction[]) => {
     if (newAccounts.length > 0) {
       setBankAccounts(prev => {
@@ -338,6 +351,7 @@ export default function App() {
       });
     }
     mergeSyncedTransactions(syncedTransactions);
+    triggerConfirmQueueForBatch(syncedTransactions);
   };
 
   const handleStatementImported = ({
@@ -368,6 +382,32 @@ export default function App() {
       id: `stmt-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`
     }));
     mergeSyncedTransactions(withIds);
+    triggerConfirmQueueForBatch(withIds);
+  };
+
+  const handleImportReportStatementTransactions = (
+    reportId: string,
+    importedTxs: Array<Omit<Transaction, 'id'>>
+  ) => {
+    const withIds: Transaction[] = importedTxs.map((tx, idx) => ({
+      ...tx,
+      id: `repstmt-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`
+    }));
+    mergeSyncedTransactions(withIds);
+
+    const uncertainItems = withIds.filter(t => !t.isCategorized || t.needsConfirmation);
+    if (uncertainItems.length > 0) {
+      setPendingReportByTxId(prev => {
+        const next = { ...prev };
+        uncertainItems.forEach(item => {
+          next[item.id] = reportId;
+        });
+        return next;
+      });
+      setConfirmQueueStartTxId(uncertainItems[0].id);
+      setCurrentTab('categorize');
+      setIsConfirmQueueOpen(true);
+    }
   };
 
   // On-demand Bank API Sync (uses live Plaid sync when connected; preserves exact uploaded statement balances)
@@ -424,12 +464,13 @@ export default function App() {
   };
 
   // Receipt Handlers
-  const handleAddReceipt = (rec: Omit<Receipt, 'id'>) => {
+  const handleAddReceipt = (rec: Omit<Receipt, 'id'>): Receipt => {
     const created: Receipt = {
       ...rec,
       id: `rec-${Date.now()}`
     };
     setReceipts(prev => [created, ...prev]);
+    return created;
   };
 
   const handleUpdateReceipt = (updated: Receipt) => {
@@ -440,14 +481,44 @@ export default function App() {
     setReceipts(prev => prev.filter(r => r.id !== id));
   };
 
+  // Sync newly confirmed transactions back to their source MonthlyReport if queued from a report upload
+  const syncConfirmedTransactionsToReports = (confirmedTxs: Transaction[]) => {
+    const readyTxs = confirmedTxs.filter(
+      tx => tx.isCategorized && !tx.needsConfirmation && pendingReportByTxId[tx.id]
+    );
+    if (readyTxs.length === 0) return;
+
+    const groupedByReport: Record<string, Transaction[]> = {};
+    readyTxs.forEach(tx => {
+      const repId = pendingReportByTxId[tx.id];
+      if (!groupedByReport[repId]) groupedByReport[repId] = [];
+      groupedByReport[repId].push(tx);
+    });
+
+    setMonthlyReports(prev =>
+      prev.map(rep => {
+        const items = groupedByReport[rep.id];
+        return items ? applyTransactionsToMonthlyReport(rep, items) : rep;
+      })
+    );
+
+    setPendingReportByTxId(prev => {
+      const next = { ...prev };
+      readyTxs.forEach(tx => delete next[tx.id]);
+      return next;
+    });
+  };
+
   // Transaction Category Update & Creation
   const handleUpdateTransaction = (updatedTx: Transaction) => {
     setTransactions(prev => prev.map(t => t.id === updatedTx.id ? updatedTx : t));
+    syncConfirmedTransactionsToReports([updatedTx]);
   };
 
   const handleUpdateTransactions = (updatedTxs: Transaction[]) => {
     const updatedMap = new Map(updatedTxs.map(t => [t.id, t]));
     setTransactions(prev => prev.map(t => updatedMap.get(t.id) || t));
+    syncConfirmedTransactionsToReports(updatedTxs);
   };
 
   const handleAddTransaction = (newTx: Omit<Transaction, 'id'>) => {
@@ -536,6 +607,7 @@ export default function App() {
               onUpdateReport={handleUpdateReport}
               onSubmitReportToLIT={handleSubmitMonthlyReport}
               onNavigateToProfile={() => setCurrentTab('user-profile')}
+              onImportStatementTransactions={handleImportReportStatementTransactions}
             />
           )}
 
@@ -601,6 +673,7 @@ export default function App() {
           {currentTab === 'categorize' && (
             <CategorizeView
               transactions={transactions}
+              receipts={receipts}
               onUpdateTransaction={handleUpdateTransaction}
               onUpdateTransactions={handleUpdateTransactions}
               onAddTransaction={handleAddTransaction}
@@ -608,6 +681,16 @@ export default function App() {
               isNewTxModalOpen={isNewTxModalOpen}
               onCloseNewTxModal={() => setIsNewTxModalOpen(false)}
               onOpenNewTxModal={() => setIsNewTxModalOpen(true)}
+              isConfirmQueueOpen={isConfirmQueueOpen}
+              initialConfirmTxId={confirmQueueStartTxId}
+              onOpenConfirmQueue={(txId) => {
+                setConfirmQueueStartTxId(txId ?? null);
+                setIsConfirmQueueOpen(true);
+              }}
+              onCloseConfirmQueue={() => {
+                setIsConfirmQueueOpen(false);
+                setConfirmQueueStartTxId(null);
+              }}
             />
           )}
 

@@ -186,6 +186,11 @@ export interface Transaction {
   category: string;
   form65Category?: string;
   isCategorized: boolean;
+  needsConfirmation?: boolean;
+  confidenceScore?: number;
+  confirmationReason?: string;
+  notes?: string;
+  documentType?: 'New Receipt' | 'Prescription' | 'Invoice, Bill, or Purchase Order';
   status?: 'cleared' | 'pending';
   requiresProof?: boolean;
   receiptId?: string;

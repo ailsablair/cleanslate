@@ -15,21 +15,28 @@ import { Transaction, Receipt } from '../types';
 import { formatCurrency } from '../lib/formatters';
 import { isProofRequiredForTransaction, getProofRequirementInfo } from '../lib/transactionUtils';
 import { FORM_65_SECTIONED_CATEGORIES, normalizeForm65Category } from '../lib/form65Categories';
+import { inferForm65FromDescription } from '../lib/statementParser';
 import { FloatingSelect, SelectOption } from './FloatingSelect';
 import { FloatingInput } from './FloatingInput';
 import { UploadConfirmationModal } from './UploadConfirmationModal';
+import { ConfirmTransactionQueueModal } from './ConfirmTransactionQueueModal';
 
 export { FORM_65_SECTIONED_CATEGORIES };
 
 interface CategorizeViewProps {
   transactions: Transaction[];
+  receipts?: Receipt[];
   onUpdateTransaction: (updated: Transaction) => void;
   onUpdateTransactions?: (updated: Transaction[]) => void;
   onAddTransaction?: (newTx: Omit<Transaction, 'id'>) => void;
-  onAddReceipt?: (receipt: Omit<Receipt, 'id'>) => void;
+  onAddReceipt?: (receipt: Omit<Receipt, 'id'>) => Receipt | void;
   isNewTxModalOpen?: boolean;
   onCloseNewTxModal?: () => void;
   onOpenNewTxModal?: () => void;
+  isConfirmQueueOpen?: boolean;
+  initialConfirmTxId?: string | null;
+  onOpenConfirmQueue?: (txId?: string | null) => void;
+  onCloseConfirmQueue?: () => void;
 }
 
 // Form 65 category definitions & normalization live in src/lib/form65Categories.ts
@@ -44,18 +51,45 @@ function formatAmountDisplay(amount: number): string {
 
 export const CategorizeView: React.FC<CategorizeViewProps> = ({
   transactions,
+  receipts = [],
   onUpdateTransaction,
   onUpdateTransactions,
   onAddTransaction,
   onAddReceipt,
   isNewTxModalOpen = false,
   onCloseNewTxModal,
-  onOpenNewTxModal
+  onOpenNewTxModal,
+  isConfirmQueueOpen: externalConfirmOpen,
+  initialConfirmTxId: externalConfirmTxId,
+  onOpenConfirmQueue,
+  onCloseConfirmQueue
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'needs-review' | 'categorized'>('needs-review');
   const [aiRunning, setAiRunning] = useState<boolean>(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
   const [proofTargetTx, setProofTargetTx] = useState<Transaction | null>(null);
+  const [internalConfirmOpen, setInternalConfirmOpen] = useState<boolean>(false);
+  const [internalConfirmTxId, setInternalConfirmTxId] = useState<string | null>(null);
+
+  const confirmQueueOpen =
+    externalConfirmOpen !== undefined ? externalConfirmOpen : internalConfirmOpen;
+  const confirmStartTxId =
+    externalConfirmTxId !== undefined ? externalConfirmTxId : internalConfirmTxId;
+
+  const openConfirmQueue = (txId: string | null = null) => {
+    if (onOpenConfirmQueue) {
+      onOpenConfirmQueue(txId);
+    } else {
+      setInternalConfirmTxId(txId);
+      setInternalConfirmOpen(true);
+    }
+  };
+
+  const closeConfirmQueue = () => {
+    setInternalConfirmOpen(false);
+    setInternalConfirmTxId(null);
+    if (onCloseConfirmQueue) onCloseConfirmQueue();
+  };
 
   // State to track pending dropdown selections requiring user confirmation / Save click
   const [pendingCategories, setPendingCategories] = useState<Record<string, string>>({});
@@ -97,12 +131,12 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
     );
   }, []);
 
-  const needsReviewCount = transactions.filter(t => !t.isCategorized).length;
-  const categorizedCount = transactions.filter(t => t.isCategorized).length;
+  const needsReviewCount = transactions.filter(t => !t.isCategorized || t.needsConfirmation).length;
+  const categorizedCount = transactions.filter(t => t.isCategorized && !t.needsConfirmation).length;
 
   const filtered = transactions.filter(t => {
-    if (filterMode === 'needs-review') return !t.isCategorized;
-    if (filterMode === 'categorized') return t.isCategorized;
+    if (filterMode === 'needs-review') return !t.isCategorized || Boolean(t.needsConfirmation);
+    if (filterMode === 'categorized') return t.isCategorized && !t.needsConfirmation;
     return true;
   });
 
@@ -141,7 +175,9 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
         updatedTxs.push({
           ...t,
           form65Category: bulkCategory,
-          isCategorized: true
+          isCategorized: true,
+          needsConfirmation: false,
+          confidenceScore: 100
         });
       }
     });
@@ -186,7 +222,9 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
     onUpdateTransaction({
       ...tx,
       form65Category: chosenCategory,
-      isCategorized: true
+      isCategorized: true,
+      needsConfirmation: false,
+      confidenceScore: 100
     });
 
     setPendingCategories(prev => {
@@ -212,25 +250,39 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
 
   const handleRunAiClassifier = () => {
     setAiRunning(true);
-    setAiMessage('Analyzing vendor names and matching against Canadian OSB Form 65 statutory rules...');
+    setAiMessage('Analyzing vendor names and confidence levels against Canadian OSB Form 65 rules...');
     setTimeout(() => {
       const updates: Transaction[] = [];
+      let autoConfirmedCount = 0;
+      let queuedForConfirmCount = 0;
+
       transactions.forEach(t => {
-        if (!t.isCategorized) {
-          let cat = 'Food/Grocery';
-          const name = t.company.toLowerCase();
-          if (name.includes('properties') || name.includes('rent')) cat = 'Rent/Mortgage';
-          else if (name.includes('mechanics') || name.includes('gas') || name.includes('auto')) cat = 'Repair/Maintenance/Gas';
-          else if (name.includes('drug') || name.includes('pharmacy') || name.includes('medical')) cat = 'Prescriptions';
-          else if (name.includes('hydro') || name.includes('electric')) cat = 'Hydro';
-          else if (name.includes('transit') || name.includes('bus') || name.includes('metro')) cat = 'Public Transportation';
-          else if (name.includes('dining') || name.includes('restaurant') || name.includes('cafe')) cat = 'Dining/Lunches/Restaurants';
-          else if (name.includes('dropbox') || name.includes('rogers') || name.includes('telus') || name.includes('bell')) cat = 'Telephone';
+        if (!t.isCategorized || t.needsConfirmation) {
+          const isDeposit = t.category.toLowerCase().includes('income') || t.category.toLowerCase().includes('benefit');
+          const inferred = inferForm65FromDescription(
+            t.company,
+            isDeposit ? Math.abs(t.amount) : -Math.abs(t.amount)
+          );
+          const suggestedCat =
+            normalizeForm65Category(t.form65Category) ||
+            inferred.form65Category ||
+            '';
+          const isUncertain = !suggestedCat || inferred.needsConfirmation || inferred.confidenceScore < 100;
+
+          if (isUncertain) {
+            queuedForConfirmCount++;
+          } else {
+            autoConfirmedCount++;
+          }
 
           updates.push({
             ...t,
-            form65Category: cat,
-            isCategorized: true
+            form65Category: suggestedCat || undefined,
+            isCategorized: !isUncertain,
+            needsConfirmation: isUncertain,
+            confidenceScore: inferred.confidenceScore,
+            confirmationReason: inferred.confirmationReason || t.confirmationReason,
+            requiresProof: Boolean(t.requiresProof || inferred.requiresProof)
           });
         }
       });
@@ -244,9 +296,16 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
       }
 
       setAiRunning(false);
-      setAiMessage('AI categorization complete! All ambiguous transactions mapped to Form 65 statutory lines.');
-      setTimeout(() => setAiMessage(null), 4000);
-    }, 900);
+      if (queuedForConfirmCount > 0) {
+        setAiMessage(
+          `${autoConfirmedCount > 0 ? `Auto-confirmed ${autoConfirmedCount} high-certainty item(s). ` : ''}${queuedForConfirmCount} uncertain item(s) queued for 1-by-1 confirmation.`
+        );
+        openConfirmQueue(null);
+      } else {
+        setAiMessage('AI categorization complete! Every transaction had 100% certainty.');
+      }
+      setTimeout(() => setAiMessage(null), 5000);
+    }, 650);
   };
 
   const handleCreateTransaction = (e: React.FormEvent) => {
@@ -296,16 +355,29 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
             </p>
           </div>
 
-          <CleanSlateButton
-            variant="dark-yellow"
-            size="md"
-            leftIcon={SparklesIcon}
-            onClick={handleRunAiClassifier}
-            disabled={aiRunning}
-            className="shrink-0 self-start"
-          >
-            {aiRunning ? 'Parsing Statement Items...' : 'Auto-classify with AI'}
-          </CleanSlateButton>
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start">
+            {needsReviewCount > 0 && (
+              <CleanSlateButton
+                variant="yellow"
+                size="md"
+                leftIcon={CheckIcon}
+                onClick={() => openConfirmQueue(null)}
+                title="Work through uncertain transactions one by one"
+              >
+                Confirm Queue ({needsReviewCount})
+              </CleanSlateButton>
+            )}
+
+            <CleanSlateButton
+              variant="dark-yellow"
+              size="md"
+              leftIcon={SparklesIcon}
+              onClick={handleRunAiClassifier}
+              disabled={aiRunning}
+            >
+              {aiRunning ? 'Analyzing Certainty...' : 'Auto-classify with AI'}
+            </CleanSlateButton>
+          </div>
         </div>
 
         {/* Hairline Divider */}
@@ -551,7 +623,7 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                           >
                             {proofInfo.type === 'prescription' ? 'Prescription Needed' : 'Receipt Needed'}
                           </CleanSlateButton>
-                        ) : hasProofAttached || tx.isCategorized ? (
+                        ) : hasProofAttached || (tx.isCategorized && !tx.needsConfirmation) ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#46e3a5] text-[#102a1f] text-[11px] font-semibold">
                             <CheckIcon className="w-3 h-3 shrink-0" />
                             <span>{hasProofAttached ? 'Submitted' : 'Categorized'}</span>
@@ -560,6 +632,18 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#e9e8ec] text-[#4b4856] text-[11px] font-semibold">
                             <span>Needs Review</span>
                           </span>
+                        )}
+
+                        {(!tx.isCategorized || tx.needsConfirmation) && (
+                          <CleanSlateButton
+                            variant="periwinkle"
+                            size="xs"
+                            leftIcon={CheckIcon}
+                            onClick={() => openConfirmQueue(tx.id)}
+                            title="Open 1-by-1 Confirm Transaction modal for this item"
+                          >
+                            Confirm Details
+                          </CleanSlateButton>
                         )}
                       </div>
                     </div>
@@ -712,13 +796,17 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
             linkedTransactionId: proofTargetTx.id
           }}
           onSaveReceipt={(newRec) => {
-            const generatedReceiptId = `rec-${Date.now()}`;
-            if (onAddReceipt) {
-              onAddReceipt({
-                ...newRec,
-                linkedTransactionId: proofTargetTx.id
-              });
-            }
+            const createdReceipt = onAddReceipt
+              ? onAddReceipt({
+                  ...newRec,
+                  linkedTransactionId: proofTargetTx.id
+                })
+              : undefined;
+            const resolvedReceiptId =
+              createdReceipt && 'id' in createdReceipt
+                ? createdReceipt.id
+                : `rec-${Date.now()}`;
+
             onUpdateTransaction({
               ...proofTargetTx,
               form65Category:
@@ -726,7 +814,9 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                   ? newRec.category
                   : proofTargetTx.form65Category,
               isCategorized: true,
-              receiptId: generatedReceiptId,
+              needsConfirmation: false,
+              confidenceScore: 100,
+              receiptId: resolvedReceiptId,
               receiptFileName: newRec.fileName || `${proofTargetTx.company}_Proof.pdf`,
               receiptFileUrl: newRec.fileUrl
             });
@@ -739,6 +829,38 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
           }}
         />
       )}
+
+      {/* One-by-One Confirm Transaction Queue Modal */}
+      <ConfirmTransactionQueueModal
+        isOpen={confirmQueueOpen}
+        onClose={closeConfirmQueue}
+        transactions={transactions}
+        receipts={receipts}
+        initialTransactionId={confirmStartTxId}
+        onConfirmTransaction={(updatedTx, newReceipt) => {
+          let createdId = updatedTx.receiptId;
+          if (newReceipt && onAddReceipt) {
+            const created = onAddReceipt({
+              ...newReceipt,
+              linkedTransactionId: updatedTx.id
+            });
+            if (created && 'id' in created) {
+              createdId = created.id;
+            }
+          }
+          onUpdateTransaction({
+            ...updatedTx,
+            receiptId: createdId
+          });
+        }}
+        onQueueComplete={(confirmedCount) => {
+          setSaveToast({
+            id: `queue-${Date.now()}`,
+            message: `Confirmed ${confirmedCount} transaction${confirmedCount === 1 ? '' : 's'} with full Form 65 accuracy!`
+          });
+          setTimeout(() => setSaveToast(null), 4500);
+        }}
+      />
     </div>
   );
 };

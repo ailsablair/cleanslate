@@ -152,7 +152,19 @@ export const LEGACY_FORM65_CATEGORY_MAP: Record<string, string> = {
   'Life & Health Insurance': 'Life Insurance',
   'Legal & Professional Fees': 'Other Payments',
   'To The Estate Dividend': 'To The Estate',
-  'Spousal / Child Support': 'Child Support Payments'
+  'Spousal / Child Support': 'Child Support Payments',
+  'Alcohol & Beverages': 'Alcohol',
+  'Smoking & Tobacco': 'Smoking',
+  'Property Taxes & Condo Fees': 'Property Taxes/Condo Fees',
+  'Clothing & Apparel': 'Clothing',
+  'Grooming & Personal Care': 'Grooming & Toiletries',
+  'Hobbies & Recreation': 'Entertainment/Sports',
+  'Other Housing': 'Other Housing Expenses',
+  'Other Personal': 'Other Personal Expenses',
+  'House Insurance': 'House',
+  'Furniture & Contents Insurance': 'Furniture & Contents',
+  'Fines/Penalties Imposed by Court': 'Court Mandated Fines/Penalties',
+  'Debts Stay Lifted': 'Debts (Stay Lifted)'
 };
 
 export function normalizeForm65Category(category?: string): string {

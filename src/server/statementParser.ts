@@ -1,6 +1,7 @@
 import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
 import type { BankAccount, Transaction } from '../types';
 import { inferForm65FromDescription } from '../lib/statementParser';
+import { normalizeForm65Category } from '../lib/form65Categories';
 
 export interface ServerStatementParseResult {
   success: boolean;
@@ -127,8 +128,10 @@ export async function parseBankStatementPdfWithAI(
                     category: { type: Type.STRING },
                     form65Category: { type: Type.STRING },
                     requiresProof: { type: Type.BOOLEAN },
+                    confidence: { type: Type.NUMBER },
+                    confidenceReason: { type: Type.STRING },
                   },
-                  required: ['date', 'description', 'amount', 'isIncome', 'category', 'form65Category'],
+                  required: ['date', 'description', 'amount', 'isIncome', 'category', 'form65Category', 'confidence'],
                 },
               },
             },
@@ -172,9 +175,9 @@ Inspect this PDF/image bank or credit card statement carefully and extract:
      * Salary/payroll/wages -> "Employment Income"
      * EI/Service Canada -> "Employment Insurance Benefits"
      * Child Tax / CCB -> "Child Tax Benefit"
-     * Grocery/supermarket/Costco/Walmart grocery -> "Food/Grocery"
+     * Grocery/supermarket (e.g. Save-On-Foods, Loblaws, Sobeys) -> "Food/Grocery"
      * Restaurants/coffee/Uber Eats/DoorDash/Skip -> "Dining/Lunches/Restaurants"
-     * Pharmacy prescriptions (Rexall/Shoppers/London Drugs Rx) -> "Prescriptions" (or "Medical Condition Expenses" if clearly ongoing medical condition care)
+     * Pharmacy/medical (Shoppers Drug Mart, Rexall, London Drugs, clinics) -> prefer suggesting "Medical Condition Expenses" when it could be non-discretionary condition care, or "Prescriptions", and set confidence < 100 so the client confirms!
      * Gas/fuel/auto repair/mechanic -> "Repair/Maintenance/Gas"
      * Transit/Uber ride/Presto/Compass -> "Public Transportation"
      * Hydro/electricity -> "Hydro"; Enbridge/Fortis -> "Heating/Gas/Oil"; Telus/Rogers/Bell/Fido -> "Telephone"; Internet/TV -> "Cable"
@@ -182,7 +185,15 @@ Inspect this PDF/image bank or credit card statement carefully and extract:
      * Credit card bill payment / internal e-transfer between own accounts -> "Other Payments"
      * Beer/wine/liquor/LCBO/SAQ -> "Alcohol & Beverages"
      * Clothing stores -> "Clothing & Apparel"
-   - requiresProof: true if statutory non-discretionary deduction (Child Care, Medical Condition Expenses, Child Support Payments, Spousal Support Payments, Expenses as Condition of Employment).
+   - requiresProof: true if statutory non-discretionary deduction candidate (Child Care, Medical Condition Expenses, Child Support Payments, Spousal Support Payments, Expenses as Condition of Employment, Prescriptions, Dental).
+   - confidence: integer 0-100 representing certainty in this Form 65 category.
+     CRITICAL ACCURACY RULE FOR DEBTOR PROTECTION:
+     * Set confidence = 100 ONLY when 100% certain of both the merchant purpose and statutory Form 65 line (e.g., clearly named utility like BC Hydro, obvious grocery supermarket like Save-On-Foods, clear employer payroll).
+     * Set confidence between 40 and 85 (NOT 100!) whenever there is ANY doubt so the transaction enters the 1-by-1 Confirm Queue:
+       - Pharmacies, clinics, dental, childcare, or potential work-related purchases (could qualify as Non-Discretionary deductions that help the bankrupt client retain more of their earnings!).
+       - Mixed retailers (Walmart, Costco, Amazon, Canadian Tire, Dollarama).
+       - E-transfers, vague codes, generic deposits, repairs, or subscriptions.
+   - confidenceReason: concise 1-sentence explanation for the user when confidence < 100 (especially noting Non-Discretionary deduction opportunities when relevant).
 
 Respond strictly with valid JSON matching the schema.`,
                 },
@@ -203,6 +214,8 @@ Respond strictly with valid JSON matching the schema.`,
           category?: string;
           form65Category?: string;
           requiresProof?: boolean;
+          confidence?: number;
+          confidenceReason?: string;
         }> = Array.isArray(parsed.transactions) ? parsed.transactions : [];
 
         const validSet = new Set<string>(VALID_FORM65_CATEGORIES);
@@ -213,10 +226,17 @@ Respond strictly with valid JSON matching the schema.`,
             const signedAmount = tx.isIncome ? Math.abs(tx.amount!) : -Math.abs(tx.amount!);
             const desc = String(tx.description || 'Bank Transaction').slice(0, 90);
             const fallback = inferForm65FromDescription(desc, signedAmount);
-            const aiCategory =
+            const rawAiCategory =
               tx.form65Category && validSet.has(tx.form65Category)
                 ? tx.form65Category
                 : fallback.form65Category || undefined;
+            const aiCategory = rawAiCategory ? normalizeForm65Category(rawAiCategory) : undefined;
+            const rawConf =
+              typeof tx.confidence === 'number' && Number.isFinite(tx.confidence)
+                ? Math.min(100, Math.max(0, Math.round(tx.confidence)))
+                : fallback.confidenceScore;
+            const isUncertain =
+              !aiCategory || rawConf < 100 || fallback.needsConfirmation;
 
             return {
               userId,
@@ -231,9 +251,12 @@ Respond strictly with valid JSON matching the schema.`,
               amount: Number(Math.abs(tx.amount!).toFixed(2)),
               category: tx.category || fallback.category,
               form65Category: aiCategory,
-              isCategorized: Boolean(aiCategory),
+              isCategorized: !isUncertain,
+              needsConfirmation: isUncertain,
+              confidenceScore: rawConf,
+              confirmationReason: tx.confidenceReason || fallback.confirmationReason,
               status: 'cleared',
-              requiresProof: Boolean(tx.requiresProof),
+              requiresProof: Boolean(tx.requiresProof || fallback.requiresProof),
             };
           });
 

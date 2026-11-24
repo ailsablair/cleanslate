@@ -1026,12 +1026,24 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
 
                 {parsedPreview && parsedPreview.transactions.length > 0 && (
                   <div className="p-4 rounded-2xl bg-[#fbf9f5] border border-[#2d2a37] space-y-3">
-                    <div className="flex items-center justify-between text-xs font-extrabold text-[#101010]">
+                    <div className="flex items-center justify-between text-xs font-extrabold text-[#101010] gap-2">
                       <span>Ready to Import ({parsedPreview.format.toUpperCase()})</span>
                       <span className="text-emerald-700 tabular-nums">
                         {parsedPreview.transactions.length} transactions found
                       </span>
                     </div>
+
+                    {(() => {
+                      const uncertainCount = parsedPreview.transactions.filter(
+                        (t) => !t.isCategorized || t.needsConfirmation
+                      ).length;
+                      if (uncertainCount === 0) return null;
+                      return (
+                        <p className="text-[11px] font-semibold text-[#34314C] bg-[#AEBBFD]/35 border border-[#101010]/15 rounded-xl px-3 py-2">
+                          {uncertainCount} item{uncertainCount === 1 ? '' : 's'} with uncertain categories will open in your 1-by-1 Confirm Queue after import so deductions are accurate.
+                        </p>
+                      );
+                    })()}
 
                     {parsedPreview.warnings.length > 0 && (
                       <p className="text-[11px] text-amber-800">
