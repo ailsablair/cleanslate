@@ -21,6 +21,8 @@ interface StoredPlaidItem {
   cursor?: string;
   createdAt: string;
   lastSyncedAt?: string;
+  cachedAccounts?: BankAccount[];
+  cachedTransactions?: Transaction[];
 }
 
 const ITEMS_STORE_PATH = path.resolve(process.cwd(), '.plaid-items.json');
@@ -137,7 +139,11 @@ export async function createPlaidLinkToken(
     },
     client_name: 'CleanSlate',
     products: [Products.Transactions],
-    country_codes: [CountryCode.Ca],
+    transactions: {
+      days_requested: env === 'sandbox' ? 365 : 90,
+    },
+    country_codes:
+      env === 'sandbox' ? [CountryCode.Ca, CountryCode.Us] : [CountryCode.Ca],
     language: 'en',
     ...(redirectUri ? { redirect_uri: redirectUri } : {}),
   });
@@ -258,7 +264,8 @@ async function pullTransactionsSync(
   const removedIds: string[] = [];
   let guard = 0;
 
-  while (hasMore && guard < 10) {
+  const maxPages = getPlaidEnvKey() === 'sandbox' ? 12 : 5;
+  while (hasMore && guard < maxPages) {
     guard++;
     const syncRes = await client.transactionsSync({
       access_token: item.accessToken,
@@ -283,8 +290,10 @@ async function pullTransactionsSync(
   };
 }
 
-export async function exchangePlaidPublicToken(
-  publicToken: string,
+async function hydrateAndStoreAccessToken(
+  client: PlaidApi,
+  accessToken: string,
+  knownItemId: string | undefined,
   userId: string,
   institutionName?: string
 ): Promise<{
@@ -293,33 +302,36 @@ export async function exchangePlaidPublicToken(
   accounts: BankAccount[];
   transactions: Transaction[];
 }> {
-  const client = getPlaidClient();
-  if (!client) {
-    throw new Error('Plaid credentials are not configured on the server.');
-  }
-
-  const exchangeRes = await client.itemPublicTokenExchange({
-    public_token: publicToken,
-  });
-
-  const accessToken = exchangeRes.data.access_token;
-  const itemId = exchangeRes.data.item_id;
-
   const accountsRes = await client.accountsGet({
     access_token: accessToken,
   });
 
-  let resolvedInstitution = institutionName?.trim() || 'Canadian Bank';
-  if (!institutionName && accountsRes.data.item?.institution_id) {
-    try {
-      const instRes = await client.institutionsGetById({
-        institution_id: accountsRes.data.item.institution_id,
-        country_codes: [CountryCode.Ca],
-      });
-      resolvedInstitution = instRes.data.institution.name || resolvedInstitution;
-    } catch {
-      // Non-fatal fallback
+  const itemId = knownItemId || accountsRes.data.item?.item_id || `sandbox-${Date.now()}`;
+  let resolvedInstitution = institutionName?.trim() || '';
+
+  if (!resolvedInstitution && accountsRes.data.item?.institution_id) {
+    const countryOrder: CountryCode[][] =
+      getPlaidEnvKey() === 'sandbox'
+        ? [[CountryCode.Ca], [CountryCode.Us]]
+        : [[CountryCode.Ca]];
+    for (const codes of countryOrder) {
+      try {
+        const instRes = await client.institutionsGetById({
+          institution_id: accountsRes.data.item.institution_id,
+          country_codes: codes,
+        });
+        if (instRes.data.institution.name) {
+          resolvedInstitution = instRes.data.institution.name;
+          break;
+        }
+      } catch {
+        // Try next country code fallback
+      }
     }
+  }
+  if (!resolvedInstitution) {
+    resolvedInstitution =
+      getPlaidEnvKey() === 'sandbox' ? 'First Platypus Bank (Sandbox)' : 'Canadian Bank';
   }
 
   const storedItem: StoredPlaidItem = {
@@ -340,10 +352,6 @@ export async function exchangePlaidPublicToken(
     console.warn('Initial Plaid transactionsSync note:', err);
   }
 
-  const allItems = loadStoredItems();
-  allItems[itemId] = storedItem;
-  saveStoredItems(allItems);
-
   const mappedAccounts = mapPlaidAccounts(
     accountsRes.data.accounts,
     storedItem.userId,
@@ -351,10 +359,102 @@ export async function exchangePlaidPublicToken(
     resolvedInstitution
   );
 
+  storedItem.cachedAccounts = mappedAccounts;
+  storedItem.cachedTransactions = transactions;
+
+  const allItems = loadStoredItems();
+  allItems[itemId] = storedItem;
+  saveStoredItems(allItems);
+
   return {
     itemId,
     institutionName: resolvedInstitution,
     accounts: mappedAccounts,
+    transactions,
+  };
+}
+
+export async function exchangePlaidPublicToken(
+  publicToken: string,
+  userId: string,
+  institutionName?: string
+): Promise<{
+  itemId: string;
+  institutionName: string;
+  accounts: BankAccount[];
+  transactions: Transaction[];
+}> {
+  const client = getPlaidClient();
+  if (!client) {
+    throw new Error('Plaid credentials are not configured on the server.');
+  }
+
+  const exchangeRes = await client.itemPublicTokenExchange({
+    public_token: publicToken,
+  });
+
+  return hydrateAndStoreAccessToken(
+    client,
+    exchangeRes.data.access_token,
+    exchangeRes.data.item_id,
+    userId,
+    institutionName
+  );
+}
+
+export async function connectSandboxAccessToken(
+  accessToken: string,
+  userId: string,
+  institutionName?: string
+): Promise<{
+  itemId: string;
+  institutionName: string;
+  accounts: BankAccount[];
+  transactions: Transaction[];
+}> {
+  if (getPlaidEnvKey() !== 'sandbox') {
+    throw new Error('Direct Sandbox token linking is disabled outside the Sandbox environment.');
+  }
+
+  const trimmed = accessToken.trim();
+  if (!trimmed.startsWith('access-sandbox-')) {
+    throw new Error('Only Plaid Sandbox access tokens (access-sandbox-...) are accepted.');
+  }
+
+  const client = getPlaidClient();
+  if (!client) {
+    throw new Error('Plaid credentials are not configured on the server.');
+  }
+
+  return hydrateAndStoreAccessToken(client, trimmed, undefined, userId, institutionName);
+}
+
+export function getCachedPlaidDataForUser(userId?: string): {
+  configured: boolean;
+  env: string;
+  itemCount: number;
+  accounts: BankAccount[];
+  transactions: Transaction[];
+} {
+  const clientId = Boolean(process.env.PLAID_CLIENT_ID?.trim());
+  const secret = Boolean(process.env.PLAID_SECRET?.trim());
+  const allItems = loadStoredItems();
+  const targetItems = Object.values(allItems).filter(
+    (item) => !userId || item.userId === userId
+  );
+
+  const accounts: BankAccount[] = [];
+  const transactions: Transaction[] = [];
+  for (const item of targetItems) {
+    if (Array.isArray(item.cachedAccounts)) accounts.push(...item.cachedAccounts);
+    if (Array.isArray(item.cachedTransactions)) transactions.push(...item.cachedTransactions);
+  }
+
+  return {
+    configured: clientId && secret,
+    env: getPlaidEnvKey(),
+    itemCount: targetItems.length,
+    accounts,
     transactions,
   };
 }
@@ -390,28 +490,51 @@ export async function syncPlaidItemsForUser(userId?: string): Promise<{
   const addedTransactions: Transaction[] = [];
   const removedTransactionIds: string[] = [];
 
+  const SYNC_COOLDOWN_MS = 60_000;
+  const nowMs = Date.now();
+
   for (const item of targetItems) {
+    const lastSyncMs = item.lastSyncedAt ? Date.parse(item.lastSyncedAt) : NaN;
+    if (!Number.isNaN(lastSyncMs) && nowMs - lastSyncMs < SYNC_COOLDOWN_MS) {
+      // Skip redundant Plaid API calls within 60 seconds; return cached account balances at 0 cost
+      if (Array.isArray(item.cachedAccounts)) {
+        accounts.push(...item.cachedAccounts);
+      }
+      continue;
+    }
+
     try {
       const accountsRes = await client.accountsGet({
         access_token: item.accessToken,
       });
-      accounts.push(
-        ...mapPlaidAccounts(
-          accountsRes.data.accounts,
-          item.userId,
-          item.itemId,
-          item.institutionName
-        )
+      const mappedItemAccounts = mapPlaidAccounts(
+        accountsRes.data.accounts,
+        item.userId,
+        item.itemId,
+        item.institutionName
       );
+      accounts.push(...mappedItemAccounts);
 
       const txSync = await pullTransactionsSync(client, item);
       addedTransactions.push(...txSync.addedTransactions);
       removedTransactionIds.push(...txSync.removedTransactionIds);
 
+      const removedSet = new Set(txSync.removedTransactionIds);
+      const txById = new Map<string, Transaction>(
+        (item.cachedTransactions || [])
+          .filter((t) => !removedSet.has(t.id))
+          .map((t) => [t.id, t])
+      );
+      for (const tx of txSync.addedTransactions) {
+        txById.set(tx.id, tx);
+      }
+
       allItems[item.itemId] = {
         ...item,
         cursor: txSync.nextCursor,
         lastSyncedAt: syncedAt,
+        cachedAccounts: mappedItemAccounts,
+        cachedTransactions: Array.from(txById.values()),
       };
     } catch (err) {
       console.warn(`Failed syncing Plaid item ${item.itemId}:`, err);

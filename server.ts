@@ -25,6 +25,8 @@ import {
   getPlaidStatus,
   createPlaidLinkToken,
   exchangePlaidPublicToken,
+  connectSandboxAccessToken,
+  getCachedPlaidDataForUser,
   syncPlaidItemsForUser,
   removePlaidItem,
 } from './src/server/plaidService';
@@ -129,6 +131,30 @@ app.post('/api/bank/plaid/exchange-token', async (req, res) => {
     console.error('Server error in /api/bank/plaid/exchange-token:', error);
     return res.status(500).json({
       error: error?.response?.data?.error_message || error.message || 'Failed to exchange Plaid token',
+    });
+  }
+});
+
+// Bank Sync: Return cached Plaid accounts & transactions without extra API calls
+app.get('/api/bank/plaid/cached', (req, res) => {
+  const userId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
+  res.json(getCachedPlaidDataForUser(userId));
+});
+
+// Bank Sync: Connect a Sandbox-only access_token for local testing (~1 year dummy feed)
+app.post('/api/bank/plaid/connect-sandbox-token', async (req, res) => {
+  try {
+    const { accessToken, userId = 'demo-user-chad-001', institutionName } = req.body || {};
+    if (!accessToken || typeof accessToken !== 'string') {
+      return res.status(400).json({ error: 'accessToken is required' });
+    }
+    const result = await connectSandboxAccessToken(accessToken, userId, institutionName);
+    return res.json(result);
+  } catch (error: any) {
+    const status = error?.message?.includes('disabled outside') ? 403 : 500;
+    console.error('Server error in /api/bank/plaid/connect-sandbox-token:', error);
+    return res.status(status).json({
+      error: error?.response?.data?.error_message || error.message || 'Failed to connect Sandbox token',
     });
   }
 });

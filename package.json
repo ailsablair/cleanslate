@@ -9,7 +9,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "plaid:doctor": "plaid doctor",
+    "plaid:sandbox-keys": "plaid keys write --env sandbox --gitignore",
+    "plaid:sandbox-link": "plaid sandbox link --products transactions --institution-id ins_56",
+    "plaid:sync": "plaid transactions sync --all --json"
   },
   "dependencies": {
     "@google/genai": "^3.0.0",

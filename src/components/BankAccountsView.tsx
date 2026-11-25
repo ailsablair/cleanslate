@@ -807,6 +807,17 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                     </div>
                   </div>
 
+                  {plaidStatus && plaidStatus.configured && plaidStatus.env === 'sandbox' && (
+                    <div className="p-3 rounded-xl bg-[#eef0ff] border border-[#b4b1fc] text-[#242031] text-[11px] leading-relaxed">
+                      <span className="font-bold">Sandbox Mode Active ($0 Cost):</span> Use Plaid dummy credentials{' '}
+                      <code className="font-mono font-bold">user_good</code> /{' '}
+                      <code className="font-mono font-bold">pass_good</code> to pull ~1 year of sample transactions
+                      {plaidStatus.connectedItemsCount > 0
+                        ? ` (${plaidStatus.connectedItemsCount} Sandbox link already connected).`
+                        : '.'}
+                    </div>
+                  )}
+
                   {plaidStatus && !plaidStatus.configured && (
                     <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-[11px] leading-relaxed space-y-1">
                       <div className="font-bold flex items-center gap-1.5">
@@ -814,7 +825,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({
                         <span>Plaid Server Credentials Required</span>
                       </div>
                       <p>
-                        To open live Plaid bank login, add <code className="font-mono font-bold">PLAID_CLIENT_ID</code> and <code className="font-mono font-bold">PLAID_SECRET</code> to your environment Secrets (Sandbox and 10-Item Production Trial are free from Plaid). Meanwhile, you can use the fallback export below.
+                        To test bank linking with $0 cost, run <code className="font-mono font-bold">plaid login</code> and <code className="font-mono font-bold">npm run plaid:sandbox-keys</code> locally, or add <code className="font-mono font-bold">PLAID_CLIENT_ID</code> and <code className="font-mono font-bold">PLAID_SECRET</code> (<code className="font-mono">PLAID_ENV=sandbox</code>) in Settings &gt; Secrets. Meanwhile, you can use the free statement export below.
                       </p>
                     </div>
                   )}

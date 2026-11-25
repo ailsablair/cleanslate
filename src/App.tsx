@@ -161,6 +161,28 @@ export default function App() {
       } catch (err) {
         console.warn('Firestore initial boot note:', err);
       }
+
+      try {
+        // Check if server has connected Plaid items (e.g. Sandbox dummy account) not yet hydrated locally
+        const cachedRes = await fetch(
+          `/api/bank/plaid/cached?userId=${encodeURIComponent(profile.uid)}`
+        ).catch(() => null);
+        if (cachedRes && cachedRes.ok) {
+          const cached = await cachedRes.json();
+          if (Array.isArray(cached.accounts) && cached.accounts.length > 0) {
+            setBankAccounts(prev => {
+              const existingIds = new Set(prev.map(a => a.id));
+              const newAccs = (cached.accounts as BankAccount[]).filter(a => !existingIds.has(a.id));
+              return newAccs.length > 0 ? [...prev, ...newAccs] : prev;
+            });
+          }
+          if (Array.isArray(cached.transactions) && cached.transactions.length > 0) {
+            mergeSyncedTransactions(cached.transactions);
+          }
+        }
+      } catch {
+        // Ignore offline/static hosting check
+      }
     }
     loadData();
 
@@ -414,8 +436,18 @@ export default function App() {
   const handleSyncAllBanks = async () => {
     setIsSyncingBanks(true);
     try {
-      const hasPlaidAccounts = bankAccounts.some(a => a.connectionType === 'plaid');
-      if (hasPlaidAccounts) {
+      let shouldSyncPlaid = bankAccounts.some(a => a.connectionType === 'plaid');
+      if (!shouldSyncPlaid) {
+        const statusRes = await fetch(
+          `/api/bank/plaid/status?userId=${encodeURIComponent(profile.uid)}`
+        ).catch(() => null);
+        if (statusRes && statusRes.ok) {
+          const statusData = await statusRes.json();
+          shouldSyncPlaid = Boolean(statusData.configured && statusData.connectedItemsCount > 0);
+        }
+      }
+
+      if (shouldSyncPlaid) {
         const res = await fetch('/api/bank/plaid/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -424,18 +456,22 @@ export default function App() {
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            const plaidAccounts = data.accounts as BankAccount[];
             const plaidMap = new Map<string, BankAccount>(
-              data.accounts.map((a: BankAccount) => [a.id, a])
+              plaidAccounts.map((a) => [a.id, a])
             );
-            setBankAccounts(prev =>
-              prev.map(acc =>
+            setBankAccounts(prev => {
+              const existingIds = new Set(prev.map(a => a.id));
+              const updatedExisting = prev.map(acc =>
                 plaidMap.has(acc.id)
                   ? plaidMap.get(acc.id)!
                   : acc.connectionType === 'statement-export' || acc.connectionType === 'manual'
                   ? acc
-                  : { ...acc, lastSyncedAt: 'Just now', status: 'connected' }
-              )
-            );
+                  : { ...acc, lastSyncedAt: 'Just now', status: 'connected' as const }
+              );
+              const addedNew = plaidAccounts.filter(a => !existingIds.has(a.id));
+              return [...updatedExisting, ...addedNew];
+            });
           }
           mergeSyncedTransactions(data.addedTransactions || [], data.removedTransactionIds || []);
           setIsSyncingBanks(false);
