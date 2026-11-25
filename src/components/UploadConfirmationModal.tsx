@@ -204,7 +204,7 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
         onClick={onClose}
       >
         <div
-          className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-2xl w-full shadow-[6px_8px_0px_#000000] space-y-5 my-auto relative"
+          className="bg-white text-[#101010] border-[1.5px] border-[#101010] rounded-3xl p-6 sm:p-7 max-w-2xl w-full shadow-[6px_8px_0px_#000000] my-auto relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Hidden file picker */}
@@ -238,80 +238,88 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
           </div>
 
           {/* Primary Upload / Camera Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <CleanSlateButton
-              variant="yellow"
-              size="md"
-              fullWidth
-              leftIcon={UploadIcon}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <span>Upload Photo or Document</span>
-            </CleanSlateButton>
+          <div className="mt-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <CleanSlateButton
+                variant="yellow"
+                size="md"
+                fullWidth
+                leftIcon={UploadIcon}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span>Upload Photo or Document</span>
+              </CleanSlateButton>
 
-            <CleanSlateButton
-              variant="dark-yellow"
-              size="md"
-              fullWidth
-              leftIcon={CameraIcon}
-              onClick={() => setIsCameraOpen(true)}
-            >
-              <span>
-                <span className="font-bold">Take Photo</span>{' '}
-                <span className="font-normal opacity-90">(AI Scan)</span>
-              </span>
-            </CleanSlateButton>
-          </div>
-
-          {/* Attached File / AI Parse Status Strip */}
-          {(fileName || isParsingFile) && (
-            <div className="px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                {isParsingFile ? (
-                  <SparklesIcon className="w-4 h-4 text-[#5b56d6] animate-spin shrink-0" />
-                ) : (
-                  <ClipboardIcon className="w-4 h-4 text-emerald-700 shrink-0" />
-                )}
-                <span className="font-semibold truncate">
-                  {isParsingFile ? `Scanning "${fileName}" with CleanSlate AI...` : fileName}
+              <CleanSlateButton
+                variant="dark-yellow"
+                size="md"
+                fullWidth
+                leftIcon={CameraIcon}
+                onClick={() => setIsCameraOpen(true)}
+              >
+                <span>
+                  <span className="font-bold">Take Photo</span>{' '}
+                  <span className="font-normal opacity-90">(AI Scan)</span>
                 </span>
-              </div>
-              {!isParsingFile && (
-                <CleanSlateButton
-                  variant="white"
-                  size="xs"
-                  onClick={() => {
-                    setFileName('');
-                    setFileUrl(undefined);
-                  }}
-                  className="!p-1 shrink-0"
-                  title="Remove attached file"
-                >
-                  <CloseIcon className="w-3.5 h-3.5" />
-                </CleanSlateButton>
-              )}
+              </CleanSlateButton>
             </div>
-          )}
 
-          {/* Segmented Document Type Selector */}
-          <div className="flex flex-wrap items-center gap-2 pt-0.5">
-            {DOC_TYPE_OPTIONS.map((typeOption) => {
-              const isActive = documentType === typeOption;
-              return (
-                <CleanSlateButton
-                  key={typeOption}
-                  variant={isActive ? 'dark' : 'white'}
-                  size="xs"
-                  onClick={() => handleDocumentTypeSelect(typeOption)}
-                >
-                  {typeOption}
-                </CleanSlateButton>
-              );
-            })}
+            {/* Attached File / AI Parse Status Strip */}
+            {(fileName || isParsingFile) && (
+              <div className="mt-3.5 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  {isParsingFile ? (
+                    <SparklesIcon className="w-4 h-4 text-[#5b56d6] animate-spin shrink-0" />
+                  ) : (
+                    <ClipboardIcon className="w-4 h-4 text-emerald-700 shrink-0" />
+                  )}
+                  <span className="font-semibold truncate">
+                    {isParsingFile ? `Scanning "${fileName}" with CleanSlate AI...` : fileName}
+                  </span>
+                </div>
+                {!isParsingFile && (
+                  <CleanSlateButton
+                    variant="white"
+                    size="xs"
+                    onClick={() => {
+                      setFileName('');
+                      setFileUrl(undefined);
+                    }}
+                    className="!p-1 shrink-0"
+                    title="Remove attached file"
+                  >
+                    <CloseIcon className="w-3.5 h-3.5" />
+                  </CleanSlateButton>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Form Fields */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          {/* Document Details & Classification Section (>= 48px below upload button UI) */}
+          <div className="mt-7 pt-7 border-t border-[#b4b1fc]/45">
+            <div className="space-y-2">
+              <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e6b7b]">
+                Document Type
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {DOC_TYPE_OPTIONS.map((typeOption) => {
+                  const isActive = documentType === typeOption;
+                  return (
+                    <CleanSlateButton
+                      key={typeOption}
+                      variant={isActive ? 'dark' : 'white'}
+                      size="xs"
+                      onClick={() => handleDocumentTypeSelect(typeOption)}
+                    >
+                      {typeOption}
+                    </CleanSlateButton>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <FloatingInput
                 label="Vendor Name"
@@ -421,7 +429,8 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
                 Save to Vault
               </CleanSlateButton>
             </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
 

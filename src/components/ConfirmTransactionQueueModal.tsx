@@ -554,31 +554,37 @@ export const ConfirmTransactionQueueModal: React.FC<ConfirmTransactionQueueModal
             </div>
           )}
 
-          {/* Segmented Document Type Toggle */}
-          <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
-            {DOC_TYPE_OPTIONS.map((typeOption) => {
-              const isActive = currentDraft.documentType === typeOption;
-              return (
-                <CleanSlateButton
-                  key={typeOption}
-                  variant={isActive ? 'dark' : 'white'}
-                  size="xs"
-                  onClick={() => {
-                    const patch: Partial<DraftTxState> = { documentType: typeOption };
-                    if (typeOption === 'Prescription' && !currentDraft.category) {
-                      patch.category = 'Medical Condition Expenses';
-                    }
-                    updateCurrentDraft(patch);
-                  }}
-                >
-                  {typeOption}
-                </CleanSlateButton>
-              );
-            })}
-          </div>
+          {/* Document Classification & Transaction Details Section */}
+          <div className="pt-5 border-t border-[#b4b1fc]/45 space-y-4">
+            <div className="space-y-2">
+              <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#6e6b7b]">
+                Document Type
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {DOC_TYPE_OPTIONS.map((typeOption) => {
+                  const isActive = currentDraft.documentType === typeOption;
+                  return (
+                    <CleanSlateButton
+                      key={typeOption}
+                      variant={isActive ? 'dark' : 'white'}
+                      size="xs"
+                      onClick={() => {
+                        const patch: Partial<DraftTxState> = { documentType: typeOption };
+                        if (typeOption === 'Prescription' && !currentDraft.category) {
+                          patch.category = 'Medical Condition Expenses';
+                        }
+                        updateCurrentDraft(patch);
+                      }}
+                    >
+                      {typeOption}
+                    </CleanSlateButton>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Transaction Confirmation Form */}
-          <form onSubmit={handleConfirmCurrent} className="space-y-3.5">
+            {/* Transaction Confirmation Form */}
+            <form onSubmit={handleConfirmCurrent} className="space-y-3.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <FloatingInput
                 label="Merchant / Vendor Name"
@@ -734,7 +740,8 @@ export const ConfirmTransactionQueueModal: React.FC<ConfirmTransactionQueueModal
                 </CleanSlateButton>
               </div>
             </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
 
