@@ -53,8 +53,8 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const hasHelpIcon = Boolean(helpText || showHelp || onHelpClick);
 
-  const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = value !== undefined && value !== null && value !== '';
+  const selectedOption = hasValue ? options.find((opt) => opt.value === value) : undefined;
   const isFloating = isOpen || hasValue;
   const showClearButton = clearable && hasValue && !disabled;
 
@@ -189,7 +189,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
           >
             <div className={hasSectionHeaders ? 'space-y-0.5' : 'space-y-0.5'}>
               {options.map((opt, index) => {
-                const isSelected = opt.value === value;
+                const isSelected = hasValue && opt.value === value;
                 const prevSection = index > 0 ? options[index - 1].sectionHeader : undefined;
                 const showSectionHeader =
                   opt.sectionHeader && opt.sectionHeader !== prevSection;
