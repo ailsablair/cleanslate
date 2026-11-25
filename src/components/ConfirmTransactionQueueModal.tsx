@@ -513,6 +513,8 @@ export const ConfirmTransactionQueueModal: React.FC<ConfirmTransactionQueueModal
           <FloatingSelect
             label={existingDropdownLabel}
             value={currentDraft.selectedExistingReceiptId}
+            clearable
+            clearAriaLabel="Clear linked vault document"
             onChange={(e) => handleSelectExistingReceipt(e.target.value)}
             options={existingReceiptOptions}
             helpText="Select a prescription, receipt, or invoice already stored in your Receipts Vault to link it to this transaction."
@@ -613,6 +615,8 @@ export const ConfirmTransactionQueueModal: React.FC<ConfirmTransactionQueueModal
               <FloatingSelect
                 label="Form 65 Category"
                 value={currentDraft.category}
+                clearable
+                clearAriaLabel="Clear Form 65 category"
                 onChange={(e) => updateCurrentDraft({ category: e.target.value })}
                 options={categoryOptions}
                 helpText="Confirm the statutory Form 65 line. Claiming eligible Non-Discretionary Medical Condition, Child Care, or Employment Expenses helps you retain more of your earnings."

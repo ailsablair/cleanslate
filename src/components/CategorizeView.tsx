@@ -248,6 +248,33 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
     });
   };
 
+  const handleClearCategory = (tx: Transaction) => {
+    setPendingCategories(prev => {
+      if (!(tx.id in prev)) return prev;
+      const copy = { ...prev };
+      delete copy[tx.id];
+      return copy;
+    });
+
+    const hadPersistedSelection = Boolean(
+      tx.form65Category || tx.isCategorized || tx.needsConfirmation === false
+    );
+    if (hadPersistedSelection) {
+      onUpdateTransaction({
+        ...tx,
+        form65Category: undefined,
+        isCategorized: false,
+        needsConfirmation: true,
+        confidenceScore: undefined
+      });
+      setSaveToast({
+        id: `clear-${tx.id}-${Date.now()}`,
+        message: `Cleared category for ${tx.company} and moved it back to Needs Review.`
+      });
+      setTimeout(() => setSaveToast(null), 3500);
+    }
+  };
+
   const handleRunAiClassifier = () => {
     setAiRunning(true);
     setAiMessage('Analyzing vendor names and confidence levels against Canadian OSB Form 65 rules...');
@@ -455,6 +482,8 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                 <FloatingSelect
                   label="Choose category for selected..."
                   value={bulkCategory}
+                  clearable
+                  clearAriaLabel="Clear bulk category selection"
                   onChange={e => setBulkCategory(e.target.value)}
                   options={categoryOptions}
                 />
@@ -655,6 +684,9 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
                       <FloatingSelect
                         label="Select Form 65 Category..."
                         value={activeVal}
+                        clearable
+                        clearAriaLabel={`Clear category for ${tx.company}`}
+                        onClear={() => handleClearCategory(tx)}
                         onChange={e => handleSelectPendingCategory(tx.id, e.target.value)}
                         options={categoryOptions}
                       />
@@ -751,6 +783,8 @@ export const CategorizeView: React.FC<CategorizeViewProps> = ({
               <FloatingSelect
                 label="Form 65 Category (Optional)"
                 value={newTxCategory}
+                clearable
+                clearAriaLabel="Clear selected category"
                 onChange={e => setNewTxCategory(e.target.value)}
                 options={categoryOptions}
               />

@@ -348,6 +348,8 @@ export const UploadConfirmationModal: React.FC<UploadConfirmationModalProps> = (
               <FloatingSelect
                 label="Category"
                 value={category}
+                clearable
+                clearAriaLabel="Clear selected category"
                 onChange={(e) => setCategory(e.target.value)}
                 options={categoryOptions}
                 helpText="OSB Form 65 statutory category for Licensed Insolvency Trustee approval."

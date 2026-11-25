@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, CheckIcon, HelpCircleIcon } from './ui/CleanSlateIcons';
+import { ChevronDownIcon, CheckIcon, HelpCircleIcon, CloseIcon } from './ui/CleanSlateIcons';
 import { CleanSlateButton } from './ui/CleanSlateButton';
 
 export interface SelectOption {
@@ -25,6 +25,9 @@ interface FloatingSelectProps {
   helpText?: string;
   showHelp?: boolean;
   onHelpClick?: () => void;
+  clearable?: boolean;
+  onClear?: () => void;
+  clearAriaLabel?: string;
 }
 
 export const FloatingSelect: React.FC<FloatingSelectProps> = ({
@@ -40,7 +43,10 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   id,
   helpText,
   showHelp = false,
-  onHelpClick
+  onHelpClick,
+  clearable = false,
+  onClear,
+  clearAriaLabel = 'Clear selection'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -50,6 +56,7 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
   const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = value !== undefined && value !== null && value !== '';
   const isFloating = isOpen || hasValue;
+  const showClearButton = clearable && hasValue && !disabled;
 
   const activeTopLabel =
     selectedOption && selectedOption.displayGroup && !isOpen
@@ -82,6 +89,23 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
     setIsOpen(false);
   };
 
+  const handleClearSelection = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (disabled) return;
+    if (onClear) {
+      onClear();
+    } else {
+      onChange({
+        target: {
+          value: '',
+          name
+        }
+      });
+    }
+    setIsOpen(false);
+  };
+
   const hasSectionHeaders = options.some((opt) => Boolean(opt.sectionHeader));
 
   return (
@@ -101,8 +125,10 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
             fontWeight: 400,
             color: '#101010'
           }}
-          className={`w-full text-left bg-white border border-[#2d2d2d] rounded-xl text-xs sm:text-sm font-normal text-[#101010] min-h-[52px] truncate transition-all shadow-[0_2px_0_rgba(0,0,0,0.22)] focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] cursor-pointer flex items-center justify-between pr-9 ${
-            isFloating ? 'pt-5 pb-1.5 px-3.5' : 'py-3.5 px-3.5'
+          className={`w-full text-left bg-white border border-[#2d2d2d] rounded-xl text-xs sm:text-sm font-normal text-[#101010] min-h-[52px] truncate transition-all shadow-[0_2px_0_rgba(0,0,0,0.22)] focus:outline-none focus:ring-2 focus:ring-[#b4b1fc] cursor-pointer flex items-center justify-between ${
+            showClearButton ? 'pr-15' : 'pr-9'
+          } ${
+            isFloating ? 'pt-5 pb-1.5 pl-3.5' : 'py-3.5 pl-3.5'
           } ${disabled ? 'opacity-60 cursor-not-allowed' : ''} ${className}`}
         >
           <span className="truncate text-[#101010]">
@@ -115,9 +141,11 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
           title={activeTopLabel}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={`absolute pointer-events-none transition-all duration-150 select-none truncate ${
+            showClearButton ? 'right-15' : 'right-8'
+          } ${
             isFloating 
-              ? 'top-2 left-3.5 right-8 text-[10px] leading-tight font-bold italic text-[#5e646b]' 
-              : 'top-4 left-3.5 right-8 text-xs sm:text-sm text-[#767676] italic font-light'
+              ? 'top-2 left-3.5 text-[10px] leading-tight font-bold italic text-[#5e646b]' 
+              : 'top-4 left-3.5 text-xs sm:text-sm text-[#767676] italic font-light'
           }`}
           style={{
             fontFamily: "'Google Sans Flex', sans-serif"
@@ -126,10 +154,25 @@ export const FloatingSelect: React.FC<FloatingSelectProps> = ({
           {activeTopLabel}
         </label>
 
+        {/* Clear Selection Close Icon Button */}
+        {showClearButton && (
+          <button
+            type="button"
+            onClick={handleClearSelection}
+            aria-label={clearAriaLabel}
+            title={clearAriaLabel}
+            className="absolute right-8 top-1/2 -translate-y-1/2 p-1 rounded-full text-[#8c93fc] hover:text-[#4e46e5] hover:bg-[#8c93fc]/15 transition-colors cursor-pointer z-10 focus:outline-none focus:ring-2 focus:ring-[#b4b1fc]"
+          >
+            <CloseIcon className="w-3.5 h-3.5" />
+          </button>
+        )}
+
         {/* Chevron Indicator */}
         <div 
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-150 text-slate-600 ${
+          className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-150 ${
+            showClearButton ? 'text-[#8c93fc]' : 'text-slate-600'
+          } ${
             isOpen ? 'rotate-180 text-[#8c93fc]' : ''
           }`}
         >
